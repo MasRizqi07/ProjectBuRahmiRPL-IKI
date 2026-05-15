@@ -1,0 +1,255 @@
+/* stylelint-disable at-rule-no-unknown */
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: #09090b;
+  --foreground: #fafafa;
+  --card: #18181b;
+  --card-foreground: #fafafa;
+  --popover: #18181b;
+  --popover-foreground: #fafafa;
+  --primary: #fbbf24;
+  --primary-foreground: #09090b;
+  --secondary: #27272a;
+  --secondary-foreground: #fafafa;
+  --muted: #3f3f46;
+  --muted-foreground: #a1a1aa;
+  --accent: #fbbf24;
+  --accent-foreground: #09090b;
+  --destructive: #f87171;
+  --destructive-foreground: #fafafa;
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #fbbf24;
+  --chart-1: #3b82f6;
+  --chart-2: #8b5cf6;
+  --chart-3: #ec4899;
+  --chart-4: #f59e0b;
+  --chart-5: #10b981;
+  --radius: 1rem;
+}
+
+@theme inline {
+  --font-sans: 'Inter', 'Inter Fallback';
+  --font-display: 'Space Grotesk', 'Space Grotesk Fallback';
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* Grid pattern background */
+@layer utilities {
+  .grid-pattern {
+    background-image: 
+      linear-gradient(rgba(161, 161, 170, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(161, 161, 170, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .dotted-pattern {
+    background-image:
+      radial-gradient(circle at 2px 2px, rgba(161, 161, 170, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .pulse-dot {
+    position: relative;
+    display: inline-flex;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .display-block {
+    display: block;
+  }
+
+  .display-none {
+    display: none;
+  }
+
+  /* Progress bar with CSS custom property */
+  .progress-bar-fill {
+    width: var(--progress-width, 0%);
+  }
+
+  /* QR code pattern */
+  .qr-pattern {
+    background-image:
+      linear-gradient(45deg, rgba(161, 161, 170, 0.1) 25%, transparent 25%, transparent 75%, rgba(161, 161, 170, 0.1) 75%, rgba(161, 161, 170, 0.1)), 
+      linear-gradient(45deg, rgba(161, 161, 170, 0.1) 25%, transparent 25%, transparent 75%, rgba(161, 161, 170, 0.1) 75%, rgba(161, 161, 170, 0.1));
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+  }
+
+  /* Glow effect for concert cards */
+  .glow-amber {
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.3), inset 0 0 30px rgba(251, 191, 36, 0.1);
+  }
+
+  /* Pulsing badge animation */
+  @keyframes pulse-badge {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-pulse-badge {
+    animation: pulse-badge 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Fade-up animation for card entrance */
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.6s ease-out forwards;
+  }
+
+  /* Scale pulse for queue numbers */
+  @keyframes scale-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-scale-pulse {
+    animation: scale-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  /* Stroke dash animation for checkmark */
+  @keyframes stroke-dash {
+    from {
+      stroke-dashoffset: 100;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-stroke-dash {
+    animation: stroke-dash 1s ease-out 0.3s forwards;
+  }
+
+  /* Animation delays */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+
+  .delay-225 {
+    animation-delay: 225ms;
+  }
+
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+
+  .delay-375 {
+    animation-delay: 375ms;
+  }
+
+  /* View transition name - Progressive enhancement */
+  /* Modern browsers (Chrome 111+, Edge 111+) support smooth page transitions */
+  /* Older browsers will simply ignore this rule - no fallback needed */
+  /* stylelint-disable-next-line property-no-vendor-prefix, at-rule-no-unknown */
+  /* cssvalidation-disable-next-line */
+  .view-transition-name {
+    /* View Transition API - supported in Chrome 111+, and progressively enhanced */
+    view-transition-name: page; /* stylelint-disable-line compat-api/css */
+  }
+
+  /* Page transition animations */
+  /* stylelint-disable-next-line selector-pseudo-element-no-unknown, compat-api/css */
+  ::view-transition-old(page) {
+    animation: fade-out 0.3s ease-out;
+  }
+
+  /* stylelint-disable-next-line selector-pseudo-element-no-unknown, compat-api/css */
+  ::view-transition-new(page) {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    @apply bg-zinc-950;
+  }
+  body {
+    @apply bg-zinc-950 text-foreground;
+  }
+}
