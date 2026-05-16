@@ -207,9 +207,11 @@
   /* Older browsers will simply ignore this rule - no fallback needed */
   /* stylelint-disable-next-line property-no-vendor-prefix, at-rule-no-unknown */
   /* cssvalidation-disable-next-line */
-  .view-transition-name {
-    /* View Transition API - supported in Chrome 111+, and progressively enhanced */
-    view-transition-name: page; /* stylelint-disable-line compat-api/css */
+  @supports (view-transition-name: none) {
+    .view-transition-name {
+      /* View Transition API - supported in Chrome 111+, and progressively enhanced */
+      view-transition-name: page;
+    }
   }
 
   /* Page transition animations */

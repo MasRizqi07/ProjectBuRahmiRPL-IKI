@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { Menu, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   Sheet,
@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/sheet'
 
 export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false)
+
   return (
     <nav className="sticky top-0 z-50 border-b border-zinc-800/50 bg-zinc-950/95 backdrop-blur supports-backdrop-filter:bg-zinc-950/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -33,6 +35,9 @@ export function Navbar() {
 
           {/* Right section - Desktop */}
           <div className="hidden lg:flex items-center gap-4">
+            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-colors" aria-label="Buka keranjang tiket">
+              <ShoppingBag size={20} />
+            </Link>
             <div className="flex items-center gap-2">
               <div className="pulse-dot">
                 <div className="h-2 w-2 rounded-full bg-amber-400"></div>
@@ -50,13 +55,16 @@ export function Navbar() {
 
           {/* Mobile menu */}
           <div className="lg:hidden flex items-center gap-4">
+            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-colors" aria-label="Buka keranjang tiket">
+              <ShoppingBag size={18} />
+            </Link>
             <div className="flex items-center gap-1">
               <div className="pulse-dot">
                 <div className="h-1.5 w-1.5 rounded-full bg-amber-400"></div>
               </div>
               <span className="text-xs font-mono font-semibold text-amber-400">LIVE</span>
             </div>
-            <Sheet>
+            <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <button
                   className="text-zinc-300 hover:text-amber-400 transition-colors"

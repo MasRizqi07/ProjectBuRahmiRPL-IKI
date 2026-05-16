@@ -156,13 +156,14 @@ export function filterConcerts(
   cityQuery?: string
 ): Concert[] {
   const now = new Date()
+  const upcoming = concerts.filter((concert) => parseISO(concert.date) >= now)
 
   switch (filter) {
     case 'all':
       return concerts
 
     case 'this-week':
-      return concerts.filter((concert) => {
+      return upcoming.filter((concert) => {
         const concertDate = parseISO(concert.date)
         return isWithinInterval(concertDate, {
           start: startOfWeek(now, { weekStartsOn: 1 }),
@@ -171,7 +172,7 @@ export function filterConcerts(
       })
 
     case 'this-month':
-      return concerts.filter((concert) => {
+      return upcoming.filter((concert) => {
         const concertDate = parseISO(concert.date)
         return isWithinInterval(concertDate, {
           start: startOfMonth(now),
@@ -180,15 +181,15 @@ export function filterConcerts(
       })
 
     case 'by-city':
-      return concerts.filter((concert) =>
-        cityQuery ? concert.city.toLowerCase().includes(cityQuery.toLowerCase()) : true
+      return upcoming.filter((concert) =>
+        cityQuery ? concert.city.toLowerCase().includes(cityQuery.toLowerCase().trim()) : true
       )
 
     case 'available':
-      return concerts.filter((concert) => concert.status !== 'soldout' && concert.status !== 'cancelled')
+      return upcoming.filter((concert) => concert.status !== 'soldout' && concert.status !== 'cancelled')
 
     case 'featured':
-      return concerts.filter((concert) => concert.isFeatured === true)
+      return upcoming.filter((concert) => concert.isFeatured === true)
 
     default:
       return concerts

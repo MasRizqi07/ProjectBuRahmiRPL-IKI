@@ -9,22 +9,22 @@ interface ConcertGridProps {
 
 export function ConcertGrid({ concerts, isLoading = false }: ConcertGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" role="grid" aria-label="Daftar konser">
+    <ul
+      role="list"
+      aria-label={`${concerts.length} konser tersedia`}
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 list-none p-0 m-0"
+    >
       {isLoading
         ? Array.from({ length: 6 }).map((_, i) => (
-            <div key={`skeleton-${i}`} role="row">
-              <div role="gridcell">
-                <ConcertCardSkeleton />
-              </div>
-            </div>
+            <li key={`skeleton-${i}`} className="list-none">
+              <ConcertCardSkeleton />
+            </li>
           ))
-        : concerts.map((concert, index) => (
-            <div key={concert.id} role="row">
-              <div role="gridcell">
-                <ConcertCard concert={concert} index={index} />
-              </div>
-            </div>
+        : concerts.map((concert) => (
+            <li key={concert.id} className="list-none">
+              <ConcertCard concert={concert} />
+            </li>
           ))}
-    </div>
+    </ul>
   )
 }

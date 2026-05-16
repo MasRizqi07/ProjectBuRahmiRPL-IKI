@@ -186,7 +186,7 @@ export default function RegisterPage() {
                 onBlur={() => handleBlur('name')}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
                 aria-label="Nama lengkap"
-                aria-invalid={errors.name ? 'true' : undefined}
+                aria-invalid={Boolean(errors.name)}
                 aria-describedby={errors.name ? 'name-error' : undefined}
               />
               {errors.name && touched.name && (
@@ -211,7 +211,7 @@ export default function RegisterPage() {
                 onBlur={() => handleBlur('email')}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
                 aria-label="Alamat email"
-                aria-invalid={errors.email ? 'true' : undefined}
+                aria-invalid={Boolean(errors.email)}
                 aria-describedby={errors.email ? 'email-error' : undefined}
               />
               {errors.email && touched.email && (
@@ -237,7 +237,7 @@ export default function RegisterPage() {
                 maxLength={16}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
                 aria-label="Nomor Induk Kependudukan"
-                aria-invalid={errors.nik ? 'true' : undefined}
+                aria-invalid={Boolean(errors.nik)}
                 aria-describedby={errors.nik ? 'nik-error' : undefined}
               />
               {errors.nik && touched.nik && (
@@ -262,7 +262,7 @@ export default function RegisterPage() {
                 onBlur={() => handleBlur('phone')}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
                 aria-label="Nomor telepon"
-                aria-invalid={errors.phone ? 'true' : undefined}
+                aria-invalid={Boolean(errors.phone)}
                 aria-describedby={errors.phone ? 'phone-error' : undefined}
               />
               {errors.phone && touched.phone && (
@@ -288,7 +288,7 @@ export default function RegisterPage() {
                   onBlur={() => handleBlur('password')}
                   className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground pr-10"
                   aria-label="Password"
-                  aria-invalid={errors.password ? 'true' : undefined}
+                  aria-invalid={Boolean(errors.password)}
                   aria-describedby={errors.password ? 'password-error' : 'password-hint'}
                 />
                 <button
@@ -347,7 +347,7 @@ export default function RegisterPage() {
                   onBlur={() => handleBlur('confirmPassword')}
                   className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground pr-10"
                   aria-label="Konfirmasi password"
-                  aria-invalid={errors.confirmPassword ? 'true' : undefined}
+                  aria-invalid={Boolean(errors.confirmPassword)}
                   aria-describedby={errors.confirmPassword ? 'confirmPassword-error' : undefined}
                 />
                 <button
@@ -399,7 +399,6 @@ export default function RegisterPage() {
                   }}
                   className="mt-1 accent-amber-400"
                   aria-label="Saya menyetujui syarat dan ketentuan"
-                  aria-invalid={errors.terms ? 'true' : undefined}
                   aria-describedby={errors.terms ? 'terms-error' : undefined}
                 />
                 <span className="text-xs text-zinc-400">

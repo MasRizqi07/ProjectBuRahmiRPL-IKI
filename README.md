@@ -1,129 +1,212 @@
 # WAR TICKET
 
-**WAR TICKET** adalah aplikasi frontend marketplace tiket konser yang dibangun dengan **Next.js 16**, **React 19**, **TypeScript**, dan **Tailwind CSS**.
+**WAR TICKET** adalah frontend demo marketplace tiket konser yang dibangun dengan **Next.js 16**, **React 19**, **TypeScript**, dan **Tailwind CSS 4**.
 
-## Deskripsi
+## Tujuan README
 
-Aplikasi ini menampilkan daftar konser Indonesia dan internasional dengan fitur pencarian, filter, dan tampilan kartu konser. Data konser disimpan secara lokal pada `lib/concerts.ts` sehingga digunakan untuk demo dan audit logika tampilan.
+README ini dibuat untuk:
 
-## Fitur Utama
+- Menjelaskan arsitektur aplikasi saat ini
+- Menyampaikan area yang sudah tersedia dan area yang masih perlu pengembangan
+- Menunjukkan status fitur, data, dan dependensi utama
+- Memberi panduan bagi reviewer untuk melakukan audit dan perbaikan berikutnya
 
-- Halaman konser dengan pencarian dan filter sederhana
-- Daftar konser statis dengan informasi tiket, harga, dan ketersediaan
-- Struktur halaman admin dan halaman pengguna pendukung
-- Komponen UI berbasis Tailwind CSS dan Radix/UI
-- Integrasi font Google melalui Next.js
+## Ringkasan Proyek
 
-## Teknologi
+Aplikasi ini memiliki struktur halaman event dan user, dengan fokus pada:
 
-- Next.js 16
-- React 19
-- TypeScript
-- Tailwind CSS 4
-- Radix UI (`@radix-ui/react-*`)
-- `react-hook-form`
-- `framer-motion`
-- `recharts`
-- `sonner` (toasts)
-- `next-themes`
-- `date-fns`
+- daftar konser dan detail event
+- filter + pencarian frontend
+- tampilan tiket dan status ketersediaan
+- halaman admin dasar
+- routing Next.js App Router
+- penyimpanan data lokal untuk demo
 
-## Struktur Proyek
+Saat ini, data konser di-load secara statis dari `lib/concerts.ts`, dan sebagian besar logika bersifat presentasional. Ini cocok untuk prototipe UI, tetapi belum menjadi aplikasi produksi penuh.
 
-```
+## Stack Teknologi
+
+- `next` ^16.2.4
+- `react` ^19
+- `typescript` 5.7.3
+- `tailwindcss` 4.2.0
+- `@radix-ui/react-*` untuk komponen aksesibilitas
+- `react-hook-form` untuk form handling
+- `framer-motion` untuk animasi UI
+- `recharts` untuk visualisasi data
+- `sonner` untuk toast notification
+- `next-themes` untuk theme switching
+- `date-fns` untuk manipulasi tanggal
+
+## Struktur Utama
+
+```bash
 app/
-  layout.tsx              # Root layout global aplikasi
-  page.tsx                # Halaman utama (home)
-  admin/                  # Halaman admin
-  concerts/               # Halaman listing konser
-  login/                  # Halaman login
-  my-tickets/             # Halaman tiket pengguna
-  order-confirmation/     # Halaman konfirmasi pesanan
-  payment/                # Halaman pembayaran
-  register/               # Halaman registrasi
-  waiting-room/           # Halaman ruang tunggu
+  layout.tsx
+  page.tsx
+  admin/
+  concerts/
+    page.tsx
+    [id]/
+      page.tsx
+  login/
+  my-tickets/
+  order-confirmation/
+  payment/
+  register/
+  waiting-room/
 components/
-  navbar.tsx              # Navigasi utama
-  concert-card.tsx        # Komponen kartu konser
-  concert-grid.tsx        # Tampilan grid daftar konser
-  search-and-filter.tsx   # Pencarian dan filter
-  ticket-tier-card.tsx    # Kartu tier tiket
-  admin-sidebar.tsx       # Sidebar admin
-  theme-provider.tsx      # Provider tema dan mode gelap
-  ui/                     # Komponen UI berbasis Radix dan utilitas
+  admin-sidebar.tsx
+  concert-card.tsx
+  concert-card-skeleton.tsx
+  concert-grid.tsx
+  navbar.tsx
+  search-and-filter.tsx
+  ticket-tier-card.tsx
+  theme-provider.tsx
+  ui/               # wrapper Radix / reusable UI components
 lib/
-  concerts.ts             # Model data konser, utility format, helper
-public/                   # Asset statis
-styles/                   # Styling global tambahan
-
+  concerts.ts       # data konser statis + helper filter
+hooks/
+  use-mobile.ts
+  use-toast.ts
+public/
+styles/
+  globals.css
 ```
 
-## Halaman Utama dan Route
+## Halaman yang Ada
 
-- `/` — Beranda
-- `/concerts` — Daftar konser dengan pencarian dan filter
-- `/admin` — Halaman admin
-- `/admin/concerts` — Panel konser admin
-- `/admin/monitoring` — Monitoring admin
-- `/admin/sales` — Laporan penjualan
-- `/admin/settings` — Pengaturan admin
-- `/login` — Halaman login
-- `/register` — Halaman registrasi
-- `/my-tickets` — Halaman tiket pengguna
-- `/payment` — Proses pembayaran
-- `/order-confirmation` — Konfirmasi pesanan
-- `/waiting-room` — Ruang tunggu event
+- `/` — homepage
+- `/concerts` — daftar konser
+- `/concerts/[id]` — detail konser dinamis
+- `/admin` — dashboard admin
+- `/admin/concerts` — daftar konser admin
+- `/admin/monitoring` — monitoring
+- `/admin/sales` — laporan penjualan
+- `/admin/settings` — pengaturan admin
+- `/login` — halaman login
+- `/register` — halaman registrasi
+- `/my-tickets` — tiket pengguna
+- `/payment` — proses pembayaran
+- `/order-confirmation` — konfirmasi pesanan
+- `/waiting-room` — ruang tunggu event
 
-## Data dan Logika Utama
+## Fitur Tersedia
 
-File `lib/concerts.ts` memuat:
+- daftar konser berbasis data statis
+- pencarian teks pada halaman `/concerts`
+- tombol filter frontend dengan kategori dasar
+- tampilan kartu konser dan tier harga
+- halaman detail konser dinamis
+- halaman loading, error, dan not-found sederhana
+- proteksi route admin/membatasi akses (middleware skeleton)
+- wrapper UI berbasis Radix untuk komponen umum
 
-- definisi tipe `Concert` dan `TicketTier`
-- daftar `concerts` statis
-- utilitas `formatCurrency`, `getAvailabilityLabel`, `getAvailabilityColor`
-- helper `getConcertById`
+## Area yang Perlu Ditingkatkan
 
-Di `app/concerts/page.tsx`, halaman menggunakan:
+### 1. Data & Backend
 
-- state `searchQuery` dan `activeFilter`
-- `useMemo` untuk menyaring daftar konser berdasarkan input pencarian
-- komponen `Navbar`, `SearchAndFilter`, dan `ConcertGrid`
+- `lib/concerts.ts` masih statis; butuh API yang nyata atau backend server
+- belum ada integrasi data event, tiket, atau transaksi yang tersimpan
+- halaman admin tidak terhubung ke backend nyata
 
-## Setup dan Menjalankan
+### 2. Form & Validasi
 
-Jalankan perintah berikut di akar proyek:
+- halaman register belum sepenuhnya valid secara aksesibilitas
+- validasi saat ini hanya di frontend
+- belum ada implementasi autentikasi penuh / otorisasi user
+
+### 3. Filter dan Pencarian
+
+- filter `this-week`, `this-month`, `by-city` harus divalidasi kembali
+- beberapa filter saat ini mungkin hanya tampilan, bukan logika bisnis lengkap
+
+### 4. Aksesibilitas & ARIA
+
+- perbaikan ARIA sudah berjalan pada beberapa komponen, tetapi audit perlu dilanjutkan
+- pastikan elemen role grid dan tombol ARIA valid di seluruh UI
+- tambahkan label form yang konsisten dan error handling berbasis `aria-describedby`
+
+### 5. State Management
+
+- aplikasi masih bergantung pada state lokal komponen
+- jika data event menjadi dinamis, perlu arsitektur global state / cache (misalnya React Query, Zustand)
+
+### 6. Testing
+
+- belum terlihat paket testing (`jest`, `vitest`, `cypress`)
+- perlu tes unit dan integrasi untuk komponen utama + halaman
+
+### 7. Produksi & Infrastruktur
+
+- belum ada konfigurasi environment variable jelas untuk NextAuth atau API
+- belum ada strategi deployment atau preview environment
+- belum ada monitoring error / logging tersentralisasi
+
+## Proses Setup
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Atau jika menggunakan npm / yarn, sesuaikan perintahnya:
+Jika `pnpm` tidak tersedia:
 
 ```bash
-npm install
-npm run dev
+corepack pnpm install
+corepack pnpm dev
 ```
 
-## Build
+## Perintah Penting
 
-```bash
-pnpm build
-```
+- `pnpm dev` — jalankan development server
+- `pnpm build` — buat production build
+- `pnpm start` — jalankan server Next.js hasil build
+- `pnpm lint` — jalankan ESLint
 
-## Catatan Audit
+## Dependensi Utama
 
-- Data konser tidak berasal dari API eksternal; `lib/concerts.ts` adalah sumber data utama
-- Logika filter saat ini placeholder: filter `this-week`, `this-month`, dan `by-city` belum menerapkan pemfilteran nyata
-- Halaman admin dan user kemungkinan masih berupa tampilan statis / demo karena tidak ada API backend yang terlihat dalam struktur saat ini
+- `next`
+- `react`
+- `react-dom`
+- `tailwindcss`
+- `@radix-ui/react-*`
+- `next-auth`
+- `react-hook-form`
+- `framer-motion`
+- `recharts`
+- `sonner`
+- `date-fns`
+- `zod`
 
-## Rekomendasi Analisis
+## Pengamatan Audit
 
-1. Telaah `app/concerts/page.tsx` untuk alur data daftar konser.
-2. Periksa `components/concert-card.tsx` dan `components/concert-grid.tsx` untuk detail tampilan tiket dan status.
-3. Lihat `components/search-and-filter.tsx` untuk implementasi UI filter.
-4. Pantau integrasi tema dan font di `app/layout.tsx` dan `components/theme-provider.tsx`.
+1. `lib/concerts.ts` adalah sumber data utama saat ini. Untuk produksi, data ini harus dipindahkan ke API atau database.
+2. `components/concert-grid.tsx` menggunakan struktur grid custom; sebaiknya audit role/ARIA untuk kompatibilitas aksesibilitas.
+3. `app/concerts/page.tsx` dan `components/search-and-filter.tsx` adalah titik utama untuk logika pencarian/filter.
+4. `components/ui` berisi wrapper Radix; waspadai prop type mismatch saat memperketat konfigurasi TypeScript.
+5. `app/register/page.tsx` memiliki beberapa field `aria-invalid` yang sempat terdeteksi invalid; pastikan nilai string yang valid digunakan.
+
+## Rekomendasi Jangka Pendek
+
+- Tambahkan API mock atau backend sederhana untuk konser
+- Tambahkan validasi form berbasis `zod`
+- Tambahkan testing unit untuk komponen `concert-card`, `concert-grid`, dan `search-and-filter`
+- Periksa kembali halaman admin terhadap otentikasi dan akses kontrol
+- Refactor `lib/concerts.ts` ke `data/` atau service dengan model typed
+
+## Rekomendasi Jangka Menengah
+
+- Implementasi NextAuth penuh dengan session management
+- Tambahkan state management atau query layer untuk data event/tiket
+- Tambahkan deployment readiness: env vars, production config, analytics
+- Audit aksesibilitas penuh dengan Axe atau Lighthouse
 
 ---
 
-Jika kamu ingin, saya juga bisa tambahkan diagram alur folder dan dependensi yang lebih rinci untuk audit kamu.
+Jika kamu ingin, saya bisa juga menambahkan:
+
+- checklist per halaman untuk review QA
+- breakdown area yang perlu dibuat issue/task
+- diagram dependency arsitektur frontend

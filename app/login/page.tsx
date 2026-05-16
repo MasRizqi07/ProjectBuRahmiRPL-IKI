@@ -1,13 +1,18 @@
 'use client'
 
 import { useState } from 'react'
+import { signIn } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
+import { toast } from 'sonner'
 
 export default function LoginPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -18,8 +23,9 @@ export default function LoginPage() {
     setTouched({ ...touched, [field]: true })
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     const newErrors: Record<string, string> = {}
 
     if (!email) newErrors.email = 'Email wajib diisi'
@@ -30,9 +36,23 @@ export default function LoginPage() {
 
     setErrors(newErrors)
 
-    if (Object.keys(newErrors).length === 0) {
-      console.log('[v0] Login successful:', { email })
+    if (Object.keys(newErrors).length > 0) {
+      return
     }
+
+    const result = await signIn('credentials', {
+      redirect: false,
+      email,
+      password,
+    })
+
+    if (result?.error) {
+      toast.error('Email atau password salah')
+      return
+    }
+
+    const callbackUrl = searchParams.get('callbackUrl')
+    router.push(callbackUrl ? decodeURIComponent(callbackUrl) : '/')
   }
 
   return (
@@ -63,7 +83,7 @@ export default function LoginPage() {
                 onBlur={() => handleBlur('email')}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
                 aria-label="Alamat email"
-                aria-invalid={!!errors.email}
+                aria-invalid={Boolean(errors.email)}
                 aria-describedby={errors.email ? 'email-error' : undefined}
               />
               {errors.email && touched.email && (
@@ -88,7 +108,7 @@ export default function LoginPage() {
                   onBlur={() => handleBlur('password')}
                   className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground pr-10"
                   aria-label="Password"
-                  aria-invalid={!!errors.password}
+                  aria-invalid={Boolean(errors.password)}
                   aria-describedby={errors.password ? 'password-error' : undefined}
                 />
                 <button
@@ -115,7 +135,7 @@ export default function LoginPage() {
             </div>
 
             {/* Submit Button */}
-            <Button 
+            <Button
               className="w-full bg-amber-400 hover:bg-amber-500 text-zinc-950 font-bold py-6 rounded-xl text-base"
               type="submit"
               aria-label="Tombol masuk"

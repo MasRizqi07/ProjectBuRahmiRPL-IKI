@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
-const PROTECTED_ROUTES = ['/admin', '/my-tickets', '/payment', '/order-confirmation']
-const AUTH_ROUTES = ['/login', '/register']
+const PROTECTED_ADMIN = ['/admin']
+const PROTECTED_USER = ['/my-tickets', '/payment', '/order-confirmation']
+const AUTH_ONLY = ['/login', '/register']
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -11,24 +12,19 @@ export function middleware(request: NextRequest) {
     request.cookies.get('next-auth.session-token')?.value ??
     request.cookies.get('__Secure-next-auth.session-token')?.value
 
-  const isAuthenticated = Boolean(token)
-  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route))
-  const isAdminRoute = pathname.startsWith('/admin')
+  const isAuth = Boolean(token)
+  const isAdminRoute = PROTECTED_ADMIN.some((route) => pathname.startsWith(route))
+  const isUserRoute = PROTECTED_USER.some((route) => pathname.startsWith(route))
+  const isAuthRoute = AUTH_ONLY.includes(pathname)
 
-  if (isProtectedRoute && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(loginUrl)
+  if ((isAdminRoute || isUserRoute) && !isAuth) {
+    const url = new URL('/login', request.url)
+    url.searchParams.set('callbackUrl', encodeURIComponent(pathname))
+    return NextResponse.redirect(url)
   }
 
-  if (AUTH_ROUTES.includes(pathname) && isAuthenticated) {
+  if (isAuthRoute && isAuth) {
     return NextResponse.redirect(new URL('/', request.url))
-  }
-
-  if (isAdminRoute && !isAuthenticated) {
-    const loginUrl = new URL('/login', request.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(loginUrl)
   }
 
   return NextResponse.next()

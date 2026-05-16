@@ -1,33 +1,21 @@
 'use client'
 
-import { useState, useMemo } from 'react'
 import { Navbar } from '@/components/navbar'
 import { SearchAndFilter } from '@/components/search-and-filter'
 import { ConcertGrid } from '@/components/concert-grid'
-import { concerts, filterConcerts } from '@/lib/concerts'
-import type { FilterType } from '@/types'
+import { useConcerts } from '@/hooks/use-concerts'
 
 export default function ConcertsPage() {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all')
-  const [cityQuery, setCityQuery] = useState('')
-
-  const filteredConcerts = useMemo(() => {
-    let result = filterConcerts(concerts, activeFilter, cityQuery)
-
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase()
-      result = result.filter(
-        (concert) =>
-          concert.title.toLowerCase().includes(query) ||
-          concert.artist.toLowerCase().includes(query) ||
-          concert.venue.toLowerCase().includes(query) ||
-          concert.city.toLowerCase().includes(query)
-      )
-    }
-
-    return result
-  }, [searchQuery, activeFilter, cityQuery])
+  const {
+    concerts,
+    searchQuery,
+    setSearchQuery,
+    activeFilter,
+    setActiveFilter,
+    cityQuery,
+    setCityQuery,
+    isEmpty,
+  } = useConcerts()
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -52,14 +40,14 @@ export default function ConcertsPage() {
           />
         </div>
 
-        {filteredConcerts.length > 0 ? (
-          <ConcertGrid concerts={filteredConcerts} />
-        ) : (
+        {isEmpty ? (
           <div className="text-center py-16 animate-fade-up">
             <p className="text-zinc-400 text-lg">
               Tidak ada konser yang sesuai dengan pencarian Anda.
             </p>
           </div>
+        ) : (
+          <ConcertGrid concerts={concerts} />
         )}
       </main>
     </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Space_Grotesk } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { SessionProvider } from '@/components/session-provider'
 import './globals.css'
 
 const inter = Inter({ subsets: ["latin"], variable: '--font-sans' })
@@ -37,9 +38,9 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${inter.variable} ${spaceGrotesk.variable} bg-zinc-950`}>
       <body className="font-sans antialiased bg-zinc-950">
-        <div className="view-transition-name">
-          {children}
-        </div>
+        <SessionProvider>
+          <div className="view-transition-name">{children}</div>
+        </SessionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

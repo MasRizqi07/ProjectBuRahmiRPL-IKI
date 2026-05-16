@@ -2,7 +2,7 @@
 
 import { AdminSidebar } from '@/components/admin-sidebar'
 import { TrendingUp, TrendingDown } from 'lucide-react'
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 
 const revenueData = [
   { month: 'Jan', revenue: 8400000 },
@@ -167,9 +167,9 @@ export default function AdminPage() {
                     paddingAngle={2}
                     dataKey="value"
                   >
-                    <Cell fill="#fbbf24" />
-                    <Cell fill="#71717a" />
-                    <Cell fill="#52525b" />
+                    <Cell key="terjual" fill="#fbbf24" />
+                    <Cell key="tersedia" fill="#71717a" />
+                    <Cell key="terkunci" fill="#52525b" />
                   </Pie>
                 </PieChart>
               </ResponsiveContainer>
@@ -250,13 +250,10 @@ export default function AdminPage() {
                         <p className="text-xs text-zinc-500">{concert.sold} / {concert.total}</p>
                       </div>
                       <div className="w-full h-2 bg-zinc-800 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-amber-400 transition-all progress-bar-fill"
-                          style={{ '--progress-width': `${percentage}%` } as React.CSSProperties}
-                          role="progressbar"
-                          aria-valuenow={Math.round(percentage)}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
+                        <progress
+                          className="h-full w-full appearance-none bg-amber-400"
+                          value={Math.round(percentage)}
+                          max={100}
                           aria-label={`Penjualan ${concert.name}: ${Math.round(percentage)}%`}
                         />
                       </div>

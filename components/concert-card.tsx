@@ -14,7 +14,7 @@ export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
   return (
     <Link href={`/concerts/${concert.id}`}>
       <div className="group cursor-pointer h-full flex flex-col rounded-2xl border border-zinc-700/50 hover:border-amber-500 transition-all duration-300 overflow-hidden hover:shadow-xl hover:shadow-amber-500/20 bg-card animate-fade-up">
-        <div className={`relative h-40 sm:h-48 bg-gradient-to-br ${concert.imageGradient ?? 'from-zinc-800 to-zinc-900'} overflow-hidden`}>
+        <div className={`relative h-40 sm:h-48 bg-linear-to-br ${concert.imageGradient ?? 'from-zinc-800 to-zinc-900'} overflow-hidden`}>
           <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center">
