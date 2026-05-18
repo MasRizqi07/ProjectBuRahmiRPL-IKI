@@ -2,6 +2,7 @@ import { getConcertById } from '@/lib/concerts'
 import { TicketTierCard } from '@/components/ticket-tier-card'
 import { Navbar } from '@/components/navbar'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 
 interface ConcertDetailPageProps {
   params: { id: string }
@@ -19,14 +20,23 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <section className="relative h-96 bg-linear-to-b overflow-hidden">
-        <div className={`absolute inset-0 bg-linear-to-br ${concert.imageGradient ?? 'from-zinc-800 to-zinc-900'} opacity-20`} />
-        <div className="absolute inset-0 bg-linear-to-t from-background via-transparent to-transparent" />
-
-        <div className="relative h-full flex flex-col items-center justify-center px-4 text-center">
-          <h1 className="text-5xl sm:text-6xl font-black text-foreground mb-4">{concert.title}</h1>
-          <p className="text-lg text-zinc-400">{concert.artist} • {concert.city}</p>
-          <p className="text-lg text-amber-400 font-semibold">
+      {/* Hero Image Section */}
+      <section className="relative h-[45vh] sm:h-[60vh] min-h-[400px] w-full overflow-hidden">
+        <Image
+          src={concert.image || '/images/placeholder.jpg'}
+          alt={concert.title}
+          fill
+          sizes="100vw"
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/40 via-transparent to-transparent" />
+        
+        <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 sm:pb-16 px-4 text-center z-10 animate-fade-up">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-foreground mb-4 sm:mb-6 max-w-4xl tracking-tight">{concert.title}</h1>
+          <p className="text-base sm:text-lg md:text-xl text-zinc-300 font-medium">{concert.artist} • {concert.city}</p>
+          <p className="text-base sm:text-lg md:text-xl text-amber-400 font-bold mt-2">
             {concert.date} • {concert.time}
           </p>
         </div>

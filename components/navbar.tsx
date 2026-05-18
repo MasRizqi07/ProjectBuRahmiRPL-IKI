@@ -15,12 +15,12 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-zinc-800/50 bg-zinc-950/95 backdrop-blur supports-backdrop-filter:bg-zinc-950/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+    <div className="fixed top-4 inset-x-0 z-50 flex justify-center px-4 pointer-events-none">
+      <nav className="pointer-events-auto w-full max-w-5xl rounded-full border border-zinc-700/50 bg-zinc-950/60 backdrop-blur-xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] px-6 sm:px-8 py-3 transition-all duration-300">
+        <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2" aria-label="WAR TICKET - Beranda">
-            <div className="text-2xl font-black tracking-tighter text-amber-400">WAR TICKET</div>
+            <div className="text-xl sm:text-2xl font-black tracking-tighter bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">WAR TICKET</div>
           </Link>
 
           {/* Desktop Navigation */}
@@ -35,7 +35,7 @@ export function Navbar() {
 
           {/* Right section - Desktop */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-colors" aria-label="Buka keranjang tiket">
+            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110" aria-label="Buka keranjang tiket">
               <ShoppingBag size={20} />
             </Link>
             <div className="flex items-center gap-2">
@@ -46,7 +46,7 @@ export function Navbar() {
             </div>
             <Button
               variant="outline"
-              className="border-amber-400/50 text-amber-400 hover:bg-amber-400/10"
+              className="border-amber-400/50 text-amber-400 hover:bg-amber-400 hover:text-zinc-950 rounded-full px-6 font-bold transition-all duration-300"
               aria-label="Buka halaman masuk"
             >
               Masuk
@@ -55,7 +55,7 @@ export function Navbar() {
 
           {/* Mobile menu */}
           <div className="lg:hidden flex items-center gap-4">
-            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-colors" aria-label="Buka keranjang tiket">
+            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110" aria-label="Buka keranjang tiket">
               <ShoppingBag size={18} />
             </Link>
             <div className="flex items-center gap-1">
@@ -67,13 +67,13 @@ export function Navbar() {
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
                 <button
-                  className="text-zinc-300 hover:text-amber-400 transition-colors"
+                  className="text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110"
                   aria-label="Buka menu navigasi"
                 >
                   <Menu size={24} />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="bg-zinc-900 border-zinc-800">
+              <SheetContent side="right" className="bg-zinc-950/90 backdrop-blur-xl border-zinc-800">
                 <div className="space-y-4 mt-8">
                   <SheetClose asChild>
                     <Link
@@ -96,7 +96,7 @@ export function Navbar() {
                   <SheetClose asChild>
                     <Button
                       variant="outline"
-                      className="w-full border-amber-400/50 text-amber-400 hover:bg-amber-400/10"
+                      className="w-full border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-zinc-950 rounded-full font-bold transition-all"
                       aria-label="Buka halaman masuk"
                     >
                       Masuk
@@ -107,7 +107,7 @@ export function Navbar() {
             </Sheet>
           </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+    </div>
   )
 }

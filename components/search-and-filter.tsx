@@ -56,13 +56,14 @@ export function SearchAndFilter({
         ].map((filter) => (
           <button
             key={filter.id}
+            type="button"
             onClick={() => handleFilterClick(filter.id)}
             className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
               activeFilter === filter.id
                 ? 'bg-amber-400/20 text-amber-400 border border-amber-500/50'
                 : 'bg-zinc-900/50 text-zinc-400 border border-zinc-700/50 hover:border-zinc-600/50'
             }`}
-            aria-pressed={activeFilter === filter.id ? "true" : "false"}
+            aria-pressed={activeFilter === filter.id}
             aria-label={`Filter konser: ${filter.label}`}
           >
             {filter.label}

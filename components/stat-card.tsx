@@ -26,14 +26,14 @@ export function StatCard({ target, label, suffix = "", isDecimal = false }: { ta
   return (
     <motion.div
       ref={ref}
-      whileHover={{ y: -5, boxShadow: "0px 10px 30px rgba(255, 199, 0, 0.1)" }}
-      className="p-6 sm:p-8 bg-[#121212] border border-neutral-800 rounded-2xl transition-all relative overflow-hidden group h-full flex flex-col justify-center"
+      whileHover={{ y: -5, boxShadow: "0px 10px 30px rgba(251, 191, 36, 0.1)" }}
+      className="p-6 sm:p-8 bg-zinc-900 border border-zinc-800 rounded-2xl transition-all relative overflow-hidden group h-full flex flex-col justify-center"
     >
-      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-[#FFC700] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_10px_rgba(255,199,0,0.5)]"></div>
-      <motion.h3 className="text-4xl sm:text-5xl font-black text-[#FFC700] font-mono mb-2 text-center">
+      <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-amber-400 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_10px_rgba(251,191,36,0.5)]"></div>
+      <motion.h3 className="text-4xl sm:text-5xl font-black text-amber-400 font-mono mb-2 text-center">
         {rounded}
       </motion.h3>
-      <p className="text-sm sm:text-base text-neutral-400 font-medium text-center">{label}</p>
+      <p className="text-sm sm:text-base text-zinc-400 font-medium text-center">{label}</p>
     </motion.div>
   )
 }

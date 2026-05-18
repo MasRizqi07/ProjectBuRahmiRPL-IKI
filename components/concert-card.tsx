@@ -2,6 +2,7 @@ import type { Concert } from '@/types'
 import { formatCurrency, getAvailabilityLabel, getAvailabilityColor } from '@/lib/concerts'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface ConcertCardProps {
   concert: Concert
@@ -14,14 +15,16 @@ export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
   return (
     <Link href={`/concerts/${concert.id}`}>
       <div className="group cursor-pointer h-full flex flex-col rounded-2xl border border-zinc-700/50 hover:border-amber-500 transition-all duration-300 overflow-hidden hover:shadow-xl hover:shadow-amber-500/20 bg-card animate-fade-up">
-        <div className={`relative h-40 sm:h-48 bg-linear-to-br ${concert.imageGradient ?? 'from-zinc-800 to-zinc-900'} overflow-hidden`}>
-          <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center">
-              <div className="text-sm font-mono text-white/80 mb-2">Poster</div>
-              <div className="text-xs text-white/60 font-medium">{concert.artist}</div>
-            </div>
-          </div>
+        <div className="relative h-48 sm:h-56 overflow-hidden bg-zinc-900">
+          <Image
+            src={concert.image || '/images/placeholder.jpg'}
+            alt={`Poster konser ${concert.title}`}
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-110"
+          />
+          {/* Overlay gradient agar badge selalu terbaca */}
+          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300" />
 
           {concert.status === 'limited' && (
             <div
