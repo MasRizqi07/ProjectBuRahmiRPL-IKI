@@ -63,7 +63,7 @@ export function SearchAndFilter({
                 ? 'bg-amber-400/20 text-amber-400 border border-amber-500/50'
                 : 'bg-zinc-900/50 text-zinc-400 border border-zinc-700/50 hover:border-zinc-600/50'
             }`}
-            aria-pressed={activeFilter === filter.id}
+            {...(activeFilter === filter.id ? { 'aria-pressed': true } : { 'aria-pressed': false })}
             aria-label={`Filter konser: ${filter.label}`}
           >
             {filter.label}

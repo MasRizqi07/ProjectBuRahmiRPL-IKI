@@ -20,7 +20,7 @@ export function Navbar() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2" aria-label="WAR TICKET - Beranda">
-            <div className="text-xl sm:text-2xl font-black tracking-tighter bg-gradient-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">WAR TICKET</div>
+            <div className="text-xl sm:text-2xl font-black tracking-tighter bg-linear-to-r from-amber-300 to-amber-500 bg-clip-text text-transparent">WAR TICKET</div>
           </Link>
 
           {/* Desktop Navigation */}

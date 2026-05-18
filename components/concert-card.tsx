@@ -24,7 +24,7 @@ export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
             className="object-cover transition-transform duration-700 group-hover:scale-110"
           />
           {/* Overlay gradient agar badge selalu terbaca */}
-          <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity duration-300" />
 
           {concert.status === 'limited' && (
             <div

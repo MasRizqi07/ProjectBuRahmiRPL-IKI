@@ -69,7 +69,7 @@ export function HeroContent() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: i * 0.2, ease: [0.2, 0.65, 0.3, 0.9] }}
-            className={`inline-block ${word === "Mu" || word === "Momen" ? "bg-gradient-to-br from-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]" : ""}`}
+            className={`inline-block ${word === "Mu" || word === "Momen" ? "bg-linear-to-br from-amber-300 to-amber-600 bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(251,191,36,0.3)]" : ""}`}
           >
             {word}
           </motion.span>
@@ -98,7 +98,7 @@ export function HeroContent() {
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 0.97 }}
-              className="w-full sm:w-auto bg-gradient-to-r from-amber-400 to-amber-500 text-zinc-950 font-black text-lg px-10 py-5 rounded-full transition-all duration-300 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:shadow-[0_10px_60px_rgba(251,191,36,0.5)] flex items-center justify-center gap-3 group border border-amber-300/50"
+              className="w-full sm:w-auto bg-linear-to-r from-amber-400 to-amber-500 text-zinc-950 font-black text-lg px-10 py-5 rounded-full transition-all duration-300 shadow-[0_10px_40px_rgba(251,191,36,0.3)] hover:shadow-[0_10px_60px_rgba(251,191,36,0.5)] flex items-center justify-center gap-3 group border border-amber-300/50"
             >
               Jelajah Konser
               <motion.div

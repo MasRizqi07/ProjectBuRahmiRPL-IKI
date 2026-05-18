@@ -18,7 +18,7 @@ export default function Home() {
         <InteractiveGrid />
 
         {/* Premium Radial Gradient Mesh */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/15 via-zinc-950/80 to-zinc-950 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-amber-500/15 via-zinc-950/80 to-zinc-950 pointer-events-none" />
 
         {/* Hero Animated Content */}
         <HeroContent />
@@ -47,7 +47,7 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-12 gap-4">
           <div className="animate-fade-up">
             <h2 className="text-3xl sm:text-5xl font-black text-foreground mb-3 tracking-tight">
-              Sedang <span className="bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Hangat</span>
+              Sedang <span className="bg-linear-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Hangat</span>
             </h2>
             <p className="text-zinc-400 text-sm sm:text-base">
               Deretan konser paling dicari yang tidak boleh kamu lewatkan.

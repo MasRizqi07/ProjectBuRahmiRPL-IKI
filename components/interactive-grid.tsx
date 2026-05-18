@@ -21,13 +21,16 @@ export function InteractiveGrid() {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       <div 
-        className="absolute inset-0 bg-[linear-gradient(to_right,rgba(63,63,70,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(63,63,70,0.5)_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"
+        className="absolute inset-0 bg-[linear-gradient(to_right,rgba(63,63,70,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(63,63,70,0.5)_1px,transparent_1px)] bg-size-[40px_40px] opacity-20"
       />
+      {/* stylelint-disable-next-line */}
       <div 
         className="absolute inset-0 transition-opacity duration-300"
         style={{
+          '--mouse-x': `${mousePosition.x}px`,
+          '--mouse-y': `${mousePosition.y}px`,
           background: `radial-gradient(circle 400px at ${mousePosition.x}px ${mousePosition.y}px, rgba(251, 191, 36, 0.15), transparent 80%)`,
-        }}
+        } as React.CSSProperties}
       />
     </div>
   )

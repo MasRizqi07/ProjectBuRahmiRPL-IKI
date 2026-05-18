@@ -21,7 +21,7 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
       <Navbar />
 
       {/* Hero Image Section */}
-      <section className="relative h-[45vh] sm:h-[60vh] min-h-[400px] w-full overflow-hidden">
+      <section className="relative h-[45vh] sm:h-[60vh] min-h-100 w-full overflow-hidden">
         <Image
           src={concert.image || '/images/placeholder.jpg'}
           alt={concert.title}
@@ -30,8 +30,8 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-b from-zinc-950/40 via-transparent to-transparent" />
         
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-12 sm:pb-16 px-4 text-center z-10 animate-fade-up">
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-black text-foreground mb-4 sm:mb-6 max-w-4xl tracking-tight">{concert.title}</h1>
