@@ -94,14 +94,14 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <h1 className="text-3xl font-black text-foreground mb-8">Pembayaran</h1>
+        <h1 className="font-display text-3xl font-black text-foreground mb-8">Pembayaran</h1>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left Column - Order Summary */}
           <div className="lg:col-span-2 space-y-6">
             {/* Order Summary Card */}
             <div className="border border-zinc-700/50 rounded-2xl p-6 bg-zinc-900/50">
-              <h2 className="text-xl font-bold text-foreground mb-4">Ringkasan Pesanan</h2>
+              <h2 className="font-display text-xl font-bold text-foreground mb-4">Ringkasan Pesanan</h2>
 
               <div className="space-y-3 pb-4 border-b border-dashed border-zinc-600 mb-4">
                 <div className="flex justify-between">
@@ -183,7 +183,7 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
 
             {/* Payment Methods */}
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-4">Metode Pembayaran</h2>
+              <h2 className="font-display text-xl font-bold text-foreground mb-4">Metode Pembayaran</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {paymentMethods.map((method) => (
                   <button
@@ -205,7 +205,7 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
 
             {/* Buyer Data Form */}
             <div>
-              <h2 className="text-xl font-bold text-foreground mb-4">Data Pembeli</h2>
+              <h2 className="font-display text-xl font-bold text-foreground mb-4">Data Pembeli</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* Full Name */}
                 <div>
@@ -281,7 +281,7 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
           {/* Right Column - Sticky Summary */}
           <div className="h-fit sticky top-24">
             <div className="border border-zinc-700/50 rounded-2xl p-6 bg-zinc-900/50">
-              <h3 className="font-bold text-foreground mb-4">Ringkasan Harga</h3>
+              <h3 className="font-display font-bold text-foreground mb-4">Ringkasan Harga</h3>
               <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between">
                   <span className="text-zinc-400">Tiket ({quantity}x)</span>

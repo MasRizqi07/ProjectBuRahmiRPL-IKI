@@ -10,7 +10,7 @@ export default function SalesAdminPage() {
       <main className="flex-1 overflow-auto">
         <div className="p-8 space-y-8">
           <div>
-            <h1 className="text-3xl font-black text-foreground mb-2">Data Penjualan</h1>
+            <h1 className="font-display text-3xl font-black text-foreground mb-2">Data Penjualan</h1>
             <p className="text-zinc-400">Analisis penjualan dan laporan</p>
           </div>
 

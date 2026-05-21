@@ -18,7 +18,7 @@ export function AdminSidebar() {
     <aside className="w-64 bg-zinc-900 border-r border-zinc-800 h-screen sticky top-0 flex flex-col">
       {/* Logo */}
       <div className="p-6 border-b border-zinc-800">
-        <h1 className="text-xl font-black text-amber-400">WAR TICKET</h1>
+        <h1 className="font-display text-xl font-black text-amber-400">WAR TICKET</h1>
         <p className="text-xs text-zinc-500 mt-1">Admin Panel</p>
       </div>
 

@@ -165,7 +165,7 @@ export default function RegisterPage() {
         <div className="w-full max-w-md space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-black text-foreground mb-2">Daftar Sekarang</h1>
+            <h1 className="font-display text-3xl font-black text-foreground mb-2">Daftar Sekarang</h1>
             <p className="text-zinc-400">Bergabunglah dengan WAR TICKET</p>
           </div>
 
@@ -185,7 +185,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 onBlur={() => handleBlur('name')}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
-                aria-label="Nama lengkap"
+                aria-label="Nama lengkap" aria-required="true"
                 aria-invalid={Boolean(errors.name)}
                 aria-describedby={errors.name ? 'name-error' : undefined}
               />
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 onBlur={() => handleBlur('email')}
                 className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground"
-                aria-label="Alamat email"
+                aria-label="Alamat email" aria-required="true"
                 aria-invalid={Boolean(errors.email)}
                 aria-describedby={errors.email ? 'email-error' : undefined}
               />
@@ -287,7 +287,7 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   onBlur={() => handleBlur('password')}
                   className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground pr-10"
-                  aria-label="Password"
+                  aria-label="Password" aria-required="true"
                   aria-invalid={Boolean(errors.password)}
                   aria-describedby={errors.password ? 'password-error' : 'password-hint'}
                 />

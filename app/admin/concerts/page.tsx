@@ -13,7 +13,7 @@ export default function ConcertsAdminPage() {
         <div className="p-8 space-y-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-black text-foreground mb-2">Manajemen Konser</h1>
+              <h1 className="font-display text-3xl font-black text-foreground mb-2">Manajemen Konser</h1>
               <p className="text-zinc-400">Kelola konser dan tiket</p>
             </div>
             <Button className="bg-amber-400 hover:bg-amber-500 text-zinc-950 font-bold gap-2">

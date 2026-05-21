@@ -1,11 +1,26 @@
 import type { Metadata } from 'next'
-import { Inter, Space_Grotesk } from 'next/font/google'
+import { Syne, DM_Sans, Space_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SessionProvider } from '@/components/session-provider'
 import './globals.css'
 
-const inter = Inter({ subsets: ["latin"], variable: '--font-sans' })
-const spaceGrotesk = Space_Grotesk({ subsets: ["latin"], variable: '--font-display' })
+const syne = Syne({
+  subsets: ['latin'],
+  variable: '--font-display',
+  weight: ['400', '500', '600', '700', '800'],
+})
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  variable: '--font-body',
+  weight: ['300', '400', '500', '600', '700', '800'],
+})
+
+const spaceMono = Space_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  weight: ['400', '700'],
+})
 
 export const metadata: Metadata = {
   title: 'WAR TICKET - Platform Tiket Konser Indonesia',
@@ -36,9 +51,10 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} ${spaceGrotesk.variable} bg-zinc-950`}>
-      <body className="font-sans antialiased bg-zinc-950">
+    <html lang="id" className={`${syne.variable} ${dmSans.variable} ${spaceMono.variable} bg-zinc-950`}>
+      <body className="font-body antialiased bg-zinc-950">
         <SessionProvider>
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-violet-600 focus:text-white focus:rounded-lg font-body font-bold shadow-xl">Lewati navigasi</a>
           <div className="view-transition-name">{children}</div>
         </SessionProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}

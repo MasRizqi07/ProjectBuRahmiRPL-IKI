@@ -1,7 +1,7 @@
-import type { Concert, TicketTier } from '@/types'
+import { Concert, TicketTier } from '@/lib/types/concert'
 
 interface CartItem {
-  concert: Pick<Concert, 'id' | 'title' | 'artist' | 'date' | 'venue' | 'image'>
+  concert: Pick<Concert, 'id' | 'title' | 'artist' | 'date' | 'venue' | 'imageUrl'>
   tier: TicketTier
   quantity: number
 }

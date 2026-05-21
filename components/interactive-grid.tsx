@@ -1,37 +1,74 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 export function InteractiveGrid() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const [isMounted, setIsMounted] = useState(false)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const mouseRef = useRef({ x: -1000, y: -1000 })
+  const rafRef = useRef<number>(0)
 
   useEffect(() => {
-    setIsMounted(true)
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY })
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const GRID_SIZE = 40
+    const DOT_RADIUS = 1.5
+    const INFLUENCE_RADIUS = 120
+
+    const draw = () => {
+      // Handle resize internally instead of window event for simplicity, though resizing logic is usually better separate
+      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+          canvas.width = window.innerWidth
+          canvas.height = window.innerHeight
+      }
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+
+      const cols = Math.ceil(canvas.width / GRID_SIZE)
+      const rows = Math.ceil(canvas.height / GRID_SIZE)
+
+      for (let i = 0; i < cols; i++) {
+        for (let j = 0; j < rows; j++) {
+          const x = i * GRID_SIZE
+          const y = j * GRID_SIZE
+          const dx = x - mouseRef.current.x
+          const dy = y - mouseRef.current.y
+          const dist = Math.sqrt(dx * dx + dy * dy)
+          const influence = Math.max(0, 1 - dist / INFLUENCE_RADIUS)
+          
+          const alpha = 0.15 + influence * 0.7
+          const radius = DOT_RADIUS + influence * 2
+
+          ctx.beginPath()
+          ctx.arc(x, y, radius, 0, Math.PI * 2)
+          ctx.fillStyle = `rgba(139, 92, 246, ${alpha})` // violet-500
+          ctx.fill()
+        }
+      }
+
+      rafRef.current = requestAnimationFrame(draw)
     }
 
-    window.addEventListener("mousemove", handleMouseMove)
-    return () => window.removeEventListener("mousemove", handleMouseMove)
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseRef.current = { x: e.clientX, y: e.clientY }
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    rafRef.current = requestAnimationFrame(draw)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    }
   }, [])
 
-  if (!isMounted) return null
-
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      <div 
-        className="absolute inset-0 bg-[linear-gradient(to_right,rgba(63,63,70,0.5)_1px,transparent_1px),linear-gradient(to_bottom,rgba(63,63,70,0.5)_1px,transparent_1px)] bg-size-[40px_40px] opacity-20"
-      />
-      {/* stylelint-disable-next-line */}
-      <div 
-        className="absolute inset-0 transition-opacity duration-300"
-        style={{
-          '--mouse-x': `${mousePosition.x}px`,
-          '--mouse-y': `${mousePosition.y}px`,
-          background: `radial-gradient(circle 400px at ${mousePosition.x}px ${mousePosition.y}px, rgba(251, 191, 36, 0.15), transparent 80%)`,
-        } as React.CSSProperties}
-      />
-    </div>
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0 hidden sm:block"
+      aria-hidden="true"
+    />
   )
 }

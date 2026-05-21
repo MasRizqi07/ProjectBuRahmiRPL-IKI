@@ -2,25 +2,20 @@
 
 import { AdminSidebar } from '@/components/admin-sidebar'
 import { TrendingUp, TrendingDown } from 'lucide-react'
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import dynamic from 'next/dynamic'
 
-const revenueData = [
-  { month: 'Jan', revenue: 8400000 },
-  { month: 'Feb', revenue: 12100000 },
-  { month: 'Mar', revenue: 9800000 },
-  { month: 'Apr', revenue: 15300000 },
-  { month: 'May', revenue: 18200000 },
-  { month: 'Jun', revenue: 20500000 },
-]
-
-const salesByConcert = [
-  { name: 'Coldplay', value: 9200000 },
-  { name: 'BLACKPINK', value: 8800000 },
-  { name: 'Dewa 19', value: 4200000 },
-  { name: 'Pamungkas', value: 2500000 },
-  { name: 'Rich Brian', value: 5800000 },
-  { name: 'Tulus', value: 3600000 },
-]
+const AdminCharts = dynamic(() => import('@/components/admin/charts'), {
+  loading: () => (
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 h-64 bg-zinc-900 animate-pulse rounded-xl" />
+        <div className="h-64 bg-zinc-900 animate-pulse rounded-xl" />
+      </div>
+      <div className="h-64 bg-zinc-900 animate-pulse rounded-xl" />
+    </div>
+  ),
+  ssr: false
+})
 
 const transactions = [
   {
@@ -106,8 +101,8 @@ export default function AdminPage() {
         <div className="p-8 space-y-8">
           {/* Header */}
           <div>
-            <h1 className="text-3xl font-black text-foreground mb-2">Overview</h1>
-            <p className="text-zinc-400">Ringkasan performa WAR TICKET</p>
+            <h1 className="font-display text-3xl font-black text-foreground mb-2">Overview</h1>
+            <p className="text-zinc-400 font-body">Ringkasan performa WAR TICKET</p>
           </div>
 
           {/* KPI Cards */}
@@ -118,87 +113,13 @@ export default function AdminPage() {
             <KPICard label="Rata-rata Queue" value={4200} trend={-3} />
           </div>
 
-          {/* Charts Grid */}
-          <div className="grid lg:grid-cols-3 gap-8">
-            {/* Revenue Chart */}
-            <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-              <h2 className="font-bold text-foreground mb-4">Revenue 6 Bulan Terakhir</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={revenueData}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#fbbf24" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#fbbf24" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                  <XAxis dataKey="month" stroke="#71717a" />
-                  <YAxis stroke="#71717a" />
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-                    labelStyle={{ color: '#fafafa' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="revenue"
-                    stroke="#fbbf24"
-                    fillOpacity={1}
-                    fill="url(#colorRevenue)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            {/* Sales Distribution Pie */}
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-              <h2 className="font-bold text-foreground mb-4">Distribusi Penjualan</h2>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={[
-                      { name: 'Terjual', value: 35000 },
-                      { name: 'Tersedia', value: 18000 },
-                      { name: 'Terkunci', value: 8500 },
-                    ]}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={2}
-                    dataKey="value"
-                  >
-                    <Cell key="terjual" fill="#fbbf24" />
-                    <Cell key="tersedia" fill="#71717a" />
-                    <Cell key="terkunci" fill="#52525b" />
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Sales by Concert Chart */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-            <h2 className="font-bold text-foreground mb-4">Penjualan per Konser</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={salesByConcert}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-                <XAxis dataKey="name" stroke="#71717a" />
-                <YAxis stroke="#71717a" />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#18181b', border: '1px solid #27272a', borderRadius: '8px' }}
-                  labelStyle={{ color: '#fafafa' }}
-                  formatter={(value) => `Rp ${(value as number).toLocaleString('id-ID')}`}
-                />
-                <Bar dataKey="value" fill="#fbbf24" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          <AdminCharts />
 
           {/* Tables Grid */}
           <div className="grid lg:grid-cols-2 gap-8">
             {/* Recent Transactions */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-              <h2 className="font-bold text-foreground mb-4">Transaksi Terbaru</h2>
+              <h2 className="font-display font-bold text-foreground mb-4">Transaksi Terbaru</h2>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
@@ -212,10 +133,10 @@ export default function AdminPage() {
                   </thead>
                   <tbody>
                     {transactions.map((tx) => (
-                      <tr key={tx.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors">
+                      <tr key={tx.id} className="border-b border-zinc-800/50 hover:bg-zinc-800/30 transition-colors font-body">
                         <td className="py-3 px-2 text-foreground">{tx.name}</td>
                         <td className="py-3 px-2 text-zinc-400">{tx.concert}</td>
-                        <td className="py-3 px-2 font-semibold text-amber-400">Rp {tx.total.toLocaleString('id-ID')}</td>
+                        <td className="py-3 px-2 font-semibold text-amber-400 font-mono">Rp {tx.total.toLocaleString('id-ID')}</td>
                         <td className="py-3 px-2">
                           <span
                             className={`inline-block px-2 py-1 rounded text-xs font-medium ${
@@ -239,8 +160,8 @@ export default function AdminPage() {
 
             {/* Top Concerts */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-              <h2 className="font-bold text-foreground mb-4">Top 5 Konser</h2>
-              <div className="space-y-4">
+              <h2 className="font-display font-bold text-foreground mb-4">Top 5 Konser</h2>
+              <div className="space-y-4 font-body">
                 {topConcerts.map((concert, idx) => {
                   const percentage = (concert.sold / concert.total) * 100
                   return (
@@ -257,7 +178,7 @@ export default function AdminPage() {
                           aria-label={`Penjualan ${concert.name}: ${Math.round(percentage)}%`}
                         />
                       </div>
-                      <p className="text-xs text-zinc-500 mt-1">Rp {concert.revenue.toLocaleString('id-ID')}</p>
+                      <p className="text-xs text-zinc-500 mt-1 font-mono">Rp {concert.revenue.toLocaleString('id-ID')}</p>
                     </div>
                   )
                 })}

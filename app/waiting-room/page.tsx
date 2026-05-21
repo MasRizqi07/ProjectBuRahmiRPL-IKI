@@ -119,7 +119,7 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center animate-scale-pulse">
                 <div className="text-3xl">✓</div>
               </div>
-              <h2 className="text-2xl font-black text-foreground mb-2">Kursi Terkunci!</h2>
+              <h2 className="font-display text-2xl font-black text-foreground mb-2">Kursi Terkunci!</h2>
               <p className="text-zinc-400">Kursi Anda telah diamankan. Segera lanjutkan pembayaran sebelum waktu habis.</p>
             </div>
 

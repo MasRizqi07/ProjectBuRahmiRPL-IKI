@@ -1,4 +1,4 @@
-import type { Concert } from '@/types'
+import { Concert } from '@/lib/types/concert'
 import { ConcertCard } from './concert-card'
 import { ConcertCardSkeleton } from './concert-card-skeleton'
 

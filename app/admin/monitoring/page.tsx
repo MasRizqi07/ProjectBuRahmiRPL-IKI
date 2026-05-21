@@ -165,7 +165,7 @@ export default function MonitoringPage() {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-black text-foreground mb-2">System Status</h1>
+              <h1 className="font-display text-3xl font-black text-foreground mb-2">System Status</h1>
               <p className="text-zinc-400">Monitoring kesehatan sistem real-time</p>
             </div>
             <div className="flex items-center gap-3 px-4 py-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
@@ -178,7 +178,7 @@ export default function MonitoringPage() {
 
           {/* Service Status Cards */}
           <div>
-            <h2 className="font-bold text-foreground mb-4">Status Layanan</h2>
+            <h2 className="font-display font-bold text-foreground mb-4">Status Layanan</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               {services.map((service, idx) => (
                 <div
@@ -186,7 +186,7 @@ export default function MonitoringPage() {
                   className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 hover:border-zinc-700 transition-colors"
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-foreground">{service.name}</h3>
+                    <h3 className="font-display font-semibold text-foreground">{service.name}</h3>
                     <div className="flex items-center gap-2">
                       <Circle size={10} className={`fill-current ${getStatusColor(service.status)}`} />
                       <span className="text-xs font-medium text-zinc-400">{getStatusLabel(service.status)}</span>
@@ -216,7 +216,7 @@ export default function MonitoringPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Queue Metrics Chart */}
             <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-              <h2 className="font-bold text-foreground mb-4">Kedalaman Antrian (60 Menit Terakhir)</h2>
+              <h2 className="font-display font-bold text-foreground mb-4">Kedalaman Antrian (60 Menit Terakhir)</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={queueMetricsData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
@@ -240,7 +240,7 @@ export default function MonitoringPage() {
 
             {/* Inventory Stats */}
             <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-              <h2 className="font-bold text-foreground mb-4">Inventaris Tiket</h2>
+              <h2 className="font-display font-bold text-foreground mb-4">Inventaris Tiket</h2>
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
                   <Pie
@@ -281,7 +281,7 @@ export default function MonitoringPage() {
 
           {/* Alert Log */}
           <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-            <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
+            <h2 className="font-display font-bold text-foreground mb-4 flex items-center gap-2">
               <AlertCircle size={20} />
               Alert Log
             </h2>

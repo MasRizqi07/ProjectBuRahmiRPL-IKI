@@ -1,42 +1,43 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { concerts, filterConcerts } from '@/lib/concerts'
-import { useDebounce } from './use-debounce'
-import type { FilterType } from '@/types'
+import { concerts } from '@/lib/data/concerts'
+import { filterConcerts, searchConcerts, FilterParams } from '@/lib/utils/filter'
 
 export function useConcerts() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeFilter, setActiveFilter] = useState<FilterType>('all')
-  const [cityQuery, setCityQuery] = useState('')
+  const [activeFilters, setActiveFilters] = useState<FilterParams>({})
 
-  const debouncedSearch = useDebounce(searchQuery, 400)
+  const setFilter = (type: keyof FilterParams, value: string) => {
+    setActiveFilters((prev) => ({
+      ...prev,
+      [type]: value,
+    }))
+  }
+
+  const clearFilters = () => {
+    setActiveFilters({})
+  }
 
   const concertsList = useMemo(() => {
-    let result = filterConcerts(concerts, activeFilter, cityQuery)
+    // apply filters
+    let result = filterConcerts(concerts, activeFilters)
 
-    if (debouncedSearch.trim()) {
-      const q = debouncedSearch.toLowerCase()
-      result = result.filter(
-        (concert) =>
-          concert.title.toLowerCase().includes(q) ||
-          concert.artist.toLowerCase().includes(q) ||
-          concert.venue.toLowerCase().includes(q) ||
-          concert.city.toLowerCase().includes(q)
-      )
+    // apply search query
+    if (searchQuery.trim()) {
+      result = searchConcerts(result, searchQuery)
     }
 
     return result
-  }, [debouncedSearch, activeFilter, cityQuery])
+  }, [searchQuery, activeFilters])
 
   return {
     concerts: concertsList,
     searchQuery,
     setSearchQuery,
-    activeFilter,
-    setActiveFilter,
-    cityQuery,
-    setCityQuery,
+    activeFilters,
+    setFilter,
+    clearFilters,
     isEmpty: concertsList.length === 0,
     total: concertsList.length,
   }

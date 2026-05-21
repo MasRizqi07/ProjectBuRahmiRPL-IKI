@@ -124,7 +124,7 @@ export default function OrderConfirmationPage() {
             </svg>
           </div>
 
-          <h1 className="text-4xl font-black text-foreground mb-2">Tiket Berhasil Dibeli!</h1>
+          <h1 className="font-display text-4xl font-black text-foreground mb-2">Tiket Berhasil Dibeli!</h1>
           <p className="text-lg text-zinc-400 mb-8">
             E-tiket Anda telah dikirim ke email. Silakan cek inbox atau folder spam.
           </p>
@@ -136,7 +136,7 @@ export default function OrderConfirmationPage() {
         >
           <div className="text-center mb-8 pb-8 border-b-2 border-dashed border-zinc-600">
             <p className="text-xs text-zinc-500 mb-2">TIKET MASUK</p>
-            <h2 className="text-2xl font-black text-foreground mb-2">Coldplay</h2>
+            <h2 className="font-display text-2xl font-black text-foreground mb-2">Coldplay</h2>
             <p className="text-sm text-zinc-400">Gelora Bung Karno, Jakarta</p>
             <p className="text-sm text-amber-400 font-semibold mt-2">22 Juni 2024, 19:00 WIB</p>
           </div>
@@ -186,7 +186,7 @@ export default function OrderConfirmationPage() {
 
         {/* Additional Info */}
         <div className="mt-12 border-t border-zinc-800 pt-8">
-          <h3 className="font-bold text-foreground mb-4">Informasi Penting</h3>
+          <h3 className="font-display font-bold text-foreground mb-4">Informasi Penting</h3>
           <ul className="space-y-2 text-sm text-zinc-400">
             <li>• Tunjukkan e-tiket ini atau QR code di pintu masuk</li>
             <li>• 1 QR code hanya bisa digunakan sekali</li>

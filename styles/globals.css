@@ -124,3 +124,45 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50% }
+  50% { background-position: 100% 50% }
+}
+.hero-bg {
+  background: linear-gradient(-45deg, #0a0a0a, #1a0a2e, #0a1628, #0a0a0a);
+  background-size: 400% 400%;
+  animation: gradient-shift 12s ease infinite;
+}
+
+.ticker-row {
+  display: flex;
+  width: max-content;
+}
+
+.ticker-left {
+  animation: ticker-scroll-left 40s linear infinite;
+}
+
+.ticker-right {
+  animation: ticker-scroll-right 35s linear infinite;
+}
+
+@keyframes ticker-scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes ticker-scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticker-left, .ticker-right { animation: none; }
+}
+
+*:focus-visible {
+  outline: 2px solid rgb(139 92 246);
+  outline-offset: 2px;
+}

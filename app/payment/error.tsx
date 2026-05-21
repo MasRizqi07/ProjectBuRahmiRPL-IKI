@@ -18,7 +18,7 @@ export default function ErrorPage({ error, reset }: ErrorProps) {
       <div className="space-y-2">
         <h2 className="font-display text-2xl font-bold tracking-tight">Terjadi Kesalahan</h2>
         <p className="text-muted-foreground max-w-md">
-          {error.message || 'Sesuatu tidak berjalan dengan benar. Coba lagi dalam beberapa saat.'}
+          {error.message || 'Gagal memproses halaman pembayaran. Coba lagi dalam beberapa saat.'}
         </p>
         {error.digest && (
           <p className="text-xs text-muted-foreground font-mono">Error ID: {error.digest}</p>

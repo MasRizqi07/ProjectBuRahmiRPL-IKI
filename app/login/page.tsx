@@ -63,7 +63,7 @@ export default function LoginPage() {
         <div className="w-full max-w-md space-y-8 animate-fade-up">
           {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-black text-foreground mb-2">Masuk</h1>
+            <h1 className="font-display text-3xl font-black text-foreground mb-2">Masuk</h1>
             <p className="text-zinc-400">Masuk ke akun WAR TICKET Anda</p>
           </div>
 
@@ -107,6 +107,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   onBlur={() => handleBlur('password')}
                   className="bg-zinc-900 border-zinc-700 focus:border-amber-400 rounded-xl text-foreground pr-10"
+                  aria-required="true"
                   aria-label="Password"
                   aria-invalid={Boolean(errors.password)}
                   aria-describedby={errors.password ? 'password-error' : undefined}
