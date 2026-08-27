@@ -1,0 +1,41 @@
+name: war-ticket-local
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: war_ticket
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "54322:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./postgres-init/000-auth-stub.sql:/docker-entrypoint-initdb.d/000-auth-stub.sql:ro
+      - ../supabase/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql:ro
+      - ../supabase/migrations/002_ticketing_engine.sql:/docker-entrypoint-initdb.d/002_ticketing_engine.sql:ro
+      - ../supabase/seed.sql:/docker-entrypoint-initdb.d/003_seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d war_ticket"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "56379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+    restart: unless-stopped
+
+volumes:
+  postgres-data:
+  redis-data:

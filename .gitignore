@@ -6,6 +6,15 @@ __v0_jsx-dev-runtime.ts
 # Common ignores
 node_modules
 .next/
+**/.next/
+**/dist/
+**/coverage/
+*.tsbuildinfo
 .env*.local
 .DS_Store
 .vercel
+.turbo/
+.pnpm-store/
+
+# This repository is pnpm-only.
+package-lock.json

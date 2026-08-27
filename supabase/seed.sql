@@ -175,3 +175,88 @@ begin
     (yura_id, 'Premium', 1000000, 50, 15, ARRAY['Front seat','Meet & Greet','Signed CD'], 3);
 end;
 $$;
+
+-- ============================================
+-- CHECKOUT ENGINE VERTICAL SLICE
+-- The canonical event intentionally reuses the first prototype concert UUID so
+-- the existing event page can discover its active sales session during migration.
+-- ============================================
+do $$
+declare
+  demo_concert_id uuid;
+  demo_tenant_id constant uuid := '11111111-1111-4111-8111-111111111111';
+  demo_layout_id constant uuid := '22222222-2222-4222-8222-222222222222';
+  demo_section_id constant uuid := '33333333-3333-4333-8333-333333333333';
+  demo_session_id constant uuid := '44444444-4444-4444-8444-444444444444';
+  ga_type_id constant uuid := '55555555-5555-4555-8555-555555555555';
+  seat_type_id constant uuid := '66666666-6666-4666-8666-666666666666';
+begin
+  select id into demo_concert_id
+  from public.concerts
+  where artist = 'MALIQ & D''Essentials'
+  order by created_at
+  limit 1;
+
+  insert into ticketing.tenants (id, slug, name)
+  values (demo_tenant_id, 'demo-promoter', 'Demo Promoter Indonesia')
+  on conflict (id) do nothing;
+
+  insert into ticketing.venue_layouts (id, tenant_id, name, version)
+  values (demo_layout_id, demo_tenant_id, 'JIExpo Hall A', 1)
+  on conflict (id) do nothing;
+
+  insert into ticketing.venue_sections (id, tenant_id, venue_layout_id, code, name, sort_order)
+  values (demo_section_id, demo_tenant_id, demo_layout_id, 'A', 'Section A', 1)
+  on conflict (id) do nothing;
+
+  insert into ticketing.venue_seats (
+    tenant_id, venue_layout_id, section_id, row_label, seat_number, x, y
+  )
+  select demo_tenant_id, demo_layout_id, demo_section_id,
+         chr(65 + ((number - 1) / 8)::integer),
+         (((number - 1) % 8) + 1)::text,
+         (((number - 1) % 8) + 1)::numeric,
+         (((number - 1) / 8) + 1)::numeric
+  from generate_series(1, 32) number
+  on conflict (venue_layout_id, section_id, row_label, seat_number) do nothing;
+
+  insert into ticketing.events (
+    id, tenant_id, venue_layout_id, slug, title, starts_at
+  ) values (
+    demo_concert_id, demo_tenant_id, demo_layout_id,
+    'maliq-metamorfosa-demo', 'MALIQ & D''Essentials — Metamorfosa Tour',
+    now() + interval '30 days'
+  )
+  on conflict (id) do update set starts_at = excluded.starts_at;
+
+  insert into ticketing.sales_sessions (
+    id, tenant_id, event_id, name, pre_queue_opens_at,
+    sales_open_at, sales_close_at, base_admission_rate_per_second
+  ) values (
+    demo_session_id, demo_tenant_id, demo_concert_id, 'Public On-sale',
+    now() - interval '1 hour', now() - interval '1 minute',
+    now() + interval '2 hours', 50
+  )
+  on conflict (id) do nothing;
+
+  insert into ticketing.ticket_types (
+    id, tenant_id, event_id, code, name, inventory_mode, price
+  ) values
+    (ga_type_id, demo_tenant_id, demo_concert_id, 'FESTIVAL', 'Festival', 'GENERAL_ADMISSION', 350000),
+    (seat_type_id, demo_tenant_id, demo_concert_id, 'VIP-SEAT', 'VIP Seat', 'ASSIGNED_SEAT', 750000)
+  on conflict (id) do nothing;
+
+  insert into ticketing.inventory_pools (
+    ticket_type_id, tenant_id, event_id, capacity
+  ) values (ga_type_id, demo_tenant_id, demo_concert_id, 500)
+  on conflict (ticket_type_id) do nothing;
+
+  insert into ticketing.event_seats (
+    tenant_id, event_id, venue_seat_id, ticket_type_id
+  )
+  select demo_tenant_id, demo_concert_id, seat.id, seat_type_id
+  from ticketing.venue_seats seat
+  where seat.venue_layout_id = demo_layout_id
+  on conflict (event_id, venue_seat_id) do nothing;
+end;
+$$;

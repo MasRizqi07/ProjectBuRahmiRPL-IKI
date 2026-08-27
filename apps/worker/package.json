@@ -1,0 +1,31 @@
+{
+  "name": "@war-ticket/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "merchant:configure": "tsx src/configure-merchant.ts",
+    "build": "tsc --noEmit",
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "test:unit": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@war-ticket/config": "workspace:*",
+    "@war-ticket/contracts": "workspace:*",
+    "@war-ticket/database": "workspace:*",
+    "@war-ticket/domain": "workspace:*",
+    "@war-ticket/observability": "workspace:*",
+    "@war-ticket/payments": "workspace:*",
+    "@war-ticket/redis": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0",
+    "typescript": "5.7.3",
+    "vitest": "^3.2.4"
+  }
+}

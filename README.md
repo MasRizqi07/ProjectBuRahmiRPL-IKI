@@ -1,221 +1,171 @@
-# WAR TICKET
+# War Ticket Platform
 
-## Ringkasan Proyek
+Production-oriented multi-tenant concert ticket marketplace for high-demand
+ticket drops. This repository contains the first vertical slice: authenticated
+waiting room, fair queue admission, atomic inventory reservation, checkout,
+and organizer-scoped Midtrans payment orchestration.
 
-**WAR TICKET** adalah aplikasi frontend demo marketplace tiket konser Indonesia. Aplikasi ini dibangun menggunakan:
+War Ticket is independent from War Event/BLACKBOX. The previous repository was
+a UI prototype; the current codebase is a pnpm/Turborepo application with real
+PostgreSQL, Redis, Supabase Auth, API, and worker boundaries.
 
-- **Next.js 16** (App Router)
-- **React 19**
-- **TypeScript**
-- **Tailwind CSS 4**
-- **Radix UI** sebagai basis komponen aksesibilitas
+## Architecture
 
-Aplikasi ini fokus pada pengalaman pengguna untuk mencari event, melihat detail tiket, dan mengelola halaman admin dasar. Struktur data saat ini bersifat statis, sehingga cocok sebagai prototipe desain dan review UI.
-
-## Tujuan README
-
-Dokumen ini dibuat untuk:
-
-- mendeskripsikan arsitektur proyek secara lengkap
-- memperjelas sistem desain dan struktur komponen
-- menampilkan fitur, status data, dan area review
-- menyediakan check & balance untuk analisis teknis
-
-## Arsitektur Aplikasi
-
-### Frontend
-
-- `app/` — halaman aplikasi dengan App Router Next.js
-- `components/` — komponen UI reusable dan presentasi
-- `components/ui/` — wrapper komponen Radix dan utilitas desain
-- `lib/` — logika data konser, helper formatting, dan filter
-- `hooks/` — hook kustom untuk mobile detection dan toast management
-- `styles/` — global stylesheet Tailwind dan CSS utilities
-
-### Data Flow
-
-Data konser dimuat dari `lib/concerts.ts` sebagai array statis `concerts`. Filter dan pencarian dikelola secara client-side melalui helper `filterConcerts()`.
-
-- `concerts.ts` bertanggung jawab atas model data, fungsi filter, dan format IDR
-- `app/concerts/page.tsx` adalah entry page daftar konser
-- `app/concerts/[id]/page.tsx` merender detail event berdasarkan `id`
-
-## Sistem Desain / Design System
-
-### Foundation
-
-- **Tailwind CSS 4** sebagai sistem utility-first
-- **typography** dengan font `Inter` + `Space Grotesk`
-- **tema** menggunakan class-based theming di `app/layout.tsx`
-- **animasi** didefinisikan di `tailwind.config.ts` (`fade-up`, `scale-pulse`)
-
-### Komponen Desain
-
-- `Navbar` — navigasi utama
-- `HeroContent` — hero section dengan CTA
-- `InteractiveGrid` — background visual interaktif
-- `StatCard` — statistik ringkas
-- `ConcertCard`, `ConcertGrid` — daftar event responsif
-- `SearchAndFilter` — pencarian dan filter event
-- `TicketTierCard` — detail tier tiket
-- `AdminSidebar` — sidebar dashboard admin
-
-### UI Primitives
-
-- `components/ui/` menyediakan komponen wrapper untuk:
-  - tombol
-  - input
-  - dialog
-  - select
-  - table
-  - badge
-  - tooltip
-  - toast
-
-### Prinsip Desain
-
-- konsistensi warna dan tipografi
-- layout responsive mobile-first
-- reusable component primitives untuk mempercepat iterasi
-- akselerasi accessibility dengan Radix UI
-- desain visual mempertahankan nuansa event / konser
-
-## Fitur Utama
-
-### Pengguna
-
-- daftar konser dengan status tiket
-- filter event berdasarkan kategori waktu, kota, dan ketersediaan
-- halaman detail event dinamis
-- tampilan tier tiket dengan harga dan perks
-- pengalaman hero landing page dan statistik
-
-### Admin
-
-- halaman dashboard admin utama
-- halaman `admin/concerts`, `admin/monitoring`, `admin/sales`, `admin/settings`
-- layout admin scaffold untuk tampilan bisnis
-
-### UI / UX
-
-- navigasi responsif dan sticky
-- animasi transisi ringan
-- theme-friendly layout dark mode
-- feedback toast untuk aksi
-- page-level loading + not-found handling
-
-## Struktur Halaman Utama
-
-- `/` — homepage hero, statistik, dan sekilas event
-- `/concerts` — katalog konser
-- `/concerts/[id]` — detail konser
-- `/admin` — halaman admin utama
-- `/admin/concerts` — daftar konser admin
-- `/admin/monitoring` — monitoring performa
-- `/admin/sales` — laporan penjualan
-- `/admin/settings` — pengaturan admin
-- `/login` — login user
-- `/register` — registrasi user
-- `/my-tickets` — tiket milik user
-- `/payment` — proses pembayaran
-- `/order-confirmation` — konfirmasi order
-- `/waiting-room` — ruang tunggu event
-
-## Teknologi Utama
-
-- `next` ^16.2.4
-- `react` ^19
-- `typescript` 5.7.3
-- `tailwindcss` 4.2.0
-- `@radix-ui/react-*`
-- `next-auth` beta
-- `react-hook-form`
-- `framer-motion`
-- `recharts`
-- `sonner`
-- `next-themes`
-- `date-fns`
-- `zod`
-
-## Setup & Run
-
-```bash
-pnpm install
-pnpm dev
+```text
+Browser
+  -> apps/web (Next.js UI + authenticated HTTP API)
+       -> PostgreSQL (authoritative inventory/orders/payments)
+       -> Redis (queue/admission traffic-control plane)
+  -> apps/worker (queue scheduler, outbox, Midtrans, expiry)
 ```
 
-Jika tidak punya `pnpm`:
+| Workspace | Responsibility |
+| --- | --- |
+| `apps/web` | Buyer UI, Supabase Auth session, versioned APIs |
+| `apps/worker` | queue lifecycle, admission, outbox, payment and expiry jobs |
+| `packages/contracts` | runtime-validated Zod API/event contracts |
+| `packages/domain` | price, inventory, order, reservation and payment rules |
+| `packages/database` | tenant-safe transactions and repositories |
+| `packages/redis` | atomic queue/admission Lua operations and signed tokens |
+| `packages/payments` | Midtrans Snap adapter, signature verification/status API |
+| `packages/config` | fail-fast environment validation |
+| `packages/observability` | structured, redacted logging |
+
+The complete accepted design is in
+[`docs/architecture/ticket-war-checkout-engine.md`](docs/architecture/ticket-war-checkout-engine.md).
+
+## Implemented vertical slice
+
+- One queue per sales session with authenticated, idempotent entry
+- Cryptographic pre-queue shuffle and FIFO arrivals after opening
+- Single-use, short-lived admission token
+- General-admission counters and exact assigned-seat locks
+- Server-authoritative IDR prices, fee snapshots and max-order enforcement
+- Idempotent order/payment creation with transactional outbox
+- Per-organizer Midtrans credentials encrypted using AES-256-GCM
+- Verified and deduplicated Midtrans notifications
+- Late-payment review path that never reclaims released inventory
+- Batched expiry/release using `FOR UPDATE SKIP LOCKED`
+- Minimal encrypted buyer PII; NIK is optional and consent-based
+- Tenant keys, composite foreign keys, RLS and audit log foundations
+
+## Prerequisites
+
+- Node.js 22 or newer
+- pnpm 9 (`corepack enable` if needed)
+- PostgreSQL 15+ and Redis 7+
+- A Supabase project for Auth
+- A Midtrans Sandbox merchant account for payment testing
+- Docker Desktop is optional for the local PostgreSQL/Redis harness
+
+## Local setup
+
+1. Install dependencies and create the local environment file:
+
+   ```bash
+   pnpm install
+   cp .env.example .env.local
+   ```
+
+   On Windows PowerShell, use `Copy-Item .env.example .env.local`.
+
+2. Generate independent secrets of at least 32 random characters for
+   `QUEUE_SIGNING_SECRET` and `CREDENTIAL_ENCRYPTION_KEY`. Never rotate the
+   encryption key without a credential re-encryption procedure.
+
+3. Set the Supabase URL, anon key and service-role key. Apply migrations
+   `001_initial_schema.sql` and `002_ticketing_engine.sql`, then `seed.sql`, to
+   the database used by `DATABASE_URL`.
+
+4. For a disposable PostgreSQL/Redis migration harness:
+
+   ```bash
+   pnpm infra:up
+   ```
+
+   This plain PostgreSQL container provides a minimal `auth.users` stub only
+   for schema/integration testing. It does not replace Supabase Auth.
+
+5. Copy the environment file into each runtime or inject the same variables
+   through the process manager:
+
+   ```bash
+   cp .env.local apps/web/.env.local
+   pnpm dev
+   ```
+
+   Turborepo starts the Next.js application and worker together. The worker
+   must be running for queue opening, admissions, payment initiation and hold
+   expiry.
+
+## Configure an organizer's Midtrans Sandbox merchant
+
+Set the `TENANT_ID` and `MIDTRANS_*` variables in the process environment, then
+run:
 
 ```bash
-corepack pnpm install
-corepack pnpm dev
+pnpm merchant:configure
 ```
 
-### Perintah penting
+The server key is read from the environment, encrypted before persistence and
+never printed. Start with `MIDTRANS_ENABLED=false`; enable it only after a
+sandbox smoke test and webhook configuration. Point Midtrans notifications to:
 
-- `pnpm dev` — jalankan development server
-- `pnpm build` — buat production build
-- `pnpm start` — jalankan build production
-- `pnpm lint` — jalankan linting
+```text
+POST https://<public-host>/api/v1/payments/midtrans/webhook
+```
 
-## Review Check & Balance
+## Quality gates
 
-### 1. Data & Integrasi
+```bash
+pnpm verify
+```
 
-- [ ] Data konser masih statis di `lib/concerts.ts`
-- [ ] Perlu migrasi ke API / database untuk event dan tiket
-- [ ] Belum ada persistence checkout / transaksi
-- [ ] Belum ada backend auth yang terhubung nyata
+This runs strict linting, TypeScript checks, unit/property tests and the
+production build. No TypeScript or build errors are ignored.
 
-### 2. Komponen & Desain Sistem
+The k6 queue test models three simultaneous drops and requires 10,000 unique
+authenticated Supabase cookie strings:
 
-- [ ] Periksa konsistensi `components/ui/*` agar bisa digunakan ulang sepenuhnya
-- [ ] Audit props type safety pada wrapper Radix
-- [ ] Periksa kembali `tailwind.config.ts` dan class utilities untuk performa
-- [ ] Pastikan spacing, warna, dan animasi sesuai design system
+```bash
+k6 run \
+  -e BASE_URL=https://staging.example.com \
+  -e SALES_SESSION_IDS=id-1,id-2,id-3 \
+  -e AUTH_COOKIES_JSON='["cookie-1", "cookie-2"]' \
+  tests/load/queue.js
+```
 
-### 3. Aksesibilitas & UX
+Run load tests only against an isolated staging stack with production-like
+PostgreSQL/Redis limits. The release threshold is no oversell, less than 1%
+failed requests and p95 under 500 ms for admitted checkout APIs.
 
-- [ ] Validasi label form dan `aria-*` di halaman `login`, `register`, `payment`
-- [ ] Pastikan tombol dan link memiliki fokus keyboard yang jelas
-- [ ] Periksa `alt` image pada semua kartu event
-- [ ] Audit `aria-live` / toast notification untuk pengguna screen reader
+## Production deployment
 
-### 4. Page Flow & Routing
+Deploy `apps/web` and `apps/worker` as separate processes from the same commit.
+Use managed PostgreSQL with PITR and connection pooling, Redis with persistence
+and `noeviction`, at least two worker replicas, TLS-only connections and a
+central secret manager. Run migrations as a one-off release job before rolling
+out application processes.
 
-- [ ] Evaluasi route admin agar hanya dapat diakses dengan auth
-- [ ] Verifikasi fallback `not-found` dan `loading` page
-- [ ] Pastikan data detail event tidak gagal ketika `id` tidak valid
+Required launch checks:
 
-### 5. Pengujian & Kualitas
+- tenant/RLS and cross-tenant security tests pass
+- queue, Redis restart and database failover drills pass
+- 3 × 10,000-user staging test meets the accepted SLO
+- Midtrans sandbox create/status/webhook/expiry flows pass
+- dashboards and alerts cover queue depth, admission rate, DB locks, outbox lag,
+  expiry lag, webhook delay and invariant violations
+- backups, PITR restore, credential rotation and incident runbooks are tested
 
-- [ ] Tambahkan unit test untuk `concert-card`, `concert-grid`, `search-and-filter`
-- [ ] Tambahkan integrasi test untuk flow `concerts -> detail -> payment`
-- [ ] Tambahkan linting / formatting CI jika belum ada
+## Complexity and trade-offs
 
-## Kekuatan Proyek Saat Ini
+- Queue join/status: `O(log n)` time and `O(n)` Redis storage per session.
+- Pre-queue opening: `O(n log n)` once for deterministic ranking.
+- GA reservation: `O(k)` for `k` requested ticket types.
+- Assigned seats: `O(k log k)` lock ordering and `O(k)` rows.
+- Checkout and webhook finalization: `O(k)` order items.
 
-- UI event-focused modern dan responsif
-- Struktur Next.js App Router yang sudah benar
-- Sistem desain berbasis Tailwind + Radix siap dikembangkan
-- Data model tiket / tier sudah lengkap dan berkaitan
-- Struktur halaman admin sudah tersedia sebagai foundation
-
-## Rekomendasi Perbaikan Prioritas
-
-1. Migrasi data `lib/concerts.ts` ke backend API
-2. Implementasi autentikasi `next-auth` dengan session nyata
-3. Tambahkan unit test + integrasi testing
-4. Kembangkan sistem state global / cache untuk data event
-5. Tambahkan deployment docs dan environment setup
-
-## Catatan Khusus untuk Reviewer
-
-- Fokus utama audit: `lib/concerts.ts`, `components/search-and-filter.tsx`, `components/concert-grid.tsx`, dan `app/concerts/[id]/page.tsx`
-- Periksa apakah halaman admin hanya di-skeleton atau sudah memiliki logika access control
-- Pastikan `tailwind` dan `Radix` wrapper tidak membuat duplikasi styling
-- Validasi bahwa semua elemen UI dapat dirender dengan data event statis yang ada
-
----
-
-> README ini dirancang sebagai dokumentasi teknis dan review checklist untuk project WAR TICKET. Gunakan sebagai acuan audit, pengembangan fitur, serta penyesuaian design system ke fase produksi.
+PostgreSQL row locks favor correctness over raw write throughput; admission
+control bounds contention. Polling is easier to recover than sockets but costs
+more requests. Organizer-owned merchant accounts improve fund isolation while
+making onboarding and credential operations more complex.

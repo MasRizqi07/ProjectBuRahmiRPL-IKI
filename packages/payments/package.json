@@ -1,0 +1,19 @@
+{
+  "name": "@war-ticket/payments",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": {
+    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:unit": "vitest run"
+  },
+  "dependencies": {
+    "@war-ticket/contracts": "workspace:*",
+    "@war-ticket/domain": "workspace:*",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": { "vitest": "^3.2.4" }
+}
