@@ -1,20 +1,34 @@
-'use client'
-
 import { Navbar } from '@/components/navbar'
 import { SearchAndFilter } from '@/components/search-and-filter'
 import { ConcertGrid } from '@/components/concert-grid'
-import { useConcerts } from '@/hooks/use-concerts'
+import { getConcerts, getCities } from '@/lib/queries/concerts'
 
-export default function ConcertsPage() {
-  const {
-    concerts,
-    setSearchQuery,
-    activeFilters,
-    setFilter,
-    clearFilters,
-    isEmpty,
-    total,
-  } = useConcerts()
+interface ConcertsPageProps {
+  searchParams: Promise<{
+    city?: string
+    category?: string
+    status?: string
+  }>
+}
+
+export default async function ConcertsPage({ searchParams }: ConcertsPageProps) {
+  const params = await searchParams
+  
+  const [concerts, cities] = await Promise.all([
+    getConcerts({
+      ...(params.city ? { city: params.city } : {}),
+      ...(params.category ? { category: params.category } : {}),
+      ...(params.status ? { status: params.status } : {}),
+    }),
+    getCities(),
+  ])
+
+  const isEmpty = concerts.length === 0
+  const activeFilters = {
+    city: params.city || '',
+    category: params.category || '',
+    status: params.status || ''
+  }
 
   return (
     <div className="min-h-screen bg-zinc-950">
@@ -32,11 +46,9 @@ export default function ConcertsPage() {
 
         <div className="mb-10 animate-fade-up">
           <SearchAndFilter
-            activeFilters={activeFilters as Record<string, string>}
-            onSearchChange={setSearchQuery}
-            onFilterChange={(type, value) => setFilter(type as any, value)}
-            onClearFilters={clearFilters}
-            resultsCount={total}
+            cities={cities}
+            activeFilters={activeFilters}
+            resultsCount={concerts.length}
           />
         </div>
 

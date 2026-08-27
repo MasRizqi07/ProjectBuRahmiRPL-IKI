@@ -54,13 +54,17 @@ export function sortConcerts(concerts: Concert[], sortBy: SortOption): Concert[]
       case 'date-desc': 
         return new Date(b.date).getTime() - new Date(a.date).getTime()
       case 'price-asc': {
-        const minA = Math.min(...(a.tiers.length ? a.tiers.map(t => t.price) : [0]))
-        const minB = Math.min(...(b.tiers.length ? b.tiers.map(t => t.price) : [0]))
+        const tiersA = a.ticket_tiers || a.tiers || []
+        const tiersB = b.ticket_tiers || b.tiers || []
+        const minA = Math.min(...(tiersA.length ? tiersA.map(t => t.price) : [0]))
+        const minB = Math.min(...(tiersB.length ? tiersB.map(t => t.price) : [0]))
         return minA - minB
       }
       case 'price-desc': {
-        const minA = Math.min(...(a.tiers.length ? a.tiers.map(t => t.price) : [0]))
-        const minB = Math.min(...(b.tiers.length ? b.tiers.map(t => t.price) : [0]))
+        const tiersA = a.ticket_tiers || a.tiers || []
+        const tiersB = b.ticket_tiers || b.tiers || []
+        const minA = Math.min(...(tiersA.length ? tiersA.map(t => t.price) : [0]))
+        const minB = Math.min(...(tiersB.length ? tiersB.map(t => t.price) : [0]))
         return minB - minA
       }
       case 'popularity':

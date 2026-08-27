@@ -1,4 +1,4 @@
-import { concerts } from '@/lib/data/concerts'
+import { getConcertById } from '@/lib/queries/concerts'
 import { TicketTierCard } from '@/components/ticket-tier-card'
 import { Navbar } from '@/components/navbar'
 import { notFound } from 'next/navigation'
@@ -8,27 +8,40 @@ import { CountdownTimer } from '@/components/countdown-timer'
 import { MapPin, Calendar, Users, Info } from 'lucide-react'
 import Link from 'next/link'
 
-const getConcertById = (id: string) => concerts.find(c => c.id === id)
-
-interface ConcertDetailPageProps {
-  params: { id: string }
+interface Props {
+  params: Promise<{ id: string }>
 }
 
-export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
-  const { id } = params
-  const concert = getConcertById(id)
+export async function generateMetadata({ params }: Props) {
+  const { id } = await params
+  const concert = await getConcertById(id)
+  if (!concert) return { title: 'Konser Tidak Ditemukan' }
+
+  return {
+    title: `${concert.title} — WAR TICKET`,
+    description: concert.description,
+    openGraph: {
+      images: [concert.image_url ?? ''],
+    }
+  }
+}
+
+export default async function ConcertDetailPage({ params }: Props) {
+  const { id } = await params
+  const concert = await getConcertById(id)
 
   if (!concert) {
     return notFound()
   }
 
-  const ticketsSold = concert.tiers.reduce((acc, tier) => acc + tier.sold, 0)
-  const totalTickets = concert.tiers.reduce((acc, tier) => acc + tier.capacity, 0)
+  const tiers = concert.ticket_tiers || []
+  const ticketsSold = tiers.reduce((acc, tier) => acc + tier.sold, 0)
+  const totalTickets = tiers.reduce((acc, tier) => acc + tier.capacity, 0)
   
-  const availableTiers = concert.tiers.filter(t => t.capacity - t.sold > 0)
+  const availableTiers = tiers.filter(t => t.capacity - t.sold > 0)
   const lowestPrice = availableTiers.length > 0 
     ? Math.min(...availableTiers.map(t => t.price)) 
-    : (concert.tiers.length > 0 ? Math.min(...concert.tiers.map(t => t.price)) : 0)
+    : (tiers.length > 0 ? Math.min(...tiers.map(t => t.price)) : 0)
 
   return (
     <div className="min-h-screen bg-zinc-950 pb-24 md:pb-0">
@@ -38,7 +51,7 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
       <section className="relative h-[60vh] md:h-[70vh] w-full overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src={concert.imageUrl || '/images/placeholder.jpg'}
+            src={concert.image_url || '/images/placeholder.jpg'}
             alt={`Poster konser ${concert.artist} - ${concert.title}`}
             fill
             sizes="100vw"
@@ -80,7 +93,7 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
           </div>
 
           <div className="grid sm:grid-cols-2 gap-6 mb-12">
-            {concert.tiers.map((tier) => (
+            {tiers.map((tier) => (
               <TicketTierCard key={tier.id} tier={tier} concertId={concert.id} />
             ))}
           </div>
@@ -146,7 +159,7 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
                 <div>
                   <p className="font-body text-sm text-zinc-500 mb-1">Informasi Tambahan</p>
                   <p className="font-body text-sm text-white/80">
-                    Harap menukar e-ticket dengan gelang fisik H-1 atau pada hari H acara. Dress code: Kasual.
+                    {concert.description || 'Harap menukar e-ticket dengan gelang fisik H-1 atau pada hari H acara. Dress code: Kasual.'}
                   </p>
                 </div>
               </div>
@@ -157,14 +170,17 @@ export default function ConcertDetailPage({ params }: ConcertDetailPageProps) {
 
       {/* Sticky Mobile CTA */}
       <div className="fixed bottom-0 inset-x-0 z-50 md:hidden">
-        <div className="bg-zinc-950/90 backdrop-blur-xl border-t border-white/10 p-4 pb-safe flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        <div className="bg-zinc-950/90 backdrop-blur-xl border-t border-white/10 p-4 flex items-center justify-between shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
           <div>
             <p className="font-body text-xs text-white/50 mb-0.5">Mulai dari</p>
             <p className="font-mono text-lg font-bold text-white leading-none">{formatIDR(lowestPrice)}</p>
           </div>
           <Link href="#tickets" onClick={(e) => {
             e.preventDefault();
-            window.scrollTo({ top: document.querySelector('.max-w-7xl')?.getBoundingClientRect().top! + window.scrollY - 100, behavior: 'smooth' });
+            const el = document.querySelector('.max-w-7xl');
+            if(el) {
+               window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+            }
           }}>
             <button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-violet-500/25 transition-all active:scale-95">
               Beli Tiket

@@ -39,7 +39,8 @@ function getAvailabilityBadge(status: Concert['status']) {
 }
 
 export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
-  const minPrice = concert.tiers.length ? Math.min(...concert.tiers.map((t) => t.price)) : 0
+  const tiers = concert.ticket_tiers || concert.tiers || []
+  const minPrice = tiers.length ? Math.min(...tiers.map((t) => t.price)) : 0
 
   return (
     <motion.div
@@ -61,7 +62,7 @@ export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
           {/* Background Image */}
           <div className="absolute inset-0">
             <Image
-              src={concert.imageUrl || '/images/placeholder.jpg'}
+              src={concert.image_url || concert.imageUrl || '/images/placeholder.jpg'}
               alt={`Poster konser ${concert.artist} - ${concert.title}`}
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -92,7 +93,7 @@ export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
               {concert.artist}
             </h3>
             <p className="font-body text-sm text-white/70 mb-3">
-              {concert.date} • {concert.venue}
+              {new Date(concert.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {concert.venue}
             </p>
             <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
               <span className="font-body text-xs text-white/50">Mulai dari</span>

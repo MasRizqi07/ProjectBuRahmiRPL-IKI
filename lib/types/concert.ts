@@ -5,10 +5,12 @@ export interface Concert {
   venue: string
   city: string
   date: string
-  imageUrl: string
+  imageUrl?: string
+  image_url?: string | null
   category: 'pop' | 'rock' | 'jazz' | 'electronic' | 'hiphop' | 'indie' | 'other'
   status: 'available' | 'limited' | 'soldout'
-  tiers: TicketTier[]
+  tiers?: TicketTier[]
+  ticket_tiers?: TicketTier[]
   tags?: string[]
 }
 

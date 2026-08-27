@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
@@ -9,10 +8,13 @@ import { Input } from '@/components/ui/input'
 import Link from 'next/link'
 import { Eye, EyeOff } from 'lucide-react'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/'
+  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -40,19 +42,24 @@ export default function LoginPage() {
       return
     }
 
-    const result = await signIn('credentials', {
-      redirect: false,
-      email,
-      password,
-    })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (result?.error) {
+    if (error) {
       toast.error('Email atau password salah')
       return
     }
 
-    const callbackUrl = searchParams.get('callbackUrl')
-    router.push(callbackUrl ? decodeURIComponent(callbackUrl) : '/')
+    router.push(callbackUrl)
+    router.refresh()
+  }
+
+  async function handleGoogleLogin() {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${callbackUrl}`
+      }
+    })
   }
 
   return (
@@ -158,6 +165,7 @@ export default function LoginPage() {
           {/* Google OAuth Button */}
           <Button
             type="button"
+            onClick={handleGoogleLogin}
             className="w-full bg-zinc-900 hover:bg-zinc-800 text-foreground border border-zinc-700 font-semibold py-6 rounded-xl"
             aria-label="Masuk dengan akun Google"
           >

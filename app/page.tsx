@@ -3,12 +3,13 @@ import { InteractiveGrid } from '@/components/interactive-grid'
 import { HeroContent } from '@/components/hero-content'
 import { StatCard } from '@/components/stat-card'
 import { ConcertGrid } from '@/components/concert-grid'
-import { concerts } from '@/lib/data/concerts'
+import { getFeaturedConcerts } from '@/lib/queries/concerts'
 import { ConcertTicker } from '@/components/concert-ticker'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 
-export default function Home() {
+export default async function Home() {
+  const featuredConcerts = await getFeaturedConcerts()
   return (
     <div className="min-h-screen bg-zinc-950 flex flex-col">
       <Navbar />
@@ -27,7 +28,7 @@ export default function Home() {
         </section>
 
         {/* Concert Ticker */}
-        <ConcertTicker concerts={concerts} />
+        <ConcertTicker concerts={featuredConcerts} />
 
         {/* Floating Stats Bar */}
         <section className="relative z-20 mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 -mt-32 sm:-mt-24 mb-16 sm:mb-32">
@@ -66,7 +67,7 @@ export default function Home() {
             </Link>
           </div>
           
-          <ConcertGrid concerts={concerts.slice(0, 3)} />
+          <ConcertGrid concerts={featuredConcerts.slice(0, 3)} />
 
           {/* Mobile View All Button */}
           <div className="mt-8 sm:hidden">

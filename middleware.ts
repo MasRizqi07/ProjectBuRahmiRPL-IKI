@@ -1,22 +1,30 @@
-import { auth } from '@/lib/auth'
-import { NextResponse } from 'next/server'
+import { type NextRequest } from 'next/server'
+import { updateSession } from '@/lib/supabase/middleware'
 
-export default auth((req) => {
-  const token = req.auth
-  const isAdminRoute = req.nextUrl.pathname.startsWith('/admin')
-  const userRole = (token?.user as { role?: string })?.role
-  
-  if (isAdminRoute && userRole !== 'admin') {
-    return NextResponse.redirect(new URL('/login?callbackUrl=/admin', req.url))
-  }
-  
-  if (!token && (isAdminRoute || req.nextUrl.pathname.startsWith('/my-tickets') || req.nextUrl.pathname.startsWith('/payment') || req.nextUrl.pathname.startsWith('/order-confirmation'))) {
-    return NextResponse.redirect(new URL('/login', req.url))
+export async function middleware(request: NextRequest) {
+  const response = await updateSession(request)
+
+  const { pathname } = request.nextUrl
+
+  // Admin route protection
+  if (pathname.startsWith('/admin')) {
+    const supabase = (await import('@/lib/supabase/server')).createClient
+    const client = await supabase()
+    const { data: { user } } = await client.auth.getUser()
+
+    if (!user) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/login'
+      url.searchParams.set('callbackUrl', pathname)
+      return Response.redirect(url)
+    }
   }
 
-  return NextResponse.next()
-})
+  return response
+}
 
 export const config = {
-  matcher: ['/admin/:path*', '/my-tickets/:path*', '/payment/:path*', '/order-confirmation/:path*']
+  matcher: [
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

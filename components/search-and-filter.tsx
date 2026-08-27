@@ -1,15 +1,14 @@
 'use client'
 
-import { useState, useDeferredValue, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface SearchAndFilterProps {
-  onSearchChange: (query: string) => void
-  onFilterChange: (type: 'city' | 'category' | 'status', value: string) => void
-  onClearFilters: () => void
+  cities: string[]
   activeFilters: {
     city?: string
     category?: string
@@ -19,7 +18,6 @@ interface SearchAndFilterProps {
   resultsCount: number
 }
 
-const CITY_FILTERS = ['Jakarta', 'Surabaya', 'Bandung', 'Bali', 'Medan', 'Yogyakarta']
 const CATEGORY_FILTERS = ['pop', 'rock', 'jazz', 'electronic', 'hiphop', 'indie']
 const STATUS_FILTERS = ['available', 'limited', 'soldout']
 
@@ -30,19 +28,39 @@ const STATUS_LABELS: Record<string, string> = {
 }
 
 export function SearchAndFilter({
-  onSearchChange,
-  onFilterChange,
-  onClearFilters,
+  cities,
   activeFilters,
   resultsCount,
 }: SearchAndFilterProps) {
-  const [query, setQuery] = useState('')
-  const deferredQuery = useDeferredValue(query)
-  const hasActiveFilters = Object.values(activeFilters).some(val => val !== undefined && val !== 'all')
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
+  const [query, setQuery] = useState(searchParams.get('q') || '')
+
+  const updateFilter = useCallback((key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value && value !== 'all') {
+      params.set(key, value)
+    } else {
+      params.delete(key)
+    }
+    router.push(`${pathname}?${params.toString()}`)
+  }, [router, pathname, searchParams])
+
+  const onClearFilters = () => {
+    router.push(pathname)
+  }
+
+  const hasActiveFilters = Object.values(activeFilters).some(val => val !== undefined && val !== '')
+
+  // Debounce search
   useEffect(() => {
-    onSearchChange(deferredQuery)
-  }, [deferredQuery, onSearchChange])
+    const timer = setTimeout(() => {
+      updateFilter('q', query || null)
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [query, updateFilter])
 
   return (
     <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl w-full">
@@ -70,10 +88,10 @@ export function SearchAndFilter({
         <div className="space-y-3">
           <p className="font-body text-sm font-semibold text-white/60 uppercase tracking-wider">Kota</p>
           <div className="flex flex-wrap gap-2">
-            {CITY_FILTERS.map((city) => (
+            {cities.map((city) => (
               <button
                 key={city}
-                onClick={() => onFilterChange('city', activeFilters.city === city ? 'all' : city)}
+                onClick={() => updateFilter('city', activeFilters.city === city ? null : city)}
                 className={cn(
                   "px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 border flex items-center gap-1.5",
                   activeFilters.city === city
@@ -95,7 +113,7 @@ export function SearchAndFilter({
             {CATEGORY_FILTERS.map((cat) => (
               <button
                 key={cat}
-                onClick={() => onFilterChange('category', activeFilters.category === cat ? 'all' : cat)}
+                onClick={() => updateFilter('category', activeFilters.category === cat ? null : cat)}
                 className={cn(
                   "px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 border flex items-center gap-1.5 capitalize",
                   activeFilters.category === cat
@@ -117,7 +135,7 @@ export function SearchAndFilter({
             {STATUS_FILTERS.map((status) => (
               <button
                 key={status}
-                onClick={() => onFilterChange('status', activeFilters.status === status ? 'all' : status)}
+                onClick={() => updateFilter('status', activeFilters.status === status ? null : status)}
                 className={cn(
                   "px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 border flex items-center gap-1.5",
                   activeFilters.status === status
