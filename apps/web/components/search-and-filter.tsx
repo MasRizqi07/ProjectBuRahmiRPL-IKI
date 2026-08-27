@@ -49,6 +49,7 @@ export function SearchAndFilter({
   }, [router, pathname, searchParams])
 
   const onClearFilters = () => {
+    setQuery('')
     router.push(pathname)
   }
 
@@ -56,6 +57,9 @@ export function SearchAndFilter({
 
   // Debounce search
   useEffect(() => {
+    const activeQuery = searchParams.get('q') || ''
+    if (query === activeQuery) return
+
     const timer = setTimeout(() => {
       updateFilter('q', query || null)
     }, 500)

@@ -4,8 +4,11 @@ import { createClient } from '@/lib/supabase/server'
 import { Navbar } from '@/components/navbar'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { isSupabaseConfigured } from '@/lib/supabase/config'
 
 export default async function MyTicketsPage() {
+  if (!isSupabaseConfigured()) redirect('/login?callbackUrl=/my-tickets')
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
@@ -17,7 +20,7 @@ export default async function MyTicketsPage() {
     <div className="min-h-screen bg-zinc-950">
       <Navbar />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 sm:pt-32">
         {orders.length === 0 ? (
           <div className="text-center py-20 animate-fade-up">
             <h1 className="font-display text-4xl font-black text-foreground mb-4">

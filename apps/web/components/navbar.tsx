@@ -35,7 +35,7 @@ export function Navbar() {
 
           {/* Right section - Desktop */}
           <div className="hidden lg:flex items-center gap-4">
-            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110" aria-label="Buka keranjang tiket">
+            <Link href="/concerts" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110" aria-label="Pilih tiket konser">
               <ShoppingBag size={20} />
             </Link>
             <div className="flex items-center gap-2">
@@ -44,18 +44,14 @@ export function Navbar() {
               </div>
               <span className="text-xs font-mono font-semibold text-amber-400">LIVE</span>
             </div>
-            <Button
-              variant="outline"
-              className="border-amber-400/50 text-amber-400 hover:bg-amber-400 hover:text-zinc-950 rounded-full px-6 font-bold transition-all duration-300"
-              aria-label="Buka halaman masuk"
-            >
-              Masuk
+            <Button asChild variant="outline" className="border-amber-400/50 text-amber-400 hover:bg-amber-400 hover:text-zinc-950 rounded-full px-6 font-bold transition-all duration-300">
+              <Link href="/login" aria-label="Buka halaman masuk">Masuk</Link>
             </Button>
           </div>
 
           {/* Mobile menu */}
           <div className="lg:hidden flex items-center gap-4">
-            <Link href="/cart" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110" aria-label="Buka keranjang tiket">
+            <Link href="/concerts" className="inline-flex items-center text-zinc-300 hover:text-amber-400 transition-transform hover:scale-110" aria-label="Pilih tiket konser">
               <ShoppingBag size={18} />
             </Link>
             <div className="flex items-center gap-1">
@@ -94,13 +90,11 @@ export function Navbar() {
                     </Link>
                   </SheetClose>
                   <SheetClose asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full border-amber-400 text-amber-400 hover:bg-amber-400 hover:text-zinc-950 rounded-full font-bold transition-all"
+                    <Link
+                      href="/login"
+                      className="block w-full rounded-full border border-amber-400 px-4 py-2 text-center font-bold text-amber-400 transition-all hover:bg-amber-400 hover:text-zinc-950"
                       aria-label="Buka halaman masuk"
-                    >
-                      Masuk
-                    </Button>
+                    >Masuk</Link>
                   </SheetClose>
                 </div>
               </SheetContent>

@@ -12,6 +12,7 @@ interface ConcertsPageProps {
     city?: string
     category?: string
     status?: string
+    q?: string
   }>
 }
 
@@ -25,6 +26,7 @@ export default async function ConcertsPage({ searchParams }: ConcertsPageProps) 
       ...(params.city ? { city: params.city } : {}),
       ...(category.success ? { category: category.data } : {}),
       ...(status.success ? { status: status.data } : {}),
+      ...(params.q ? { query: params.q } : {}),
     }),
     getCities(),
   ])
@@ -33,14 +35,15 @@ export default async function ConcertsPage({ searchParams }: ConcertsPageProps) 
   const activeFilters = {
     city: params.city || '',
     category: params.category || '',
-    status: params.status || ''
+    status: params.status || '',
+    q: params.q || '',
   }
 
   return (
     <div className="min-h-screen bg-zinc-950">
       <Navbar />
 
-      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-12 sm:pt-32">
         <div className="mb-8 animate-fade-up">
           <h1 className="font-display text-4xl sm:text-5xl font-black text-white mb-2">
             Jelajahi Konser

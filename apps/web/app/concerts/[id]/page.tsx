@@ -84,7 +84,7 @@ export default async function ConcertDetailPage({ params }: Props) {
         </div>
       </section>
 
-      <main id="main-content" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-12">
+      <main id="tickets" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row gap-12">
         {/* Main Content - Tickets */}
         <div className="flex-1">
           <div className="mb-8">
@@ -104,7 +104,7 @@ export default async function ConcertDetailPage({ params }: Props) {
           <div className="bg-zinc-900/50 border border-white/5 rounded-2xl p-6 relative overflow-hidden">
             {/* Map Placeholder */}
             <div className="w-full h-40 bg-zinc-800 rounded-xl mb-6 flex items-center justify-center border border-white/5 relative overflow-hidden">
-              <div className="absolute inset-0 bg-[url('/images/map-pattern.png')] bg-cover bg-center opacity-20 mix-blend-overlay" />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.25),transparent_65%)] opacity-70" />
               <MapPin className="text-white/20" size={48} />
               <div className="absolute bottom-3 left-3 bg-zinc-950/80 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-md">
                 <span className="text-xs font-semibold text-white/70">Lihat Peta</span>
@@ -175,13 +175,7 @@ export default async function ConcertDetailPage({ params }: Props) {
             <p className="font-body text-xs text-white/50 mb-0.5">Mulai dari</p>
             <p className="font-mono text-lg font-bold text-white leading-none">{formatIDR(lowestPrice)}</p>
           </div>
-          <Link href="#tickets" onClick={(e) => {
-            e.preventDefault();
-            const el = document.querySelector('.max-w-7xl');
-            if(el) {
-               window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
-            }
-          }}>
+          <Link href="#tickets">
             <button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-bold py-3 px-8 rounded-full shadow-lg shadow-violet-500/25 transition-all active:scale-95">
               Beli Tiket
             </button>

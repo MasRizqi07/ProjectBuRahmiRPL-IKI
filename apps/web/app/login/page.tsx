@@ -14,7 +14,6 @@ export default function LoginPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get('callbackUrl') ?? '/'
-  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -37,12 +36,13 @@ export default function LoginPage() {
     else if (password.length < 8) newErrors.password = 'Password minimal 8 karakter'
 
     setErrors(newErrors)
+    setTouched({ email: true, password: true })
 
     if (Object.keys(newErrors).length > 0) {
       return
     }
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await createClient().auth.signInWithPassword({ email, password })
 
     if (error) {
       toast.error('Email atau password salah')
@@ -54,7 +54,7 @@ export default function LoginPage() {
   }
 
   async function handleGoogleLogin() {
-    await supabase.auth.signInWithOAuth({
+    await createClient().auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: `${window.location.origin}/auth/callback?next=${callbackUrl}`

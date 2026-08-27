@@ -22,6 +22,7 @@ const spaceMono = Space_Mono({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'),
   title: 'WAR TICKET - Platform Tiket Konser Indonesia',
   description: 'Platform tiket konser Indonesia paling kompetitif dengan ribuan penawaran terbaik',
   generator: 'v0.app',

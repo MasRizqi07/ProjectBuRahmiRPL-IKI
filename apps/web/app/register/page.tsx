@@ -49,7 +49,7 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-zinc-950">
       <Navbar />
-      <main id="main-content" className="mx-auto flex max-w-md flex-col px-4 py-12">
+      <main id="main-content" className="mx-auto flex max-w-md flex-col px-4 pt-28 pb-12 sm:pt-32">
         <header className="mb-8 text-center">
           <h1 className="text-3xl font-black text-white">Buat akun</h1>
           <p className="mt-2 text-zinc-400">Satu akun untuk antrean dan seluruh tiket Anda.</p>
