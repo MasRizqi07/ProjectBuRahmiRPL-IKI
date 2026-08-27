@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>War Ticket - Queue</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#261900",
+                        "primary-fixed-dim": "#fabd32",
+                        "surface-container": "#201f1f",
+                        "primary-fixed": "#ffdea4",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#7b5900",
+                        "error": "#ffb4ab",
+                        "text-secondary": "#666666",
+                        "background": "#131313",
+                        "outline": "#9c8f7a",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "status-green": "#10B981",
+                        "surface-tint": "#fabd32",
+                        "surface-dim": "#131313",
+                        "surface-container-highest": "#353534",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "outline-variant": "#504534",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary": "#003549",
+                        "on-tertiary-fixed": "#001e2c",
+                        "surface": "#131313",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-surface-variant": "#d4c5ad",
+                        "surface-variant": "#353534",
+                        "on-secondary-container": "#b7b5b4",
+                        "secondary-container": "#474746",
+                        "surface-bright": "#3a3939",
+                        "on-background": "#e5e2e1",
+                        "secondary": "#c8c6c5",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "war-gold": "#F0B429",
+                        "inverse-surface": "#e5e2e1",
+                        "primary-container": "#f0b429",
+                        "on-surface": "#e5e2e1",
+                        "urgent-red": "#EF4444",
+                        "on-secondary-fixed-variant": "#474746",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "primary": "#ffd481",
+                        "tertiary": "#aee0ff",
+                        "error-container": "#93000a",
+                        "on-primary": "#412d00",
+                        "on-primary-container": "#644800",
+                        "text-primary": "#FFFFFF",
+                        "tertiary-fixed": "#c3e8ff",
+                        "on-error": "#690005",
+                        "on-secondary": "#313030",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "surface-grey": "#1A1A1A",
+                        "tertiary-container": "#5bc9ff",
+                        "on-tertiary-container": "#005371",
+                        "on-secondary-fixed": "#1c1b1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "display-md": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-xl-mobile": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "display-md": ["32px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-xl": ["80px", { "lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-xl-mobile": ["36px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glow-pulse {
+            animation: glowPulse 2s infinite alternate;
+        }
+        @keyframes glowPulse {
+            0% { box-shadow: 0 0 10px rgba(240, 180, 41, 0.2); }
+            100% { box-shadow: 0 0 30px rgba(240, 180, 41, 0.6); }
+        }
+        
+        .spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .ticker-wrap {
+            width: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding-left: 100%; 
+        }
+        .ticker {
+            display: inline-block;
+            white-space: nowrap;
+            animation: ticker 15s linear infinite;
+        }
+        @keyframes ticker {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        .live-pulse {
+            animation: livePulse 1.5s ease-in-out infinite;
+        }
+        @keyframes livePulse {
+            0% { transform: scale(0.95); opacity: 0.7; }
+            50% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(0.95); opacity: 0.7; }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
+<!-- TopNavBar (Suppressed due to linear/transactional intent, but keeping brand presence minimal) -->
+<header class="absolute top-0 w-full flex justify-center py-6 z-50">
+<h1 class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</h1>
+</header>
+<!-- Main Content Canvas -->
+<main class="w-full max-w-container-max px-margin-mobile md:px-margin-desktop flex flex-col items-center z-10">
+<!-- Safety Alert -->
+<div class="mb-stack-lg bg-error-container/20 border border-urgent-red/50 rounded-xl px-6 py-3 flex items-center gap-3 shadow-[0_0_15px_rgba(239,68,68,0.2)] animate-pulse">
+<span class="material-symbols-outlined text-urgent-red" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-headline-lg text-headline-lg text-urgent-red uppercase tracking-wide">Jangan Refresh Halaman Ini</span>
+</div>
+<!-- Animated Progress Circle -->
+<div class="relative w-64 h-64 md:w-80 md:h-80 flex items-center justify-center mb-stack-lg">
+<!-- Outer glowing ring -->
+<div class="absolute inset-0 rounded-full border-4 border-war-gold/20 glow-pulse"></div>
+<!-- Spinning dashed ring -->
+<div class="absolute inset-2 rounded-full border-4 border-dashed border-war-gold/50 spin-slow"></div>
+<!-- Central Info -->
+<div class="flex flex-col items-center text-center z-10 bg-surface-container/80 p-8 rounded-full backdrop-blur-md border border-white/5">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-2">Posisi Anda</span>
+<span class="font-display-xl text-display-xl text-war-gold live-pulse">1,240</span>
+</div>
+</div>
+<!-- Live Counters -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md w-full max-w-2xl mb-stack-lg">
+<!-- Wait Time -->
+<div class="bg-surface-container-low/80 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-t from-war-gold/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<span class="material-symbols-outlined text-war-gold mb-2 text-3xl" style="font-variation-settings: 'FILL' 0;">timer</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Estimasi Waktu Tunggu</span>
+<span class="font-display-md text-display-md text-text-primary">~5 Menit</span>
+</div>
+<!-- Ahead in Queue -->
+<div class="bg-surface-container-low/80 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-t from-tertiary-container/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<span class="material-symbols-outlined text-tertiary mb-2 text-3xl" style="font-variation-settings: 'FILL' 0;">group</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Antrian di Depan Anda</span>
+<span class="font-display-md text-display-md text-text-primary">1,239</span>
+</div>
+</div>
+</main>
+<!-- Live Feed Ticker -->
+<div class="absolute bottom-0 w-full bg-surface-container-highest border-t border-white/10 py-3 z-50">
+<div class="ticker-wrap flex items-center">
+<div class="flex items-center gap-2 mr-6 shrink-0 bg-urgent-red text-text-primary px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider live-pulse">
+<span class="w-2 h-2 rounded-full bg-white animate-ping"></span> Live Updates
+            </div>
+<div class="ticker font-headline-lg text-headline-lg text-war-gold flex gap-12 items-center">
+<span>CAT 1: <span class="text-urgent-red">SOLD OUT</span></span>
+<span class="text-white/20">•</span>
+<span>VIP: <span class="text-tertiary">Limited Availability</span></span>
+<span class="text-white/20">•</span>
+<span>CAT 2: <span class="text-status-green">Available</span></span>
+<span class="text-white/20">•</span>
+<span>CAT 3: <span class="text-status-green">Available</span></span>
+</div>
+</div>
+</div>
+<!-- Ambient Background Effects -->
+<div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+<div class="absolute top-[20%] left-[20%] w-96 h-96 bg-brand-glow rounded-full blur-[100px] opacity-30"></div>
+<div class="absolute bottom-[10%] right-[10%] w-64 h-64 bg-tertiary/10 rounded-full blur-[80px] opacity-20"></div>
+</div>
+</body></html>

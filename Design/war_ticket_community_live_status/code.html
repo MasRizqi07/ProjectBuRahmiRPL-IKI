@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>War Ticket - The Frontline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-highest": "#353534",
+                      "status-green": "#10B981",
+                      "secondary": "#c8c6c5",
+                      "outline-variant": "#504534",
+                      "inverse-on-surface": "#313030",
+                      "surface-bright": "#3a3939",
+                      "primary": "#ffd481",
+                      "surface-grey": "#1A1A1A",
+                      "surface-container": "#201f1f",
+                      "on-primary-fixed-variant": "#5d4200",
+                      "error": "#ffb4ab",
+                      "urgent-red": "#EF4444",
+                      "on-error-container": "#ffdad6",
+                      "on-background": "#e5e2e1",
+                      "primary-fixed-dim": "#fabd32",
+                      "surface-container-lowest": "#0e0e0e",
+                      "surface-container-high": "#2a2a2a",
+                      "surface-tint": "#fabd32",
+                      "on-primary-fixed": "#261900",
+                      "error-container": "#93000a",
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "on-tertiary-container": "#005371",
+                      "primary-fixed": "#ffdea4",
+                      "tertiary-fixed-dim": "#7ad0ff",
+                      "brand-glow": "rgba(240, 180, 41, 0.1)",
+                      "on-tertiary-fixed": "#001e2c",
+                      "on-primary": "#412d00",
+                      "secondary-fixed": "#e5e2e1",
+                      "tertiary-fixed": "#c3e8ff",
+                      "background": "#131313",
+                      "primary-container": "#f0b429",
+                      "text-primary": "#FFFFFF",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-secondary": "#313030",
+                      "surface-variant": "#353534",
+                      "on-surface": "#e5e2e1",
+                      "tertiary-container": "#5bc9ff",
+                      "surface": "#131313",
+                      "surface-container-low": "#1c1b1b",
+                      "on-secondary-fixed-variant": "#474746",
+                      "on-error": "#690005",
+                      "inverse-primary": "#7b5900",
+                      "inverse-surface": "#e5e2e1",
+                      "on-secondary-container": "#b7b5b4",
+                      "on-tertiary": "#003549",
+                      "war-gold": "#F0B429",
+                      "tertiary": "#aee0ff",
+                      "text-secondary": "#666666",
+                      "outline": "#9c8f7a",
+                      "surface-dim": "#131313",
+                      "on-surface-variant": "#d4c5ad",
+                      "on-primary-container": "#644800",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "secondary-container": "#474746"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "40px",
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px",
+                      "stack-md": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Bebas Neue"
+                      ],
+                      "display-md": [
+                              "Bebas Neue"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-xl-mobile": [
+                              "Bebas Neue"
+                      ],
+                      "display-xl": [
+                              "Bebas Neue"
+                      ],
+                      "headline-lg": [
+                              "Bebas Neue"
+                      ],
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-xl-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "display-xl": [
+                              "80px",
+                              {
+                                      "lineHeight": "80px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .glass-panel {
+            background: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .live-indicator::after {
+            content: '';
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 2px solid #10B981;
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        .gold-glow:hover {
+            box-shadow: 0 0 20px rgba(240, 184, 41, 0.3);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col relative overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="docked full-width top-0 sticky z-50 bg-surface/80 backdrop-blur-xl dark:bg-surface/80 border-b border-white/10 shadow-xl hidden md:block">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<div class="flex space-x-6">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200" href="#">Jelajahi</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200" href="#">Promo</a>
+<a class="font-label-sm text-label-sm text-war-gold border-b-2 border-war-gold pb-1 hover:scale-105 transition-transform duration-200" href="#">Cek Pesanan</a>
+</div>
+<div class="flex items-center space-x-4">
+<span class="material-symbols-outlined text-war-gold dark:text-primary cursor-pointer hover:scale-105 transition-transform duration-200" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-war-gold dark:text-primary cursor-pointer hover:scale-105 transition-transform duration-200" data-icon="shopping_bag">shopping_bag</span>
+<img alt="User avatar with live pulse status" class="w-8 h-8 rounded-full border border-war-gold" data-alt="A small circular user avatar image representing a profile in a dark themed UI. It features a generic futuristic silhouette against a deep black background with subtle gold lighting accents, maintaining the premium high-stakes aesthetic of the ticket war platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXdwDJ_SRC-MvOs2acBu0GOBt0NVlHBTzAJM0IOm4SIHzKtaDtE8pPL9V_3H5uhgzHwcZZdOSN66kcA02u7G910mupsc0bqPRsAnqIpIG3bh2p8OrHuqMIwqipC1oTLHUFvuxlRj7W47pqj2NqDvjgxLw4Sw5Ra0wIvzumlH68b7jYP1WdbyaFZ-AtlW2u2ekAAVP2IY9TzG8cfGGO0Z78F2VsSjkLzYmAFSjvTIEvYs1zQJ82FdITsw"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg flex flex-col space-y-stack-lg">
+<!-- Header Section -->
+<header class="text-center space-y-stack-sm mb-stack-md">
+<div class="inline-flex items-center space-x-2 bg-surface-container-high px-4 py-2 rounded-full border border-white/10 mb-4">
+<div class="w-2 h-2 rounded-full bg-status-green relative live-indicator"></div>
+<span class="font-label-sm text-label-sm text-status-green uppercase tracking-wider">System Health: Optimal</span>
+</div>
+<h1 class="font-display-xl text-display-xl-mobile md:text-display-xl text-text-primary uppercase">The Frontline</h1>
+<p class="font-body-lg text-body-lg text-text-secondary max-w-2xl mx-auto">Live intelligence from the ticketing battlefield. See who's securing the bag in real-time.</p>
+</header>
+<!-- Stats Grid (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<!-- Active Warriors Card -->
+<div class="glass-panel rounded-xl p-6 flex flex-col justify-center items-center text-center space-y-2 gold-glow transition-all duration-300">
+<span class="material-symbols-outlined text-war-gold text-4xl mb-2" data-icon="groups">groups</span>
+<h2 class="font-display-md text-display-md text-war-gold">14,592</h2>
+<p class="font-label-sm text-label-sm text-text-secondary uppercase tracking-widest">Active Warriors</p>
+</div>
+<!-- Global Queue Status -->
+<div class="glass-panel rounded-xl p-6 flex flex-col justify-center items-center text-center space-y-2 md:col-span-2 relative overflow-hidden group">
+<div class="absolute inset-0 bg-brand-glow opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+<div class="flex items-center justify-between w-full relative z-10">
+<div class="text-left">
+<h3 class="font-headline-lg text-headline-lg text-text-primary mb-1">Coldplay: Spheres Tour</h3>
+<p class="font-label-sm text-label-sm text-urgent-red font-bold">LIMITED AVAILABILITY</p>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-display-lg text-display-lg text-war-gold">#4,209</span>
+<span class="font-label-sm text-label-sm text-text-secondary uppercase">Current Queue Avg.</span>
+</div>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full mt-4 overflow-hidden">
+<div class="bg-war-gold h-full w-[85%] rounded-full shadow-[0_0_10px_#F0B429]"></div>
+</div>
+</div>
+</div>
+<!-- Two Column Layout for Feed & Wall -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter mt-stack-lg">
+<!-- Real-time Success Feed -->
+<div class="md:col-span-5 glass-panel rounded-xl p-6 h-[600px] flex flex-col">
+<div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+<h3 class="font-headline-lg text-headline-lg text-text-primary uppercase tracking-wide">Recent Victories</h3>
+<div class="w-3 h-3 rounded-full bg-status-green relative live-indicator"></div>
+</div>
+<div class="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+<!-- Feed Item -->
+<div class="bg-surface-container-high rounded-lg p-4 border border-white/5 flex items-start space-x-4 animate-[slideIn_0.5s_ease-out]">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-war-gold/30 shrink-0">
+<span class="material-symbols-outlined text-war-gold" data-icon="check_circle">check_circle</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-text-primary"><span class="font-bold text-war-gold">@AlexJ</span> secured 2x VIP for <span class="font-bold">Tomorrowland</span></p>
+<span class="font-label-sm text-label-sm text-text-secondary">Just now</span>
+</div>
+</div>
+<!-- Feed Item -->
+<div class="bg-surface-container-high rounded-lg p-4 border border-white/5 flex items-start space-x-4 animate-[slideIn_0.5s_ease-out_0.1s_both]">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-war-gold/30 shrink-0">
+<span class="material-symbols-outlined text-war-gold" data-icon="confirmation_number">confirmation_number</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-text-primary"><span class="font-bold text-war-gold">@Sarah99</span> grabbed 1x GA for <span class="font-bold">Taylor Swift</span></p>
+<span class="font-label-sm text-label-sm text-text-secondary">12s ago</span>
+</div>
+</div>
+<!-- Feed Item -->
+<div class="bg-surface-container-high rounded-lg p-4 border border-white/5 flex items-start space-x-4 animate-[slideIn_0.5s_ease-out_0.2s_both]">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-war-gold/30 shrink-0">
+<span class="material-symbols-outlined text-war-gold" data-icon="star">star</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-text-primary"><span class="font-bold text-war-gold">@MikeT</span> secured 4x Platinum for <span class="font-bold">F1 Singapore</span></p>
+<span class="font-label-sm text-label-sm text-text-secondary">45s ago</span>
+</div>
+</div>
+<!-- Feed Item -->
+<div class="bg-surface-container-high rounded-lg p-4 border border-white/5 flex items-start space-x-4 opacity-70">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-war-gold/30 shrink-0">
+<span class="material-symbols-outlined text-war-gold" data-icon="confirmation_number">confirmation_number</span>
+</div>
+<div>
+<p class="font-body-md text-body-md text-text-primary"><span class="font-bold text-war-gold">@ElenaV</span> grabbed 2x GA for <span class="font-bold">Dua Lipa</span></p>
+<span class="font-label-sm text-label-sm text-text-secondary">1m ago</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Live Wall of Upcoming Wars -->
+<div class="md:col-span-7 space-y-stack-md">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-display-md text-display-md text-text-primary uppercase tracking-wide">Upcoming Wars</h3>
+<a class="font-label-sm text-label-sm text-war-gold hover:underline flex items-center" href="#">View All <span class="material-symbols-outlined ml-1 text-sm" data-icon="arrow_forward">arrow_forward</span></a>
+</div>
+<!-- Event Card 1 -->
+<div class="glass-panel rounded-xl overflow-hidden group relative flex flex-col md:flex-row min-h-[160px] gold-glow transition-all duration-300 cursor-pointer">
+<div class="md:w-1/3 h-40 md:h-auto relative">
+<img alt="Festival Event" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A dynamic, high-contrast poster image for an electronic dance music festival. The scene features intense laser lights piercing through dark smoke, predominantly in neon blues and purples, contrasting with deep black shadows. The style is modern, electric, and evokes a high-energy nightlife vibe suitable for a premium ticketing platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_HQV7emOGSkBFlQ38YOQARxNJpBt76XxxKLXebif3h45MRmrOF-bZb1xGKlgkZ0jhAsMsHhWkd-NocSuK1VK7s85ulfQAL0MbPItMiuzJf9_qvyNaZmLbNGA5nQpnP1gR4wHd7mtrP8Jgxd4fjrE0jeAViJ6fRqQGk3lNpyefuuBvE6tcw6jguvoQ8vfMCkkyDqLs5oWaYmHnUtTFI0EyER-Ru5iIpX5RZGVgoB-vNg3K7ll90NWPOg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-grey to-transparent md:bg-gradient-to-r md:from-transparent md:to-surface-grey"></div>
+<div class="absolute top-2 right-2 bg-urgent-red text-white font-label-sm text-label-sm px-2 py-1 rounded-md tracking-wider">HOT</div>
+</div>
+<div class="p-6 md:w-2/3 flex flex-col justify-center relative z-10">
+<h4 class="font-headline-lg text-headline-lg text-text-primary mb-2">Ultra Music Festival</h4>
+<p class="font-body-md text-body-md text-text-secondary mb-4"><span class="material-symbols-outlined text-sm align-middle mr-1" data-icon="calendar_month">calendar_month</span> Opens in 2hrs 45m</p>
+<div class="mt-auto">
+<button class="bg-primary-container text-on-primary font-label-sm text-label-sm px-6 py-2 rounded-lg font-bold w-full md:w-auto hover:bg-primary-fixed-dim transition-colors shadow-[0_0_15px_rgba(240,184,41,0.2)]">PREPARE FOR WAR</button>
+</div>
+</div>
+</div>
+<!-- Event Card 2 -->
+<div class="glass-panel rounded-xl overflow-hidden group relative flex flex-col md:flex-row min-h-[160px] gold-glow transition-all duration-300 cursor-pointer">
+<div class="md:w-1/3 h-40 md:h-auto relative">
+<img alt="Concert Event" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A sleek, dramatic promotional image for an arena pop concert. The visual shows a massive stadium illuminated by thousands of glowing wristbands in the dark, with a spectacular stage setup glowing in intense warm gold and deep black tones. The atmosphere is monumental and highly anticipated." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpkVmiXNAYChkq1rdc9rJ5uEE1enmMMU2P2tUiq9ElpMPStZol-_kh4Wl0Ne5-BeDjAS0rMmDpYS7J-tQdCr5dq_95fLCa4tAPG2nQKyCaeaCRGYq8oAz7wD6PbMBdsqkG3Jw52a5o4iuFx-V6YxbTtL_z21zkvoMlKn8z-7ZhuDo8PvoYrm5FIAfPWJg72knYto2kzBLjoujRlnerXhTtPvYtQJs6nprjErx_3lbVcTlYgXyBYZb60w"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-grey to-transparent md:bg-gradient-to-r md:from-transparent md:to-surface-grey"></div>
+</div>
+<div class="p-6 md:w-2/3 flex flex-col justify-center relative z-10">
+<h4 class="font-headline-lg text-headline-lg text-text-primary mb-2">The Eras Tour - Resale</h4>
+<p class="font-body-md text-body-md text-text-secondary mb-4"><span class="material-symbols-outlined text-sm align-middle mr-1" data-icon="calendar_month">calendar_month</span> Opens Tomorrow 10:00 AM</p>
+<div class="mt-auto">
+<button class="border border-war-gold text-war-gold font-label-sm text-label-sm px-6 py-2 rounded-lg font-bold w-full md:w-auto hover:bg-war-gold/10 transition-colors">SET REMINDER</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex justify-around items-center h-16 w-full px-4">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1" href="#">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="full-width bg-surface-container-lowest dark:bg-background border-t border-surface-variant mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div>
+<h2 class="font-display-md text-display-md text-war-gold mb-4">WAR TICKET</h2>
+<p class="font-body-md text-body-md text-text-secondary text-sm">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+<div class="flex flex-col space-y-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col space-y-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Payment Partners</a>
+</div>
+<div class="flex flex-col space-y-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+<style>
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Custom scrollbar for dark theme */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.02);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(240, 184, 41, 0.2);
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(240, 184, 41, 0.5);
+        }
+    </style>
+</body></html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAR TICKET - Audit Log</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#353534",
+                        "status-green": "#10B981",
+                        "secondary": "#c8c6c5",
+                        "outline-variant": "#504534",
+                        "inverse-on-surface": "#313030",
+                        "surface-bright": "#3a3939",
+                        "primary": "#ffd481",
+                        "surface-grey": "#1A1A1A",
+                        "surface-container": "#201f1f",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "error": "#ffb4ab",
+                        "urgent-red": "#EF4444",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#e5e2e1",
+                        "primary-fixed-dim": "#fabd32",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-tint": "#fabd32",
+                        "on-primary-fixed": "#261900",
+                        "error-container": "#93000a",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "on-tertiary-container": "#005371",
+                        "primary-fixed": "#ffdea4",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "on-tertiary-fixed": "#001e2c",
+                        "on-primary": "#412d00",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary-fixed": "#c3e8ff",
+                        "background": "#131313",
+                        "primary-container": "#f0b429",
+                        "text-primary": "#FFFFFF",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary": "#313030",
+                        "surface-variant": "#353534",
+                        "on-surface": "#e5e2e1",
+                        "tertiary-container": "#5bc9ff",
+                        "surface": "#131313",
+                        "surface-container-low": "#1c1b1b",
+                        "on-secondary-fixed-variant": "#474746",
+                        "on-error": "#690005",
+                        "inverse-primary": "#7b5900",
+                        "inverse-surface": "#e5e2e1",
+                        "on-secondary-container": "#b7b5b4",
+                        "on-tertiary": "#003549",
+                        "war-gold": "#F0B429",
+                        "tertiary": "#aee0ff",
+                        "text-secondary": "#666666",
+                        "outline": "#9c8f7a",
+                        "surface-dim": "#131313",
+                        "on-surface-variant": "#d4c5ad",
+                        "on-primary-container": "#644800",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "secondary-container": "#474746"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "40px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px",
+                        "stack-sm": "8px",
+                        "stack-lg": "32px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Bebas Neue"],
+                        "display-md": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-xl-mobile": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "headline-lg": ["Bebas Neue"],
+                        "label-sm": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "display-md": ["32px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-xl-mobile": ["36px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "display-xl": ["80px", { "lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }]
+                    }
+                },
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #131313;
+            color: #FFFFFF;
+        }
+        .glass-panel {
+            background: rgba(32, 31, 31, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .pulse-ring {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.7); }
+            70% { transform: scale(1); opacity: 1; box-shadow: 0 0 0 10px rgba(240, 180, 41, 0); }
+            100% { transform: scale(0.8); opacity: 0.5; box-shadow: 0 0 0 0 rgba(240, 180, 41, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+<!-- TopNav Suppression Logic: Admin screens typically sit under a separate dashboard hierarchy, 
+         but we'll include it here as it represents a top-level destination for admins within the ecosystem, 
+         though we'll map no tab as active since this is an admin view (none match strictly). -->
+<nav class="bg-surface/80 backdrop-blur-xl dark:bg-surface/80 docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl hidden md:block">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">
+                WAR TICKET
+            </div>
+<div class="flex items-center gap-6">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Jelajahi</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Promo</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Cek Pesanan</a>
+</div>
+<div class="flex items-center gap-4 text-war-gold dark:text-primary">
+<span class="material-symbols-outlined hover:scale-105 transition-transform duration-200 cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined hover:scale-105 transition-transform duration-200 cursor-pointer" data-icon="shopping_bag">shopping_bag</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-war-gold relative">
+<div class="absolute inset-0 border border-war-gold rounded-full pulse-ring"></div>
+<img alt="User avatar with live pulse status" class="w-full h-full object-cover relative z-10" data-alt="A small circular avatar placeholder showing a generic user silhouette in high contrast monochrome with a slight gold tint on a dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu31BQ_2jFzRXfj2So7sTSleuvVTVIP8q1-fgd2-lbYU5wparIZ1dommWhHyW-0BdyevLudPGdLUFODdgS-nmA5VaLb3yQ2RaCaU7Rrt8xcxnwfm9KZ9EbK5TT7ypHHVBVA-BnVDt2LEpAn8muRknDUAl3K_vQnrDULh0rQxv29nCfjr0e1slCZWJftfL30SwP0X9a1txlrjMPp5q0aiQjIaGrfbx44f-epj_m4tZBg5rrSjiq8GKd_A"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="flex-grow px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto w-full">
+<header class="mb-stack-lg flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h1 class="font-display-xl text-display-xl-mobile md:text-display-xl text-war-gold tracking-tight">System Audit Log</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Real-time monitoring of critical platform actions and security events.</p>
+</div>
+<div class="flex items-center gap-2 text-status-green font-label-sm text-label-sm bg-surface-container-high px-4 py-2 rounded-full border border-white/10">
+<span class="w-2 h-2 rounded-full bg-status-green animate-pulse"></span>
+                LIVE MONITORING ACTIVE
+            </div>
+</header>
+<!-- Filters & Search -->
+<section class="glass-panel rounded-xl p-4 md:p-6 mb-stack-lg flex flex-col md:flex-row gap-4">
+<div class="flex-grow relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full bg-[#090909] border border-surface-variant text-on-surface rounded-lg pl-12 pr-4 py-3 font-body-md text-body-md focus:border-war-gold focus:ring-1 focus:ring-war-gold focus:outline-none transition-colors" placeholder="Search by Action ID, User, or IP..." type="text"/>
+</div>
+<div class="flex gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">calendar_today</span>
+<input class="bg-[#090909] border border-surface-variant text-on-surface rounded-lg pl-12 pr-4 py-3 font-body-md text-body-md focus:border-war-gold focus:ring-1 focus:ring-war-gold focus:outline-none transition-colors [color-scheme:dark]" type="date"/>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">filter_list</span>
+<select class="bg-[#090909] border border-surface-variant text-on-surface rounded-lg pl-12 pr-8 py-3 font-body-md text-body-md focus:border-war-gold focus:ring-1 focus:ring-war-gold focus:outline-none transition-colors appearance-none">
+<option>All Events</option>
+<option>COLDPLAY 2024</option>
+<option>TAYLOR SWIFT ERAS</option>
+<option>SYSTEM LEVEL</option>
+</select>
+</div>
+<button class="bg-surface-container-highest border border-surface-variant text-on-surface font-label-sm text-label-sm px-6 rounded-lg hover:bg-surface-bright transition-colors flex items-center justify-center gap-2 whitespace-nowrap">
+<span class="material-symbols-outlined">download</span>
+                    Export CSV
+                </button>
+</div>
+</section>
+<!-- Audit Table Canvas -->
+<section class="glass-panel rounded-xl overflow-hidden shadow-2xl">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest/50 border-b border-surface-variant">
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Timestamp</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Action</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Actor</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Target Event</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">IP Address</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase">Status</th>
+<th class="px-6 py-4 font-label-sm text-label-sm text-on-surface-variant uppercase text-right">Details</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<!-- Row 1 -->
+<tr class="border-b border-surface-variant/50 hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-on-surface">2024-05-12 14:32:01</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-urgent-red text-sm">warning</span>
+<span class="text-urgent-red font-semibold">Inventory Override</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-on-surface">admin_jw</td>
+<td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">COLDPLAY 2024 (ID: 9921)</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-on-surface-variant">192.168.1.45</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-2 py-1 rounded bg-status-green/20 text-status-green font-label-sm text-[10px] uppercase border border-status-green/30">Success</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-war-gold hover:text-primary transition-colors"><span class="material-symbols-outlined">visibility</span></button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-surface-variant/50 hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-on-surface">2024-05-12 14:15:22</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-war-gold text-sm">payments</span>
+<span class="text-on-surface">Manual Refund</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-on-surface">support_sarah</td>
+<td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">TAYLOR SWIFT ERAS (ID: 8832)</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-on-surface-variant">10.0.0.22</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-2 py-1 rounded bg-status-green/20 text-status-green font-label-sm text-[10px] uppercase border border-status-green/30">Success</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-war-gold hover:text-primary transition-colors"><span class="material-symbols-outlined">visibility</span></button>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-surface-variant/50 hover:bg-surface-container/50 transition-colors">
+<td class="px-6 py-4 whitespace-nowrap text-on-surface">2024-05-12 13:50:05</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container text-sm">edit_attributes</span>
+<span class="text-on-surface">Price Change</span>
+</div>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-on-surface">sys_auto</td>
+<td class="px-6 py-4 whitespace-nowrap text-on-surface-variant">DJK FESTIVAL (ID: 4410)</td>
+<td class="px-6 py-4 whitespace-nowrap font-mono text-sm text-on-surface-variant">127.0.0.1</td>
+<td class="px-6 py-4 whitespace-nowrap">
+<span class="px-2 py-1 rounded bg-urgent-red/20 text-urgent-red font-label-sm text-[10px] uppercase border border-urgent-red/30">Failed</span>
+</td>
+<td class="px-6 py-4 whitespace-nowrap text-right">
+<button class="text-war-gold hover:text-primary transition-colors"><span class="material-symbols-outlined">visibility</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 border-t border-surface-variant bg-surface-container-highest/30 flex items-center justify-between">
+<span class="font-body-md text-body-md text-on-surface-variant">Showing 1-3 of 1,024 events</span>
+<div class="flex gap-2">
+<button class="w-8 h-8 rounded border border-surface-variant flex items-center justify-center text-on-surface-variant hover:border-war-gold hover:text-war-gold transition-colors disabled:opacity-50"><span class="material-symbols-outlined text-sm">chevron_left</span></button>
+<button class="w-8 h-8 rounded border border-war-gold bg-brand-glow text-war-gold flex items-center justify-center font-label-sm text-label-sm">1</button>
+<button class="w-8 h-8 rounded border border-surface-variant flex items-center justify-center text-on-surface-variant hover:border-war-gold hover:text-war-gold transition-colors font-label-sm text-label-sm">2</button>
+<button class="w-8 h-8 rounded border border-surface-variant flex items-center justify-center text-on-surface-variant hover:border-war-gold hover:text-war-gold transition-colors font-label-sm text-label-sm">3</button>
+<button class="w-8 h-8 rounded border border-surface-variant flex items-center justify-center text-on-surface-variant hover:border-war-gold hover:text-war-gold transition-colors"><span class="material-symbols-outlined text-sm">chevron_right</span></button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Suppression Logic: Admin interfaces typically do not use mobile bottom navs designed for consumer app navigation. Suppressed. -->
+<footer class="bg-surface-container-lowest dark:bg-background full-width border-t border-surface-variant flat mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1">
+<div class="font-display-md text-display-md text-war-gold mb-4">WAR TICKET</div>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Payment Partners</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

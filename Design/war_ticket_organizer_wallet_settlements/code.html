@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Organizer Financial Dashboard - War Ticket</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "tertiary-fixed": "#c3e8ff",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "on-tertiary": "#003549",
+                        "surface-container-highest": "#353534",
+                        "inverse-on-surface": "#313030",
+                        "tertiary-container": "#5bc9ff",
+                        "inverse-primary": "#7b5900",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container-low": "#1c1b1b",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "surface-grey": "#1A1A1A",
+                        "surface-bright": "#3a3939",
+                        "surface-dim": "#131313",
+                        "primary-container": "#f0b429",
+                        "on-tertiary-fixed": "#001e2c",
+                        "surface-tint": "#fabd32",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#474746",
+                        "outline": "#9c8f7a",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "outline-variant": "#504534",
+                        "on-error": "#690005",
+                        "primary": "#ffd481",
+                        "text-secondary": "#666666",
+                        "surface-container-high": "#2a2a2a",
+                        "error-container": "#93000a",
+                        "primary-fixed-dim": "#fabd32",
+                        "on-surface-variant": "#d4c5ad",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#474746",
+                        "primary-fixed": "#ffdea4",
+                        "secondary": "#c8c6c5",
+                        "on-surface": "#e5e2e1",
+                        "surface": "#131313",
+                        "urgent-red": "#EF4444",
+                        "on-secondary": "#313030",
+                        "tertiary": "#aee0ff",
+                        "on-error-container": "#ffdad6",
+                        "background": "#131313",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "text-primary": "#FFFFFF",
+                        "inverse-surface": "#e5e2e1",
+                        "war-gold": "#F0B429",
+                        "on-secondary-container": "#b7b5b4",
+                        "on-primary": "#412d00",
+                        "on-background": "#e5e2e1",
+                        "surface-container": "#201f1f",
+                        "on-primary-fixed": "#261900",
+                        "surface-variant": "#353534",
+                        "status-green": "#10B981",
+                        "on-tertiary-container": "#005371",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "on-primary-container": "#644800"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "container-max": "1280px",
+                        "stack-lg": "32px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "gutter": "24px",
+                        "stack-md": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-md": ["Bebas Neue"],
+                        "display-xl-mobile": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-xl": ["80px", { "lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-md": ["32px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-xl-mobile": ["36px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #131313; color: #FFFFFF; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-card { background: rgba(26, 26, 26, 0.4); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass-card-high { background: rgba(26, 26, 26, 0.6); backdrop-filter: blur(20px); border: 0.5px solid #F0B429; }
+        .hover-glow:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(240, 184, 41, 0.3); transition: all 0.3s ease; }
+        .btn-primary { background-color: #F0B429; color: #131313; transition: all 0.3s ease; }
+        .btn-primary:hover { box-shadow: 0 0 20px rgba(240, 184, 41, 0.5); transform: translateY(-2px); }
+        .pulse-text { animation: pulseText 2s infinite; }
+        @keyframes pulseText { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-background text-text-primary antialiased min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="bg-surface/80 backdrop-blur-xl dark:bg-surface/80 docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl hidden md:block">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<div class="flex gap-8 items-center">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200" href="#">Jelajahi</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200" href="#">Promo</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200" href="#">Cek Pesanan</a>
+<a class="font-label-sm text-label-sm text-war-gold border-b-2 border-war-gold pb-1 hover:scale-105 transition-transform duration-200 scale-95 transition-all" href="#">Finance</a>
+</div>
+<div class="flex gap-4 items-center">
+<button class="hover:scale-105 transition-transform duration-200 text-war-gold dark:text-primary"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:scale-105 transition-transform duration-200 text-war-gold dark:text-primary"><span class="material-symbols-outlined" data-icon="shopping_bag">shopping_bag</span></button>
+<img alt="User avatar with live pulse status" class="w-8 h-8 rounded-full border border-war-gold" data-alt="A small circular user avatar showing a professional looking organizer with a subtle neon pulse status indicator overlay, set against a dark premium background in high resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAYjXIhsBYpI5OsEokfgn5bdbrBFyivT2osX3xcI9wlTwDp_69NLArNQXrVIOEB2iMC5Nrh8twujR8R87W2X82ryJGtf4uSwoLIhAA3o4pD9S3uJVGyKjU0gySZcw9A9hZCHAJuIbuBO-sw6JvVuZBfIdfUg2rnGPX-S7ZuewKLpvfYN8MNUH-BL5s95Hz1zofUIutWtbcEraQOt2aYrl2Mur8xZEoyePzmNM7RQH98UP-PnxMAHZMFvQ"/>
+</div>
+</div>
+</nav>
+<main class="flex-grow px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto w-full">
+<header class="mb-stack-lg flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+<div>
+<h1 class="font-display-lg text-display-lg text-war-gold uppercase">Financial Dashboard</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Real-time overview of your ticketing revenue and settlements.</p>
+</div>
+<button class="btn-primary font-label-sm text-label-sm px-6 py-3 rounded-lg uppercase tracking-wider font-bold flex items-center gap-2">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+                Withdraw Funds
+            </button>
+</header>
+<!-- Metrics Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mb-stack-lg">
+<!-- Total Revenue -->
+<div class="glass-card rounded-xl p-6 flex flex-col gap-2 hover-glow cursor-default relative overflow-hidden">
+<div class="absolute -right-4 -top-4 w-24 h-24 bg-brand-glow rounded-full blur-2xl"></div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-war-gold text-xl" data-icon="show_chart">show_chart</span>
+<span class="font-label-sm text-label-sm uppercase">Total Revenue</span>
+</div>
+<div class="font-display-md text-display-md text-text-primary">$245,890.00</div>
+<div class="font-body-md text-body-md text-status-green flex items-center gap-1 mt-auto">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+                    +12.5% this month
+                </div>
+</div>
+<!-- Available Balance -->
+<div class="glass-card-high rounded-xl p-6 flex flex-col gap-2 hover-glow cursor-default relative overflow-hidden shadow-[0_0_15px_rgba(240,184,41,0.15)]">
+<div class="absolute -left-4 -bottom-4 w-32 h-32 bg-brand-glow rounded-full blur-2xl"></div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-war-gold">
+<span class="material-symbols-outlined text-xl" data-icon="account_balance">account_balance</span>
+<span class="font-label-sm text-label-sm uppercase font-bold">Available Balance</span>
+</div>
+<span class="relative flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-war-gold opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-war-gold"></span>
+</span>
+</div>
+<div class="font-display-lg text-display-lg text-war-gold pulse-text">$128,450.00</div>
+<div class="font-body-md text-body-md text-on-surface-variant mt-auto">Ready for immediate withdrawal</div>
+</div>
+<!-- Pending Settlements -->
+<div class="glass-card rounded-xl p-6 flex flex-col gap-2 hover-glow cursor-default relative overflow-hidden">
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-tertiary-container text-xl" data-icon="pending_actions">pending_actions</span>
+<span class="font-label-sm text-label-sm uppercase">Pending Settlements</span>
+</div>
+<div class="font-display-md text-display-md text-text-primary">$15,240.00</div>
+<div class="font-body-md text-body-md text-text-secondary mt-auto">Clearing in 1-3 business days</div>
+</div>
+</div>
+<!-- Transaction History -->
+<div class="glass-card rounded-xl p-6">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline-lg text-headline-lg text-war-gold uppercase">Recent Transactions</h2>
+<button class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold flex items-center gap-1 transition-colors">
+                    View All <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/10 font-label-sm text-label-sm text-text-secondary uppercase">
+<th class="py-3 px-4 font-semibold">Date</th>
+<th class="py-3 px-4 font-semibold">Description</th>
+<th class="py-3 px-4 font-semibold">Type</th>
+<th class="py-3 px-4 font-semibold text-right">Amount</th>
+<th class="py-3 px-4 font-semibold text-right">Status</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md divide-y divide-white/5">
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">Oct 24, 2023</td>
+<td class="py-4 px-4 text-text-primary font-medium">Bank Withdrawal (Ending in 4092)</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-high text-on-surface-variant text-xs uppercase tracking-wider font-semibold border border-white/10">
+<span class="material-symbols-outlined text-[14px]" data-icon="south_east">south_east</span> Withdrawal
+                                </span>
+</td>
+<td class="py-4 px-4 text-right font-medium text-text-primary">-$25,000.00</td>
+<td class="py-4 px-4 text-right">
+<span class="text-war-gold text-sm font-semibold uppercase tracking-wider flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="sync">sync</span> Processing
+                                </span>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">Oct 23, 2023</td>
+<td class="py-4 px-4 text-text-primary font-medium">Ticket Sales Settlement (Neon Nights Fest)</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-high text-status-green text-xs uppercase tracking-wider font-semibold border border-white/10">
+<span class="material-symbols-outlined text-[14px]" data-icon="north_east">north_east</span> Deposit
+                                </span>
+</td>
+<td class="py-4 px-4 text-right font-medium text-status-green">+$42,150.00</td>
+<td class="py-4 px-4 text-right">
+<span class="text-status-green text-sm font-semibold uppercase tracking-wider flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span> Completed
+                                </span>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">Oct 23, 2023</td>
+<td class="py-4 px-4 text-text-primary font-medium">Platform Fee Deduction</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-high text-urgent-red text-xs uppercase tracking-wider font-semibold border border-white/10">
+<span class="material-symbols-outlined text-[14px]" data-icon="payments">payments</span> Fee
+                                </span>
+</td>
+<td class="py-4 px-4 text-right font-medium text-urgent-red">-$2,107.50</td>
+<td class="py-4 px-4 text-right">
+<span class="text-status-green text-sm font-semibold uppercase tracking-wider flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span> Completed
+                                </span>
+</td>
+</tr>
+<tr class="hover:bg-white/5 transition-colors">
+<td class="py-4 px-4 text-on-surface-variant whitespace-nowrap">Oct 20, 2023</td>
+<td class="py-4 px-4 text-text-primary font-medium">Bank Withdrawal (Ending in 4092)</td>
+<td class="py-4 px-4">
+<span class="inline-flex items-center gap-1 px-2 py-1 rounded bg-surface-container-high text-on-surface-variant text-xs uppercase tracking-wider font-semibold border border-white/10">
+<span class="material-symbols-outlined text-[14px]" data-icon="south_east">south_east</span> Withdrawal
+                                </span>
+</td>
+<td class="py-4 px-4 text-right font-medium text-text-primary">-$10,000.00</td>
+<td class="py-4 px-4 text-right">
+<span class="text-status-green text-sm font-semibold uppercase tracking-wider flex items-center justify-end gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="check_circle">check_circle</span> Completed
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex justify-around items-center h-16 w-full px-4">
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high">
+<span class="material-symbols-outlined" data-icon="confirmation_number">confirmation_number</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</div>
+<div class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 active:bg-surface-container-high Pulse effect on active state">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</div>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-background full-width border-t border-surface-variant flat hidden md:block">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div>
+<div class="font-display-md text-display-md text-war-gold mb-4">WAR TICKET</div>
+<p class="font-body-md text-body-md text-text-secondary text-sm">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Payment Partners</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>

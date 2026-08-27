@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pembayaran - WAR TICKET</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#261900",
+                        "primary-fixed-dim": "#fabd32",
+                        "surface-container": "#201f1f",
+                        "primary-fixed": "#ffdea4",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#7b5900",
+                        "error": "#ffb4ab",
+                        "text-secondary": "#666666",
+                        "background": "#131313",
+                        "outline": "#9c8f7a",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "status-green": "#10B981",
+                        "surface-tint": "#fabd32",
+                        "surface-dim": "#131313",
+                        "surface-container-highest": "#353534",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "outline-variant": "#504534",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary": "#003549",
+                        "on-tertiary-fixed": "#001e2c",
+                        "surface": "#131313",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-surface-variant": "#d4c5ad",
+                        "surface-variant": "#353534",
+                        "on-secondary-container": "#b7b5b4",
+                        "secondary-container": "#474746",
+                        "surface-bright": "#3a3939",
+                        "on-background": "#e5e2e1",
+                        "secondary": "#c8c6c5",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "war-gold": "#F0B429",
+                        "inverse-surface": "#e5e2e1",
+                        "primary-container": "#f0b429",
+                        "on-surface": "#e5e2e1",
+                        "urgent-red": "#EF4444",
+                        "on-secondary-fixed-variant": "#474746",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "primary": "#ffd481",
+                        "tertiary": "#aee0ff",
+                        "error-container": "#93000a",
+                        "on-primary": "#412d00",
+                        "on-primary-container": "#644800",
+                        "text-primary": "#FFFFFF",
+                        "tertiary-fixed": "#c3e8ff",
+                        "on-error": "#690005",
+                        "on-secondary": "#313030",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "surface-grey": "#1A1A1A",
+                        "tertiary-container": "#5bc9ff",
+                        "on-tertiary-container": "#005371",
+                        "on-secondary-fixed": "#1c1b1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "display-md": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-xl-mobile": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "display-md": ["32px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-xl": ["80px", { "lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-xl-mobile": ["36px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(32, 31, 31, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .gold-glow {
+            box-shadow: 0 0 20px rgba(240, 180, 41, 0.2);
+        }
+        .pulse-text {
+            animation: pulse-op 2s infinite;
+        }
+        @keyframes pulse-op {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #131313; }
+        ::-webkit-scrollbar-thumb { background: #353534; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #474746; }
+    </style>
+</head>
+<body class="bg-background text-text-primary min-h-screen flex flex-col font-body-md antialiased selection:bg-war-gold selection:text-background">
+<!-- Top Navigation for Web (Hidden on Mobile for this flow as it's transactional, but keeping shell logic minimal if needed. Suppressed per rules for Checkout flow) -->
+<!-- Suppressed Header & Bottom Nav for Transactional Flow to focus on Canvas -->
+<header class="w-full px-margin-mobile md:px-margin-desktop py-4 flex justify-between items-center border-b border-white/10 glass-card sticky top-0 z-50">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<div class="flex items-center gap-2 text-urgent-red font-headline-lg text-headline-lg pulse-text">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span id="global-timer">15:00</span>
+</div>
+</header>
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<div class="mb-stack-lg">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-text-primary mb-2">Pilih Metode Pembayaran</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Selesaikan pembayaran Anda sebelum waktu habis untuk mengamankan tiket.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Payment Methods -->
+<div class="lg:col-span-8 space-y-stack-md">
+<!-- Payment Option 1: QRIS -->
+<label class="block cursor-pointer group">
+<div class="glass-card rounded-xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-war-gold/50 peer-checked:border-war-gold peer-checked:gold-glow peer-checked:bg-brand-glow relative overflow-hidden flex items-center justify-between">
+<input checked="" class="peer sr-only" name="payment_method" type="radio" value="qris"/>
+<div class="flex items-center gap-4 z-10">
+<div class="w-12 h-12 bg-surface-container-high rounded-lg flex items-center justify-center text-war-gold">
+<span class="material-symbols-outlined" data-icon="qr_code_scanner" style="font-variation-settings: 'FILL' 1;">qr_code_scanner</span>
+</div>
+<div>
+<h3 class="font-headline-lg text-headline-lg text-text-primary">QRIS</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Scan menggunakan aplikasi e-wallet atau m-banking</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-surface-variant flex items-center justify-center peer-checked:border-war-gold z-10">
+<div class="w-3 h-3 rounded-full bg-war-gold opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+<!-- Selected Background Indication -->
+<div class="absolute inset-0 border-2 border-transparent peer-checked:border-war-gold rounded-xl transition-colors pointer-events-none"></div>
+</div>
+</label>
+<!-- Payment Option 2: GoPay -->
+<label class="block cursor-pointer group">
+<div class="glass-card rounded-xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-war-gold/50 peer-checked:border-war-gold peer-checked:gold-glow peer-checked:bg-brand-glow relative overflow-hidden flex items-center justify-between">
+<input class="peer sr-only" name="payment_method" type="radio" value="gopay"/>
+<div class="flex items-center gap-4 z-10">
+<div class="w-12 h-12 bg-surface-container-high rounded-lg flex items-center justify-center text-[#00AED6]">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet" style="font-variation-settings: 'FILL' 1;">account_balance_wallet</span>
+</div>
+<div>
+<h3 class="font-headline-lg text-headline-lg text-text-primary">GoPay</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Bayar instan dengan aplikasi Gojek</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-surface-variant flex items-center justify-center peer-checked:border-war-gold z-10">
+<div class="w-3 h-3 rounded-full bg-war-gold opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+<div class="absolute inset-0 border-2 border-transparent peer-checked:border-war-gold rounded-xl transition-colors pointer-events-none"></div>
+</div>
+</label>
+<!-- Payment Option 3: Credit Card -->
+<label class="block cursor-pointer group">
+<div class="glass-card rounded-xl p-6 transition-all duration-300 hover:scale-[1.01] hover:border-war-gold/50 peer-checked:border-war-gold peer-checked:gold-glow peer-checked:bg-brand-glow relative overflow-hidden flex items-center justify-between">
+<input class="peer sr-only" name="payment_method" type="radio" value="cc"/>
+<div class="flex items-center gap-4 z-10">
+<div class="w-12 h-12 bg-surface-container-high rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="credit_card" style="font-variation-settings: 'FILL' 1;">credit_card</span>
+</div>
+<div>
+<h3 class="font-headline-lg text-headline-lg text-text-primary">Kartu Kredit / Debit</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Visa, Mastercard, JCB, Amex</p>
+</div>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-surface-variant flex items-center justify-center peer-checked:border-war-gold z-10">
+<div class="w-3 h-3 rounded-full bg-war-gold opacity-0 peer-checked:opacity-100 transition-opacity"></div>
+</div>
+<div class="absolute inset-0 border-2 border-transparent peer-checked:border-war-gold rounded-xl transition-colors pointer-events-none"></div>
+</div>
+</label>
+<!-- Informational Note -->
+<div class="mt-8 p-4 bg-surface-container-high/50 rounded-lg flex gap-3 border border-surface-variant">
+<span class="material-symbols-outlined text-war-gold mt-1" data-icon="info">info</span>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface">Transaksi ini aman dan dienkripsi.</p>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Harap jangan refresh halaman ini atau kembali ke halaman sebelumnya selama proses pembayaran.</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Order Summary & Checkout -->
+<div class="lg:col-span-4 mt-stack-md lg:mt-0">
+<div class="glass-card rounded-xl p-6 sticky top-24 border-t-4 border-t-war-gold">
+<h2 class="font-headline-lg text-headline-lg text-text-primary border-b border-surface-variant pb-4 mb-4">Ringkasan Pesanan</h2>
+<!-- Event Details -->
+<div class="flex gap-4 mb-6">
+<div class="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="A moody, high-contrast live music concert scene. Deep blacks dominate the background with vibrant, glowing gold stage lights cutting through atmospheric fog. A silhouette of a performer is visible. Electric Underground Festival style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlUsOUYi7T2j_s6YYazqL03wLtWd4G-7oDiqbuJEU1DXhwnGWUMZW03PgvqHOzDhWC1916BbLt7oTgYnjs-MZ3w8LJVH66wGJyR0ycjGbfPms3EOLQkDwFkh7SCduvKcNT2vnUcQgu127uJrm5qJeKQrHAKyoEPVSBaCcfbNBIOP0drS21LSYGkkIwjQZjwGx6UU-EfBdrWbggtivjxeVtBDkl_dWuqD_TgSrkhthy9IwF2Ab2ZkfPjg"/>
+</div>
+<div>
+<h3 class="font-body-lg text-body-lg text-text-primary font-bold line-clamp-2">Underground Festival 2024 - Jakarta</h3>
+<p class="font-label-sm text-label-sm text-on-surface-variant mt-1">Sabtu, 24 Agu 2024</p>
+<span class="inline-block mt-2 px-2 py-0.5 bg-urgent-red/20 text-urgent-red border border-urgent-red/50 rounded font-label-sm text-[10px] tracking-wider uppercase">Limited</span>
+</div>
+</div>
+<!-- Price Breakdown -->
+<div class="space-y-3 font-body-md text-body-md text-on-surface-variant mb-6 border-b border-surface-variant pb-6">
+<div class="flex justify-between">
+<span>VIP Ticket (x2)</span>
+<span class="text-text-primary">Rp 4.000.000</span>
+</div>
+<div class="flex justify-between">
+<span>Biaya Layanan</span>
+<span class="text-text-primary">Rp 50.000</span>
+</div>
+<div class="flex justify-between">
+<span>Pajak (11%)</span>
+<span class="text-text-primary">Rp 445.500</span>
+</div>
+</div>
+<!-- Total -->
+<div class="flex justify-between items-end mb-8">
+<span class="font-body-lg text-body-lg text-on-surface">Total Pembayaran</span>
+<span class="font-display-md text-display-md text-war-gold">Rp 4.495.500</span>
+</div>
+<!-- CTA -->
+<button class="w-full bg-war-gold text-on-primary-fixed font-headline-lg text-headline-lg py-4 rounded-xl transition-all duration-300 hover:scale-[1.02] gold-glow relative overflow-hidden group">
+<span class="relative z-10 flex items-center justify-center gap-2">
+                            Bayar Sekarang
+                            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</span>
+<!-- Hover sheen effect -->
+<div class="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/30 to-transparent group-hover:animate-[shimmer_1.5s_infinite]"></div>
+</button>
+<p class="text-center font-label-sm text-label-sm text-on-surface-variant mt-4">
+                        Dengan menekan tombol, Anda menyetujui <a class="text-war-gold underline hover:text-primary transition-colors" href="#">Syarat &amp; Ketentuan</a> kami.
+                    </p>
+</div>
+</div>
+</div>
+</main>
+<script>
+        // Simple Countdown Timer Script
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerDisplay = document.getElementById('global-timer');
+            let timeLeft = 15 * 60; // 15 minutes in seconds
+
+            const updateTimer = () => {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 60) {
+                    timerDisplay.parentElement.classList.add('animate-pulse');
+                    // Increase urgency
+                }
+
+                if (timeLeft > 0) {
+                    timeLeft--;
+                } else {
+                    clearInterval(timerInterval);
+                    timerDisplay.textContent = "00:00";
+                    // Handle timeout logic here
+                }
+            };
+
+            updateTimer(); // Initial call
+            const timerInterval = setInterval(updateTimer, 1000);
+        });
+
+        // Add tailwind arbitrary animation for button sheen
+        tailwind.config.theme.extend.keyframes = {
+            ...tailwind.config.theme.extend.keyframes,
+            shimmer: {
+                '100%': { transform: 'translateX(100%)' }
+            }
+        }
+    </script>
+</body></html>

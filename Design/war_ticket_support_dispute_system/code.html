@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Report &amp; Dispute Management | WAR TICKET</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#c3e8ff",
+                    "tertiary-fixed-dim": "#7ad0ff",
+                    "on-tertiary": "#003549",
+                    "surface-container-highest": "#353534",
+                    "inverse-on-surface": "#313030",
+                    "tertiary-container": "#5bc9ff",
+                    "inverse-primary": "#7b5900",
+                    "surface-container-lowest": "#0e0e0e",
+                    "surface-container-low": "#1c1b1b",
+                    "brand-glow": "rgba(240, 180, 41, 0.1)",
+                    "surface-grey": "#1A1A1A",
+                    "surface-bright": "#3a3939",
+                    "surface-dim": "#131313",
+                    "primary-container": "#f0b429",
+                    "on-tertiary-fixed": "#001e2c",
+                    "surface-tint": "#fabd32",
+                    "secondary-fixed": "#e5e2e1",
+                    "on-secondary-fixed-variant": "#474746",
+                    "outline": "#9c8f7a",
+                    "on-primary-fixed-variant": "#5d4200",
+                    "outline-variant": "#504534",
+                    "on-error": "#690005",
+                    "primary": "#ffd481",
+                    "text-secondary": "#666666",
+                    "surface-container-high": "#2a2a2a",
+                    "error-container": "#93000a",
+                    "primary-fixed-dim": "#fabd32",
+                    "on-surface-variant": "#d4c5ad",
+                    "error": "#ffb4ab",
+                    "secondary-container": "#474746",
+                    "primary-fixed": "#ffdea4",
+                    "secondary": "#c8c6c5",
+                    "on-surface": "#e5e2e1",
+                    "surface": "#131313",
+                    "urgent-red": "#EF4444",
+                    "on-secondary": "#313030",
+                    "tertiary": "#aee0ff",
+                    "on-error-container": "#ffdad6",
+                    "background": "#131313",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "text-primary": "#FFFFFF",
+                    "inverse-surface": "#e5e2e1",
+                    "war-gold": "#F0B429",
+                    "on-secondary-container": "#b7b5b4",
+                    "on-primary": "#412d00",
+                    "on-background": "#e5e2e1",
+                    "surface-container": "#201f1f",
+                    "on-primary-fixed": "#261900",
+                    "surface-variant": "#353534",
+                    "status-green": "#10B981",
+                    "on-tertiary-container": "#005371",
+                    "on-tertiary-fixed-variant": "#004c69",
+                    "on-primary-container": "#644800"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "container-max": "1280px",
+                    "stack-lg": "32px",
+                    "margin-mobile": "16px",
+                    "margin-desktop": "40px",
+                    "gutter": "24px",
+                    "stack-md": "16px"
+            },
+            "fontFamily": {
+                    "headline-lg": ["Bebas Neue"],
+                    "display-xl": ["Bebas Neue"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-md": ["Bebas Neue"],
+                    "display-xl-mobile": ["Bebas Neue"],
+                    "display-lg": ["Bebas Neue"],
+                    "body-md": ["Plus Jakarta Sans"]
+            },
+            "fontSize": {
+                    "headline-lg": ["24px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-xl": ["80px", {"lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-md": ["32px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "display-xl-mobile": ["36px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "display-lg": ["48px", {"lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .glass-panel {
+            background: rgba(32, 31, 31, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .neon-pulse {
+            animation: neon-pulse 2s infinite alternate;
+        }
+        @keyframes neon-pulse {
+            0% { box-shadow: 0 0 10px rgba(240, 180, 41, 0.2); }
+            100% { box-shadow: 0 0 20px rgba(240, 180, 41, 0.5); }
+        }
+        .text-glow {
+            text-shadow: 0 0 10px rgba(240, 180, 41, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary min-h-screen flex flex-col font-body-md antialiased selection:bg-war-gold selection:text-background">
+<!-- Top Navigation (Web) -->
+<header class="hidden md:flex bg-surface/80 backdrop-blur-xl dark:bg-surface/80 docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<nav class="flex gap-8 items-center">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200 font-label-sm text-label-sm uppercase" href="#">Jelajahi</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200 font-label-sm text-label-sm uppercase" href="#">Promo</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200 font-label-sm text-label-sm uppercase" href="#">Cek Pesanan</a>
+<a class="text-war-gold border-b-2 border-war-gold pb-1 font-label-sm text-label-sm uppercase" href="#">Disputes</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container-high border-2 border-war-gold overflow-hidden relative cursor-pointer">
+<img class="w-full h-full object-cover" data-alt="A futuristic cyberpunk-style user avatar profile picture, featuring glowing neon accents and a sleek metallic visor, set against a deep black background. High contrast, sharp focus, professional digital art." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsXKDd9n1wHIGE-Mp4OahWrnZqe_Dlq95G9vVdXIF8Y_EdegkkKFEB1veW0BTavrea67DWej2NuSe0IZsWm_knZkRaXaamxsUUQyZJI9JmJujP0gFyt38SOA-46CyPBSFXaUC_izr8mXcPoZgiwThDIQjNR7kLVSMd96IW1nYrPEb4dH67Wj-4pfFdiNZ4Wwv3umNihj0UynsQjv4R3-bq8UvP3eaO4Xj8fNkP1E3wDsvtvummyuT5LQ"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-status-green rounded-full border-2 border-background animate-pulse"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg">
+<div class="mb-stack-lg">
+<h1 class="font-display-lg text-display-lg text-war-gold text-glow uppercase tracking-tight">Dispute Center</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mt-2 max-w-2xl">Securely report transaction issues or manage ongoing disputes. Our concierge team is actively reviewing submissions to ensure fair resolution.</p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Left Column: Submit New Report (Form) -->
+<div class="lg:col-span-1 space-y-stack-md">
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:border-war-gold/30 transition-colors duration-300">
+<div class="absolute inset-0 bg-gradient-to-br from-war-gold/5 to-transparent pointer-events-none"></div>
+<h2 class="font-display-md text-display-md text-text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-urgent-red" style="font-variation-settings: 'FILL' 1;">gavel</span>
+                        File a Report
+                    </h2>
+<form class="space-y-4 relative z-10">
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Transaction ID</label>
+<input class="w-full bg-[#090909] border border-surface-variant rounded-lg px-4 py-3 text-text-primary font-body-md focus:border-war-gold focus:ring-1 focus:ring-war-gold/50 transition-all placeholder:text-surface-variant/50" placeholder="e.g. WT-9827-XQ" type="text"/>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Issue Type</label>
+<select class="w-full bg-[#090909] border border-surface-variant rounded-lg px-4 py-3 text-text-primary font-body-md focus:border-war-gold focus:ring-1 focus:ring-war-gold/50 transition-all appearance-none">
+<option>Fraudulent Ticket</option>
+<option>Seller Did Not Transfer</option>
+<option>Payment Failed but Charged</option>
+<option>Other</option>
+</select>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Description</label>
+<textarea class="w-full bg-[#090909] border border-surface-variant rounded-lg px-4 py-3 text-text-primary font-body-md focus:border-war-gold focus:ring-1 focus:ring-war-gold/50 transition-all placeholder:text-surface-variant/50 resize-none" placeholder="Provide detailed context..." rows="4"></textarea>
+</div>
+<div>
+<label class="block font-label-sm text-label-sm text-on-surface-variant mb-1 uppercase tracking-wider">Evidence (Max 3 files)</label>
+<div class="border-2 border-dashed border-surface-variant rounded-lg p-6 text-center cursor-pointer hover:border-war-gold/50 transition-colors bg-[#090909]">
+<span class="material-symbols-outlined text-surface-variant text-4xl mb-2">upload_file</span>
+<p class="font-label-sm text-label-sm text-on-surface-variant">Drag &amp; drop screenshots or click to browse</p>
+</div>
+</div>
+<button class="w-full bg-war-gold text-on-primary font-label-sm text-label-sm uppercase py-4 rounded-lg tracking-wider hover:bg-primary-fixed transition-all hover:scale-[1.02] active:scale-[0.98] font-bold shadow-[0_0_15px_rgba(240,180,41,0.2)] hover:shadow-[0_0_25px_rgba(240,180,41,0.4)] mt-4" type="button">
+                            Submit Report
+                        </button>
+</form>
+</div>
+<!-- Trust Badge -->
+<div class="glass-panel rounded-xl p-4 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-status-green">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified_user</span>
+</div>
+<div>
+<h4 class="font-headline-lg text-headline-lg text-text-primary">Secure Escrow</h4>
+<p class="font-body-md text-sm text-on-surface-variant">Funds are held until resolution.</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Active Disputes (List/Grid) -->
+<div class="lg:col-span-2 space-y-stack-md">
+<!-- Filters -->
+<div class="flex gap-4 mb-2 overflow-x-auto pb-2 scrollbar-hide">
+<button class="px-4 py-2 rounded-full bg-war-gold/10 border border-war-gold text-war-gold font-label-sm text-label-sm uppercase whitespace-nowrap">All Active (4)</button>
+<button class="px-4 py-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase whitespace-nowrap hover:bg-surface-container-high transition-colors">Under Review (2)</button>
+<button class="px-4 py-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase whitespace-nowrap hover:bg-surface-container-high transition-colors">Action Required (1)</button>
+<button class="px-4 py-2 rounded-full bg-surface-container border border-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase whitespace-nowrap hover:bg-surface-container-high transition-colors">Resolved (1)</button>
+</div>
+<!-- Dispute Card 1: Under Review -->
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 border-b border-surface-variant pb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-war-gold text-3xl">confirmation_number</span>
+<div>
+<div class="font-headline-lg text-headline-lg text-text-primary tracking-wide">Coldplay - Music of the Spheres</div>
+<div class="font-body-md text-sm text-on-surface-variant">Ref: WT-9827-XQ • 2 hrs ago</div>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-surface-container-high border border-war-gold/30">
+<div class="w-2 h-2 rounded-full bg-war-gold animate-pulse"></div>
+<span class="font-label-sm text-label-sm text-war-gold uppercase">Under Review</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Issue</p>
+<p class="font-body-md text-text-primary">Seller has not transferred e-ticket to provided email within the 1-hour SLA.</p>
+</div>
+<div class="flex justify-end items-end">
+<button class="text-war-gold font-label-sm text-label-sm uppercase hover:underline flex items-center gap-1">
+                                View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Dispute Card 2: Action Required (Red) -->
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 border-l-4 border-l-urgent-red">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 border-b border-surface-variant pb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-urgent-red text-3xl">warning</span>
+<div>
+<div class="font-headline-lg text-headline-lg text-text-primary tracking-wide">Taylor Swift - Eras Tour VIP</div>
+<div class="font-body-md text-sm text-on-surface-variant">Ref: WT-1102-ZP • 1 day ago</div>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-error-container/20 border border-urgent-red/30 text-urgent-red">
+<span class="material-symbols-outlined text-sm">info</span>
+<span class="font-label-sm text-label-sm uppercase">Action Required</span>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Admin Note</p>
+<p class="font-body-md text-text-primary">Please provide uncropped screenshots of the payment confirmation from your bank app.</p>
+</div>
+<div class="flex justify-end items-end gap-3">
+<button class="px-4 py-2 border border-urgent-red text-urgent-red rounded-lg font-label-sm text-label-sm uppercase hover:bg-urgent-red/10 transition-colors">
+                                Upload Evidence
+                            </button>
+</div>
+</div>
+</div>
+<!-- Dispute Card 3: Resolved -->
+<div class="glass-panel rounded-xl p-6 relative overflow-hidden group hover:scale-[1.01] transition-transform duration-300 opacity-70">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 border-b border-surface-variant pb-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-status-green text-3xl">check_circle</span>
+<div>
+<div class="font-headline-lg text-headline-lg text-text-primary tracking-wide">Bruno Mars Live in Jakarta</div>
+<div class="font-body-md text-sm text-on-surface-variant">Ref: WT-4451-MM • 3 days ago</div>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-1 rounded-full bg-status-green/10 border border-status-green/30 text-status-green">
+<span class="font-label-sm text-label-sm uppercase">Resolved - Refunded</span>
+</div>
+</div>
+<div class="flex justify-between items-end">
+<p class="font-body-md text-on-surface-variant italic">Funds have been returned to your original payment method.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<nav class="bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center h-16 w-full px-4">
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-war-gold active:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-war-gold active:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">search</span>
+<span class="font-label-sm text-label-sm">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-war-gold active:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">confirmation_number</span>
+<span class="font-label-sm text-label-sm">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 animate-pulse" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Profile</span>
+</a>
+</nav>
+</body></html>

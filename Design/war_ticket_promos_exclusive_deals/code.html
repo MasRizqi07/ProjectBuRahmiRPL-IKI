@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAR TICKET - Promos & Deals</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue:wght@100..900&family=Plus+Jakarta+Sans:wght@100..900&display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        /* Custom Animations based on Style Guidance */
+        @keyframes livePulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-live-pulse {
+            animation: livePulse 2s infinite ease-in-out;
+        }
+
+        /* Metallic Texture Overlay for Cards */
+        .metallic-overlay {
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 100%);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+        }
+    </style>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ffb4ab",
+                        "tertiary-fixed": "#c3e8ff",
+                        "on-secondary-fixed": "#1c1b1b",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "surface-container": "#201f1f",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "outline": "#9c8f7a",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "on-tertiary-container": "#005371",
+                        "on-primary-container": "#644800",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-secondary-fixed-variant": "#474746",
+                        "surface-container-low": "#1c1b1b",
+                        "on-tertiary-fixed": "#001e2c",
+                        "tertiary-container": "#5bc9ff",
+                        "inverse-surface": "#e5e2e1",
+                        "urgent-red": "#EF4444",
+                        "war-gold": "#F0B429",
+                        "text-secondary": "#666666",
+                        "surface-tint": "#fabd32",
+                        "error-container": "#93000a",
+                        "on-primary": "#412d00",
+                        "surface-variant": "#353534",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "on-surface": "#e5e2e1",
+                        "outline-variant": "#504534",
+                        "secondary-container": "#474746",
+                        "primary": "#ffd481",
+                        "on-surface-variant": "#d4c5ad",
+                        "inverse-on-surface": "#313030",
+                        "surface-grey": "#1A1A1A",
+                        "surface-container-highest": "#353534",
+                        "surface-dim": "#131313",
+                        "surface-container-lowest": "#0e0e0e",
+                        "on-error": "#690005",
+                        "surface-container-high": "#2a2a2a",
+                        "on-secondary-container": "#b7b5b4",
+                        "on-background": "#e5e2e1",
+                        "primary-fixed": "#ffdea4",
+                        "on-secondary": "#313030",
+                        "secondary-fixed": "#e5e2e1",
+                        "inverse-primary": "#7b5900",
+                        "text-primary": "#FFFFFF",
+                        "status-green": "#10B981",
+                        "on-primary-fixed": "#261900",
+                        "primary-fixed-dim": "#fabd32",
+                        "primary-container": "#f0b429",
+                        "on-tertiary": "#003549",
+                        "secondary": "#c8c6c5",
+                        "on-error-container": "#ffdad6",
+                        "tertiary": "#aee0ff",
+                        "surface": "#131313",
+                        "background": "#131313",
+                        "surface-bright": "#3a3939"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "stack-sm": "8px",
+                        "margin-desktop": "40px",
+                        "stack-md": "16px",
+                        "margin-mobile": "16px",
+                        "container-max": "1280px",
+                        "gutter": "24px",
+                        "stack-lg": "32px"
+                    },
+                    "fontFamily": {
+                        "display-xl": ["Bebas Neue"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "display-lg": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"],
+                        "display-md": ["Bebas Neue"],
+                        "headline-lg": ["Bebas Neue"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-xl-mobile": ["Bebas Neue"]
+                    },
+                    "fontSize": {
+                        "display-xl": ["80px", { "lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-md": ["32px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-xl-mobile": ["36px", { "lineHeight": "40px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col relative overflow-x-hidden selection:bg-war-gold selection:text-black">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl bg-surface/80 backdrop-blur-xl dark:bg-surface/80">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<!-- Brand Logo -->
+<a class="font-display-md text-display-md text-war-gold tracking-tight hover:scale-105 transition-transform duration-200" href="#">
+                WAR TICKET
+            </a>
+<!-- Navigation Links (Hidden on Mobile) -->
+<nav class="hidden md:flex items-center gap-gutter">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 duration-200" href="#">Jelajahi</a>
+<a class="font-label-sm text-label-sm text-war-gold border-b-2 border-war-gold pb-1 scale-95 transition-all" href="#">Promo</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 duration-200" href="#">Cek Pesanan</a>
+</nav>
+<!-- Trailing Icons & Profile -->
+<div class="flex items-center gap-stack-md">
+<button aria-label="notifications" class="text-war-gold dark:text-primary hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="shopping_bag" class="text-war-gold dark:text-primary hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined">shopping_bag</span>
+</button>
+<div class="w-8 h-8 rounded-full border border-war-gold p-[2px] relative overflow-hidden group cursor-pointer hover:scale-105 transition-transform duration-200">
+<img alt="User avatar with live pulse status" class="w-full h-full object-cover rounded-full" data-alt="A stylized, neon-lit digital avatar of a young user against a deep black background. The avatar features subtle glowing gold contours and a futuristic, high-contrast aesthetic fitting for an underground electric music festival ticket platform. A faint, pulsing golden light emanates from the edge, indicating active online status in this premium ticketing ecosystem." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDQQuRZRUUCJ65zNphKVSFMPSv6VT3cSIQVctxLqUGmFpR6g95-1vp72znUBIi0_WKsVzFqAT0JehhsbXaZu-MCgOBYTsjHfPOqFRUiK24xvSt9ZohgU5YyX6AJDZ1bsb7s6kVikWw_pBVKO7bSfmdBMLrJPqm2U3cSAY_sabOLMScoM-hg1E1pEjGoFicGWWUBMr9-CeDMKOtadeerEqi0ERZQGXQiZP9kvViPqA3UZxuV_E-zMlTIBA"/>
+<div class="absolute inset-0 rounded-full ring-2 ring-war-gold animate-live-pulse opacity-50"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg flex flex-col gap-stack-lg mb-20 md:mb-0">
+<!-- Page Header -->
+<div class="flex flex-col gap-stack-sm">
+<h1 class="font-display-xl-mobile md:font-display-xl text-display-xl-mobile md:text-display-xl text-war-gold">ACTIVE DEALS</h1>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-2xl">Secure your spot before the general public. Exclusive early access and partner discounts for the fastest fingers.</p>
+</div>
+<!-- High-Energy Bento Grid (Banners) -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- Early Bird Banner (col-span-8) -->
+<div class="md:col-span-8 relative rounded-xl overflow-hidden group cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-white/10 min-h-[300px] md:min-h-[400px]">
+<div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" data-alt="A massive, high-energy digital banner illustrating an 'Early Bird' ticket sale. The scene is set in a dark, atmospheric underground concert venue illuminated by intense, glowing neon gold lasers cutting through artificial fog. Silhouettes of a massive, energetic crowd raise their hands towards a distant, bright stage. The aesthetic is extremely high-contrast, premium, and adrenaline-fueled." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBvf4RN5owuR3SqT3cUx_6-h8UT6Fv2D5Dy3YLWgmq2HT0s-Qrd1E_wJ2w243bftvDH2E-FV6jjCOMcdJXY13VvM1GoRDPr4VejTtDw92F9suANcQIv5y-eFU8x_LXPkz9oCqOFygZu-SLO6LJo9jxklcJkfHDrpytqgll3v62iZsLk12LVeCsSuqLUTFzEetHj1_-v42I-XNhOpMATgLQyc9tjFpxfuAUCT4B857EsqcU35qdLD6vmHw')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent"></div>
+<div class="absolute inset-0 metallic-overlay"></div>
+<div class="absolute bottom-0 left-0 p-stack-lg w-full flex flex-col items-start gap-stack-sm">
+<div class="bg-war-gold text-black font-label-sm text-label-sm px-3 py-1 rounded-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] animate-pulse">local_fire_department</span>
+                        EARLY BIRD
+                    </div>
+<h2 class="font-display-lg text-display-lg text-white group-hover:text-war-gold transition-colors duration-300 drop-shadow-md">SUMMER SONIC 2024</h2>
+<p class="font-body-md text-body-md text-on-surface-variant drop-shadow-sm max-w-md">Get up to 30% off Phase 1 tickets. Limited allocation remaining.</p>
+<button class="mt-stack-sm px-6 py-3 bg-transparent border-2 border-war-gold text-war-gold font-label-sm text-label-sm rounded-lg hover:bg-war-gold hover:text-black transition-all duration-300 hover:shadow-[0_0_20px_rgba(240,184,41,0.5)]">
+                        CLAIM OFFER
+                    </button>
+</div>
+</div>
+<!-- Bank Partner Deals (col-span-4) -->
+<div class="md:col-span-4 relative rounded-xl overflow-hidden group cursor-pointer shadow-[0_0_15px_rgba(0,0,0,0.8)] border border-white/10 bg-surface-container-high min-h-[300px] md:min-h-[400px] flex flex-col justify-end p-stack-md hover:shadow-[0_0_20px_rgba(240,184,41,0.2)] transition-shadow duration-300">
+<div class="absolute inset-0 bg-cover bg-center opacity-40 transition-transform duration-700 group-hover:scale-105" data-alt="A sleek, modern abstract background composed of geometric glass panels floating in deep black space. Subtle streaks of electric blue and metallic silver light reflect off the glass, suggesting banking and secure transactions. The mood is sophisticated, exclusive, and high-tech, fitting for a premium bank partner discount card in a dark-mode UI." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDMQyNQ3S8EjIHcF8qYNfuutyZ9CgHIsOW9-z1D_clVGlcj6GdykX2XInHE0IrHAdfhC3olcFB0FGw85dtUgsxXzaCG1Wu6A-Xo_nQdXTclWIhcJtsURnnvSmj--Fky6Ob4mt2mxW7tRGqkeY5XPxPuf0HWg5Fk6RHB70k1-uTlxrHcSFGHxvXYuLg0CEzyEoUYv79qQzwS_AUIh1r2sUMdUKXTNaX9-x9jkg0w_fdh-4jp6D_fBGrW7A')"></div>
+<div class="absolute inset-0 bg-gradient-to-t from-black to-transparent"></div>
+<div class="absolute inset-0 metallic-overlay"></div>
+<div class="relative z-10 flex flex-col gap-stack-sm">
+<span class="material-symbols-outlined text-war-gold text-[32px]">account_balance</span>
+<h3 class="font-headline-lg text-headline-lg text-white">BCA EXCLUSIVE</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">0% Installment up to 12 months + Cashback Rp 500k.</p>
+<div class="w-full h-1 bg-surface-variant mt-2 rounded-full overflow-hidden">
+<div class="h-full bg-war-gold w-3/4"></div>
+</div>
+<p class="font-label-sm text-label-sm text-text-secondary">75% Quota Claimed</p>
+</div>
+</div>
+</section>
+<!-- Active Promos Grid -->
+<section>
+<div class="flex justify-between items-end mb-stack-md border-b border-surface-variant pb-2">
+<h2 class="font-display-md text-display-md text-white">FLASH DEALS</h2>
+<span class="font-label-sm text-label-sm text-text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-war-gold">timer</span>
+                    LIVE NOW
+                </span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-gutter">
+<!-- Promo Card 1 -->
+<div class="bg-surface/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 hover:shadow-[0_0_20px_rgba(240,184,41,0.15)] flex flex-col h-full">
+<div class="bg-urgent-red text-white font-label-sm text-label-sm px-3 py-1 rounded-bl-lg absolute top-0 right-0 z-10 font-bold tracking-wider">
+                        LIMITED
+                    </div>
+<div class="h-40 w-full relative overflow-hidden">
+<img alt="Promo Graphic" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A stylized graphic for a concert ticket flash sale. Dark mode aesthetic with deep black background. A prominent 3D typography rendering of '50% OFF' in glowing war-gold neon. Subtle metallic textures and scattered glowing particles float around the text, creating a sense of urgency and high-stakes excitement." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC31LoI2wjpEQvTCO1J1gIYRt8-iS7OlGGLVUgKdM2oAluCvvZM_V3zkGqccfhG25xY5qxkVBWSEOVNodEFr8icPwLqYiP_j7xGNqvBpD_4pHD_ijDF1xgqD7mSOwo7s56Atu6hx6Z1fmDrY8gJFSW9ru83PiRnZuOu6SuVoWa9HUVG03jh4YLBkEf3thSwA05BR3DDAkcUft6u7i_9wHj9W-JzG5TvWcB6-jiZ6WIawFbdzEDH4uUf8Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow relative">
+<div class="absolute inset-0 metallic-overlay rounded-b-xl"></div>
+<h3 class="font-headline-lg text-headline-lg text-war-gold mb-1 relative z-10">MIDNIGHT MADNESS</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-4 flex-grow relative z-10">Buy 1 Get 1 Free for all VIP standing areas. Applicable to selected domestic gigs.</p>
+<div class="flex justify-between items-center mt-auto relative z-10 pt-4 border-t border-white/5">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Ends in</span>
+<span class="font-body-md text-body-md text-white font-mono countdown-timer">02:14:59</span>
+</div>
+<button class="bg-transparent border border-war-gold text-war-gold hover:bg-war-gold hover:text-black font-label-sm text-label-sm px-4 py-2 rounded transition-colors duration-200">
+                                USE CODE
+                            </button>
+</div>
+</div>
+</div>
+<!-- Promo Card 2 -->
+<div class="bg-surface/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 hover:shadow-[0_0_20px_rgba(240,184,41,0.15)] flex flex-col h-full">
+<div class="h-40 w-full relative overflow-hidden">
+<img alt="Promo Graphic" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Visual representing a VIP upgrade promo. A dark, sophisticated scene featuring a glowing gold VIP pass lanyard resting on a reflective black obsidian surface. Minimalist, premium aesthetic with stark contrast between the bright gold typography on the pass and the deep shadows of the background. A faint neon pulse emanates from the card." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkDAuNmaat8lnr7fcH5uBXmogWHS6-FVcdnpj9X2iGKrR3rkWCs2BgRZ3cLDU5HdMPJjEwje2Pi1M08GRkymCTRUpJJKoar14LMmNn815WdPydl7qDprQ8cWTkrxRAfvdVEkakjJMVlaKdact1RWzI5XPpZUoIpiwOIJVInRopktSeUO4i9fVvJ0l8GX4AcmuaVOUtvWKXwJggEzuSGaq3T6hSN32UvdrUbWbBk7ZIal7Udkec8dEVOA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow relative">
+<div class="absolute inset-0 metallic-overlay rounded-b-xl"></div>
+<h3 class="font-headline-lg text-headline-lg text-white mb-1 relative z-10">FREE VIP UPGRADE</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-4 flex-grow relative z-10">Automatic upgrade for the first 100 General Admission purchases today.</p>
+<div class="flex justify-between items-center mt-auto relative z-10 pt-4 border-t border-white/5">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Ends in</span>
+<span class="font-body-md text-body-md text-white font-mono countdown-timer">05:45:22</span>
+</div>
+<button class="bg-transparent border border-war-gold text-war-gold hover:bg-war-gold hover:text-black font-label-sm text-label-sm px-4 py-2 rounded transition-colors duration-200">
+                                SHOP NOW
+                            </button>
+</div>
+</div>
+</div>
+<!-- Promo Card 3 -->
+<div class="bg-surface/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 hover:shadow-[0_0_20px_rgba(240,184,41,0.15)] flex flex-col h-full">
+<div class="h-40 w-full relative overflow-hidden">
+<img alt="Promo Graphic" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="An illustration of a glowing digital wallet or credit card surrounded by neon gold coins against a deep black void. The coins are captured in motion, implying a cashback or reward mechanic. High energy, glassmorphic rendering style with strong rim lighting that pops against the dark mode background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXW2NEytCWMYKoqZGD5Edv6kYoLkq-afDeQFZJlt3uOb3qAJjkZ9FgmiotQvuSqXxxqG-oX7EJsqwhlghk5ReZ0iuFFnybguXuU1_SmW5lPYMZ9f-NtnlQNUhzwj9lYI3NekO-rd-Wdiz10f3laCqtiD0SttOyL59FBr7LJy8L5bxxwKbwrLwnahTfd0ckMbTErskCghEWr3Dfgp-iSTBR5AOwuWWKOU4ye8PpH5bu6QAhO2IPeT25dQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow relative">
+<div class="absolute inset-0 metallic-overlay rounded-b-xl"></div>
+<h3 class="font-headline-lg text-headline-lg text-white mb-1 relative z-10">15% CASHBACK</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-4 flex-grow relative z-10">Pay with E-Wallet partners and receive instant cashback up to Rp 150.000.</p>
+<div class="flex justify-between items-center mt-auto relative z-10 pt-4 border-t border-white/5">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Ends in</span>
+<span class="font-body-md text-body-md text-white font-mono countdown-timer">12:00:00</span>
+</div>
+<button class="bg-transparent border border-war-gold text-war-gold hover:bg-war-gold hover:text-black font-label-sm text-label-sm px-4 py-2 rounded transition-colors duration-200">
+                                DETAILS
+                            </button>
+</div>
+</div>
+</div>
+<!-- Promo Card 4 (Hidden on smaller md screens to maintain 3-col balance, shown on xl) -->
+<div class="hidden xl:flex bg-surface/60 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden relative group hover:scale-[1.02] transition-transform duration-300 hover:shadow-[0_0_20px_rgba(240,184,41,0.15)] flex-col h-full">
+<div class="h-40 w-full relative overflow-hidden">
+<img alt="Promo Graphic" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A dark, cinematic close-up of a vintage analog flight departure board, but the text is replaced with glowing amber and war-gold LEDs spelling 'LAST CALL'. The background is shrouded in deep shadow. This signifies a last-minute ticket clearance sale in a high-stakes, premium visual context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBFY4MvPO-Qzj2gUVIYzmNjzZ9M_jqZl1mmzxVaQxIu5Ro2o15RG_S-9We4B6IDuvyJ3BUKjicsT94IKMpOQAucgHxrCjNRihM52-FyP1qQQQB4cyG8opSZRJ7wtdM6qG1Z7uZd67AySJvNgXls4y9x6pkXFhMZk0R6H8GmJ-WnitbCx4z3QBeo8yruhmT58aP9IhftSWOgXquq9kcyOiE4W4BdcX5Z-5axpsX8dNfS6hV1RCew2ivrIQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow relative">
+<div class="absolute inset-0 metallic-overlay rounded-b-xl"></div>
+<h3 class="font-headline-lg text-headline-lg text-white mb-1 relative z-10">LAST MINUTE DROPS</h3>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm mb-4 flex-grow relative z-10">Canceled reservations released at original price. No markups.</p>
+<div class="flex justify-between items-center mt-auto relative z-10 pt-4 border-t border-white/5">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-text-secondary">Ends in</span>
+<span class="font-body-md text-body-md text-urgent-red font-mono countdown-timer animate-pulse">00:45:12</span>
+</div>
+<button class="bg-transparent border border-war-gold text-war-gold hover:bg-war-gold hover:text-black font-label-sm text-label-sm px-4 py-2 rounded transition-colors duration-200">
+                                ENTER QUEUE
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden flex justify-around items-center h-16 w-full px-4 border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90">
+<!-- Home (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">home</span>
+<span class="font-label-sm text-[10px]">Home</span>
+</a>
+<!-- Explore (Active - Semantic match for Deals/Promo browsing) -->
+<a class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 active:bg-surface-container-high transition-all relative overflow-hidden group" href="#">
+<div class="absolute inset-0 bg-war-gold/10 animate-pulse rounded-xl group-hover:bg-war-gold/20"></div>
+<span class="material-symbols-outlined mb-1 text-[24px] relative z-10">search</span>
+<span class="font-label-sm text-[10px] relative z-10">Explore</span>
+</a>
+<!-- Orders (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">confirmation_number</span>
+<span class="font-label-sm text-[10px]">Orders</span>
+</a>
+<!-- Profile (Inactive) -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high transition-colors p-2 rounded-lg" href="#">
+<span class="material-symbols-outlined mb-1 text-[24px]">person</span>
+<span class="font-label-sm text-[10px]">Profile</span>
+</a>
+</nav>
+<!-- Footer -->
+<footer class="full-width border-t border-surface-variant bg-surface-container-lowest dark:bg-background mt-auto pb-20 md:pb-0">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<!-- Brand Column -->
+<div class="flex flex-col gap-stack-sm">
+<span class="font-display-md text-display-md text-war-gold">WAR TICKET</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm max-w-xs">The premier platform for high-stakes, high-demand event access.</p>
+</div>
+<!-- Links Column 1 -->
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Privacy Policy</a>
+</div>
+<!-- Links Column 2 -->
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Payment Partners</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Contact</a>
+</div>
+<!-- Copyright -->
+<div class="flex flex-col justify-end md:items-end">
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+</div>
+</footer>
+<script>
+        // Simple script to slightly decrement countdown timers to create a 'live' feel
+        document.addEventListener('DOMContentLoaded', () => {
+            const timers = document.querySelectorAll('.countdown-timer');
+            
+            setInterval(() => {
+                timers.forEach(timer => {
+                    let [hours, minutes, seconds] = timer.innerText.split(':').map(Number);
+                    
+                    if (seconds > 0) {
+                        seconds--;
+                    } else {
+                        if (minutes > 0) {
+                            minutes--;
+                            seconds = 59;
+                        } else {
+                            if (hours > 0) {
+                                hours--;
+                                minutes = 59;
+                                seconds = 59;
+                            }
+                        }
+                    }
+                    
+                    timer.innerText = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                });
+            }, 1000);
+        });
+    </script>
+</body></html>

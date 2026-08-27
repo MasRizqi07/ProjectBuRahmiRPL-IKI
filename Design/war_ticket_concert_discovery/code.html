@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jelajahi - WAR TICKET</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-fixed": "#261900",
+                        "primary-fixed-dim": "#fabd32",
+                        "surface-container": "#201f1f",
+                        "primary-fixed": "#ffdea4",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#7b5900",
+                        "error": "#ffb4ab",
+                        "text-secondary": "#666666",
+                        "background": "#131313",
+                        "outline": "#9c8f7a",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "status-green": "#10B981",
+                        "surface-tint": "#fabd32",
+                        "surface-dim": "#131313",
+                        "surface-container-highest": "#353534",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "outline-variant": "#504534",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary": "#003549",
+                        "on-tertiary-fixed": "#001e2c",
+                        "surface": "#131313",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-surface-variant": "#d4c5ad",
+                        "surface-variant": "#353534",
+                        "on-secondary-container": "#b7b5b4",
+                        "secondary-container": "#474746",
+                        "surface-bright": "#3a3939",
+                        "on-background": "#e5e2e1",
+                        "secondary": "#c8c6c5",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "war-gold": "#F0B429",
+                        "inverse-surface": "#e5e2e1",
+                        "primary-container": "#f0b429",
+                        "on-surface": "#e5e2e1",
+                        "urgent-red": "#EF4444",
+                        "on-secondary-fixed-variant": "#474746",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "primary": "#ffd481",
+                        "tertiary": "#aee0ff",
+                        "error-container": "#93000a",
+                        "on-primary": "#412d00",
+                        "on-primary-container": "#644800",
+                        "text-primary": "#FFFFFF",
+                        "tertiary-fixed": "#c3e8ff",
+                        "on-error": "#690005",
+                        "on-secondary": "#313030",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "surface-grey": "#1A1A1A",
+                        "tertiary-container": "#5bc9ff",
+                        "on-tertiary-container": "#005371",
+                        "on-secondary-fixed": "#1c1b1b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "display-md": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-xl-mobile": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    "fontSize": {
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "headline-lg": ["24px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "display-md": ["32px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "display-xl": ["80px", { "lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "display-xl-mobile": ["36px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .pulse-live {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .card-hover:hover {
+            transform: scale(1.02);
+            border-color: #F0B429;
+            box-shadow: 0 0 20px rgba(240, 184, 41, 0.3);
+            transition: all 0.2s ease-out;
+        }
+        .demand-meter-fill {
+            background: linear-gradient(90deg, #10B981 0%, #F0B429 50%, #EF4444 100%);
+        }
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #131313; }
+        ::-webkit-scrollbar-thumb { background: #353534; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #F0B429; }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-body-md min-h-screen flex flex-col antialiased selection:bg-war-gold selection:text-background">
+<!-- TopNavBar -->
+<header class="bg-surface/80 backdrop-blur-xl dark:bg-surface/80 docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl hidden md:block">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<a class="font-display-md text-display-md text-war-gold tracking-tight hover:scale-105 transition-transform duration-200" href="#">WAR TICKET</a>
+<nav class="flex gap-8">
+<a class="font-label-sm text-label-sm text-war-gold border-b-2 border-war-gold pb-1 hover:scale-105 transition-transform duration-200 active:scale-95 transition-all" href="#">Jelajahi</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200 active:scale-95 transition-all" href="#">Promo</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 transition-transform duration-200 active:scale-95 transition-all" href="#">Cek Pesanan</a>
+</nav>
+<div class="flex items-center gap-4">
+<button aria-label="notifications" class="text-on-surface-variant hover:text-war-gold transition-colors active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button aria-label="shopping bag" class="text-on-surface-variant hover:text-war-gold transition-colors active:scale-95 transition-all">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+<div class="relative">
+<img alt="User avatar with live pulse status" class="w-10 h-10 rounded-full border border-surface-variant object-cover" data-alt="A stylized user avatar portrait in a futuristic cyberpunk style, neon lighting, dark background, highly detailed 8k resolution, glowing accents indicating a live pulse status." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIewRcip_nfdvq3BQ1zP7kV-0EyyQ6cJNxeai5KC2YkQXUwd79z2VqIOmfjKbBCCAc_RRkj7Yi9zXX96xuCYL9DYbhRa32q3gdKVA5j5Augy1uuWrr_BzPIMv-81IPquXWqgzpAOgGlH93Ceu1K_DO-zHThpKNQo-KUcybM1eGCpukKONnMW9hFZDNK6TEgcnbagKJNq1O42XIMU37DIV7udNMRGzdyZy8MeJsrhAg-kQrTlp9j80txQ"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-status-green rounded-full border-2 border-background pulse-live"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow flex flex-col md:flex-row w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg gap-gutter">
+<!-- Sidebar Filter -->
+<aside class="w-full md:w-64 flex-shrink-0 flex flex-col gap-stack-lg">
+<div class="bg-surface-container rounded-xl p-stack-md border border-white/10 backdrop-blur-md">
+<h2 class="font-headline-lg text-headline-lg mb-stack-md text-on-surface">Filter</h2>
+<div class="flex flex-col gap-stack-sm mb-stack-lg">
+<h3 class="font-label-sm text-label-sm text-text-secondary uppercase">Kategori</h3>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input checked="" class="form-checkbox bg-background border-surface-variant text-war-gold rounded focus:ring-war-gold focus:ring-offset-background" type="checkbox"/>
+<span class="text-body-md text-on-surface-variant group-hover:text-war-gold transition-colors">Semua Kategori</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox bg-background border-surface-variant text-war-gold rounded focus:ring-war-gold focus:ring-offset-background" type="checkbox"/>
+<span class="text-body-md text-on-surface-variant group-hover:text-war-gold transition-colors">Konser Musik</span>
+</label>
+<label class="flex items-center gap-2 cursor-pointer group">
+<input class="form-checkbox bg-background border-surface-variant text-war-gold rounded focus:ring-war-gold focus:ring-offset-background" type="checkbox"/>
+<span class="text-body-md text-on-surface-variant group-hover:text-war-gold transition-colors">Festival</span>
+</label>
+</div>
+<div class="flex flex-col gap-stack-sm mb-stack-lg">
+<h3 class="font-label-sm text-label-sm text-text-secondary uppercase">Waktu</h3>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">calendar_month</span>
+<input class="w-full bg-background border border-surface-variant text-on-surface rounded-lg pl-10 pr-3 py-2 focus:border-war-gold focus:ring-1 focus:ring-war-gold focus:outline-none transition-colors" type="date"/>
+</div>
+</div>
+<div class="flex flex-col gap-stack-sm mb-stack-lg">
+<h3 class="font-label-sm text-label-sm text-text-secondary uppercase">Harga</h3>
+<input class="w-full h-1 bg-surface-variant rounded-lg appearance-none cursor-pointer accent-war-gold" max="5000" min="0" type="range" value="2500"/>
+<div class="flex justify-between font-label-sm text-label-sm text-on-surface-variant mt-1">
+<span>Rp 0</span>
+<span>Rp 5jt+</span>
+</div>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<h3 class="font-label-sm text-label-sm text-text-secondary uppercase">Lokasi</h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-war-gold/10 border border-war-gold text-war-gold rounded-full font-label-sm text-label-sm cursor-pointer hover:bg-war-gold hover:text-background transition-colors">Jakarta</span>
+<span class="px-3 py-1 bg-surface-container-high border border-surface-variant text-on-surface-variant rounded-full font-label-sm text-label-sm cursor-pointer hover:border-war-gold transition-colors">Bandung</span>
+<span class="px-3 py-1 bg-surface-container-high border border-surface-variant text-on-surface-variant rounded-full font-label-sm text-label-sm cursor-pointer hover:border-war-gold transition-colors">Bali</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Event Grid -->
+<section class="flex-grow">
+<div class="flex justify-between items-end mb-stack-md">
+<h1 class="font-display-lg text-display-xl-mobile md:text-display-lg text-on-surface">Konser Mendatang</h1>
+<span class="font-label-sm text-label-sm text-text-secondary">Menampilkan 24 acara</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-gutter">
+<!-- Concert Card 1 -->
+<article class="bg-surface-container rounded-xl border border-white/10 overflow-hidden flex flex-col card-hover backdrop-blur-md relative">
+<div class="absolute top-4 right-4 z-10 bg-urgent-red/20 border border-urgent-red text-urgent-red px-2 py-1 rounded-md font-label-sm text-label-sm tracking-wider uppercase backdrop-blur-sm">Limited</div>
+<div class="h-48 relative overflow-hidden bg-gradient-to-b from-[#332211] to-surface-container">
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-display-xl text-display-xl text-war-gold/20 opacity-50 select-none tracking-widest">NOAH</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-surface-container to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow z-20 -mt-12">
+<span class="font-label-sm text-label-sm text-war-gold uppercase tracking-wider mb-1">Pop Rock</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2 leading-tight">NOAH — The Return</h3>
+<div class="flex items-center gap-1 text-text-secondary font-label-sm text-label-sm mb-4">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span>GBK Jakarta</span>
+<span class="mx-1">•</span>
+<span>15 Jun 2025</span>
+</div>
+<div class="mt-auto">
+<div class="mb-3">
+<div class="flex justify-between text-[10px] text-on-surface-variant mb-1 uppercase tracking-wider">
+<span>Demand</span>
+<span class="text-urgent-red">High</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full demand-meter-fill" style="width: 85%;"></div>
+</div>
+</div>
+<div class="flex justify-between items-center border-t border-white/10 pt-4 mt-2">
+<div>
+<span class="font-headline-lg text-headline-lg text-war-gold">Rp 250K</span>
+<span class="text-[10px] text-text-secondary">/ tiket</span>
+</div>
+<button class="bg-war-gold text-on-primary px-4 py-2 rounded-lg font-label-sm text-label-sm hover:scale-105 hover:shadow-[0_0_15px_rgba(240,180,41,0.4)] transition-all active:scale-95 magnetic-btn">Beli Tiket</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Concert Card 2 -->
+<article class="bg-surface-container rounded-xl border border-white/10 overflow-hidden flex flex-col card-hover backdrop-blur-md relative">
+<div class="absolute top-4 right-4 z-10 bg-status-green/20 border border-status-green text-status-green px-2 py-1 rounded-md font-label-sm text-label-sm tracking-wider uppercase backdrop-blur-sm">Available</div>
+<div class="h-48 relative overflow-hidden bg-gradient-to-b from-[#112233] to-surface-container">
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="font-display-xl text-display-xl text-tertiary-fixed-dim/20 opacity-50 select-none tracking-widest whitespace-nowrap">DEWA 19</span>
+</div>
+<div class="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-surface-container to-transparent"></div>
+</div>
+<div class="p-stack-md flex flex-col flex-grow z-20 -mt-12">
+<span class="font-label-sm text-label-sm text-war-gold uppercase tracking-wider mb-1">Rock Legend</span>
+<h3 class="font-headline-lg text-headline-lg text-on-surface mb-2 leading-tight">Dewa 19 Reunion</h3>
+<div class="flex items-center gap-1 text-text-secondary font-label-sm text-label-sm mb-4">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 0;">location_on</span>
+<span>Istora Senayan</span>
+<span class="mx-1">•</span>
+<span>22 Jul 2025</span>
+</div>
+<div class="mt-auto">
+<div class="mb-3">
+<div class="flex justify-between text-[10px] text-on-surface-variant mb-1 uppercase tracking-wider">
+<span>Demand</span>
+<span class="text-war-gold">Medium</span>
+</div>
+<div class="w-full h-1.5 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full demand-meter-fill" style="width: 55%;"></div>
+</div>
+</div>
+<div class="flex justify-between items-center border-t border-white/10 pt-4 mt-2">
+<div>
+<span class="font-headline-lg text-headline-lg text-war-gold">Rp 350K</span>
+<span class="text-[10px] text-text-secondary">/ tiket</span>
+</div>
+<button class="bg-war-gold text-on-primary px-4 py-2 rounded-lg font-label-sm text-label-sm hover:scale-105 hover:shadow-[0_0_15px_rgba(240,180,41,0.4)] transition-all active:scale-95 magnetic-btn">Beli Tiket</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex justify-around items-center h-16 w-full px-4">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-war-gold active:bg-surface-container-high p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm mt-1">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 active:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">search</span>
+<span class="font-label-sm text-label-sm mt-1">Explore</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-war-gold active:bg-surface-container-high p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">confirmation_number</span>
+<span class="font-label-sm text-label-sm mt-1">Orders</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:text-war-gold active:bg-surface-container-high p-2 rounded-xl transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm mt-1">Profile</span>
+</button>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-background full-width border-t border-surface-variant pb-20 md:pb-0">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1">
+<h4 class="font-display-md text-display-md text-war-gold mb-4">WAR TICKET</h4>
+<p class="font-body-md text-body-md text-text-secondary mb-4">Your premium gateway to the most exclusive live events.</p>
+<p class="font-label-sm text-label-sm text-text-secondary">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Privacy Policy</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Payment Partners</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Contact</a>
+</div>
+<div class="flex gap-4 items-start">
+<!-- Social placeholders -->
+<button aria-label="Social link" class="w-10 h-10 rounded-full bg-surface-container border border-surface-variant flex items-center justify-center text-on-surface-variant hover:text-war-gold hover:border-war-gold hover:shadow-[0_0_15px_rgba(240,180,41,0.2)] transition-all">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+</div>
+</div>
+</footer>
+<script>
+        // Magnetic button effect
+        document.querySelectorAll('.magnetic-btn').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                btn.style.transform = `translate(${x * 0.1}px, ${y * 0.1}px) scale(1.05)`;
+            });
+            btn.addEventListener('mouseleave', () => {
+                btn.style.transform = '';
+            });
+        });
+    </script>
+</body></html>

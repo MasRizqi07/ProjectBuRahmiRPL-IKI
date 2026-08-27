@@ -1,184 +1,71 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { Search, X } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { Filter, Search, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { motion, AnimatePresence } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
 interface SearchAndFilterProps {
-  cities: string[]
-  activeFilters: {
-    city?: string
-    category?: string
-    status?: string
-    [key: string]: string | undefined
-  }
-  resultsCount: number
+  readonly cities: string[]
+  readonly activeFilters: Record<string, string | undefined>
+  readonly resultsCount: number
 }
 
-const CATEGORY_FILTERS = ['pop', 'rock', 'jazz', 'electronic', 'hiphop', 'indie']
-const STATUS_FILTERS = ['available', 'limited', 'soldout']
+const groups = [
+  { key: 'category', label: 'Kategori', values: ['pop', 'rock', 'jazz', 'electronic', 'hiphop', 'indie'] },
+  { key: 'status', label: 'Status', values: ['available', 'limited', 'soldout'] },
+] as const
 
-const STATUS_LABELS: Record<string, string> = {
-  available: 'Tersedia',
-  limited: 'Terbatas',
-  soldout: 'Habis'
-}
+const labels: Record<string, string> = { electronic: 'Elektronik', hiphop: 'Hip-hop', available: 'Tersedia', limited: 'Terbatas', soldout: 'Habis' }
 
-export function SearchAndFilter({
-  cities,
-  activeFilters,
-  resultsCount,
-}: SearchAndFilterProps) {
+export function SearchAndFilter({ cities, activeFilters, resultsCount }: SearchAndFilterProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-
   const [query, setQuery] = useState(searchParams.get('q') || '')
 
   const updateFilter = useCallback((key: string, value: string | null) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (value && value !== 'all') {
-      params.set(key, value)
-    } else {
-      params.delete(key)
-    }
-    router.push(`${pathname}?${params.toString()}`)
-  }, [router, pathname, searchParams])
+    if (value && value !== 'all') params.set(key, value)
+    else params.delete(key)
+    const suffix = params.toString()
+    router.push(suffix ? `${pathname}?${suffix}` : pathname)
+  }, [pathname, router, searchParams])
 
-  const onClearFilters = () => {
-    setQuery('')
-    router.push(pathname)
-  }
-
-  const hasActiveFilters = Object.values(activeFilters).some(val => val !== undefined && val !== '')
-
-  // Debounce search
   useEffect(() => {
     const activeQuery = searchParams.get('q') || ''
     if (query === activeQuery) return
-
-    const timer = setTimeout(() => {
-      updateFilter('q', query || null)
-    }, 500)
+    const timer = setTimeout(() => updateFilter('q', query || null), 450)
     return () => clearTimeout(timer)
-  }, [query, updateFilter])
+  }, [query, searchParams, updateFilter])
+
+  const clear = () => { setQuery(''); router.push(pathname) }
+  const hasFilters = Object.values(activeFilters).some(Boolean)
+  const renderChips = (key: string, values: readonly string[]) => values.map((value) => {
+    const active = activeFilters[key] === value
+    return <button key={value} type="button" aria-pressed={active} onClick={() => updateFilter(key, active ? null : value)} className={cn('rounded-full border px-3.5 py-2 text-xs font-semibold capitalize transition', active ? 'border-war-gold bg-war-gold text-primary-foreground' : 'border-white/8 bg-white/4 text-muted-foreground hover:border-war-gold/40 hover:text-foreground')}>{labels[value] ?? value}{active && <X className="ml-1 inline size-3" />}</button>
+  })
 
   return (
-    <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl w-full">
-      <div className="relative mb-6">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40" size={20} />
-        <Input
-          placeholder="Cari artis, venue, atau konser..."
-          className="w-full bg-white/5 border-white/10 text-white placeholder:text-white/40 pl-12 pr-4 py-6 rounded-xl focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:border-transparent transition-all font-body text-base"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
-        {query && (
-          <button
-            onClick={() => setQuery('')}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
-            aria-label="Bersihkan pencarian"
-          >
-            <X size={18} aria-hidden="true" />
-          </button>
-        )}
+    <section className="glass-panel rounded-2xl p-4 sm:p-6" aria-label="Cari dan filter konser">
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
+        <Input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Cari artis, venue, atau konser…" className="h-13 rounded-xl border-white/10 bg-black/25 pl-12 pr-12 text-base" aria-label="Cari konser" />
+        {query && <button type="button" onClick={() => setQuery('')} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground" aria-label="Bersihkan pencarian"><X className="size-4" /></button>}
       </div>
-
-      <div className="space-y-6">
-        {/* City Filter */}
-        <div className="space-y-3">
-          <p className="font-body text-sm font-semibold text-white/60 uppercase tracking-wider">Kota</p>
-          <div className="flex flex-wrap gap-2">
-            {cities.map((city) => (
-              <button
-                key={city}
-                onClick={() => updateFilter('city', activeFilters.city === city ? null : city)}
-                className={cn(
-                  "px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 border flex items-center gap-1.5",
-                  activeFilters.city === city
-                    ? "bg-violet-500 border-violet-500 text-white font-medium shadow-[0_0_15px_rgba(139,92,246,0.4)]"
-                    : "bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white/80"
-                )}
-              >
-                {city}
-                {activeFilters.city === city && <X size={14} />}
-              </button>
-            ))}
-          </div>
+      <details className="group mt-4" open>
+        <summary className="flex cursor-pointer list-none items-center gap-2 py-2 text-sm font-bold"><Filter className="size-4 text-war-gold" /> Filter konser <span className="ml-auto text-xs font-normal text-muted-foreground group-open:hidden">Tampilkan</span></summary>
+        <div className="mt-3 grid gap-5 border-t border-white/8 pt-5 lg:grid-cols-3">
+          <div><p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">Kota</p><div className="flex flex-wrap gap-2">{renderChips('city', cities)}</div></div>
+          {groups.map((group) => <div key={group.key}><p className="mb-3 text-xs font-bold uppercase tracking-wider text-muted-foreground">{group.label}</p><div className="flex flex-wrap gap-2">{renderChips(group.key, group.values)}</div></div>)}
         </div>
-
-        {/* Category Filter */}
-        <div className="space-y-3">
-          <p className="font-body text-sm font-semibold text-white/60 uppercase tracking-wider">Kategori</p>
-          <div className="flex flex-wrap gap-2">
-            {CATEGORY_FILTERS.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => updateFilter('category', activeFilters.category === cat ? null : cat)}
-                className={cn(
-                  "px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 border flex items-center gap-1.5 capitalize",
-                  activeFilters.category === cat
-                    ? "bg-purple-500 border-purple-500 text-white font-medium shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                    : "bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white/80"
-                )}
-              >
-                {cat}
-                {activeFilters.category === cat && <X size={14} />}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Status Filter */}
-        <div className="space-y-3">
-          <p className="font-body text-sm font-semibold text-white/60 uppercase tracking-wider">Ketersediaan</p>
-          <div className="flex flex-wrap gap-2">
-            {STATUS_FILTERS.map((status) => (
-              <button
-                key={status}
-                onClick={() => updateFilter('status', activeFilters.status === status ? null : status)}
-                className={cn(
-                  "px-4 py-1.5 rounded-full font-body text-sm transition-all duration-200 border flex items-center gap-1.5",
-                  activeFilters.status === status
-                    ? "bg-fuchsia-500 border-fuchsia-500 text-white font-medium shadow-[0_0_15px_rgba(217,70,239,0.4)]"
-                    : "bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white/80"
-                )}
-              >
-                {STATUS_LABELS[status]}
-                {activeFilters.status === status && <X size={14} />}
-              </button>
-            ))}
-          </div>
-        </div>
+      </details>
+      <div className="mt-5 flex items-center justify-between border-t border-white/8 pt-5">
+        <motion.p key={resultsCount} initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-sm text-muted-foreground"><strong className="font-mono text-lg text-foreground">{resultsCount}</strong> konser ditemukan</motion.p>
+        {hasFilters && <button type="button" onClick={clear} className="text-xs font-bold text-war-gold hover:text-war-gold-bright">Bersihkan semua</button>}
       </div>
-
-      <div className="mt-8 pt-6 border-t border-white/10 flex items-center justify-between">
-        <motion.p 
-          key={resultsCount}
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="font-body text-white/80"
-        >
-          Menampilkan <span className="font-mono font-bold text-white text-lg">{resultsCount}</span> konser
-        </motion.p>
-        
-        <AnimatePresence>
-          {hasActiveFilters && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              onClick={onClearFilters}
-              className="text-sm font-body text-white/50 hover:text-white flex items-center gap-1 transition-colors"
-            >
-              <X size={16} /> Bersihkan Filter
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+    </section>
   )
 }

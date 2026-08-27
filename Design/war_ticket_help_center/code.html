@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Pusat Bantuan - WAR TICKET</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ffb4ab",
+                      "tertiary-fixed": "#c3e8ff",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "brand-glow": "rgba(240, 180, 41, 0.1)",
+                      "surface-container": "#201f1f",
+                      "on-primary-fixed-variant": "#5d4200",
+                      "outline": "#9c8f7a",
+                      "tertiary-fixed-dim": "#7ad0ff",
+                      "on-tertiary-container": "#005371",
+                      "on-primary-container": "#644800",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "on-secondary-fixed-variant": "#474746",
+                      "surface-container-low": "#1c1b1b",
+                      "on-tertiary-fixed": "#001e2c",
+                      "tertiary-container": "#5bc9ff",
+                      "inverse-surface": "#e5e2e1",
+                      "urgent-red": "#EF4444",
+                      "war-gold": "#F0B429",
+                      "text-secondary": "#666666",
+                      "surface-tint": "#fabd32",
+                      "error-container": "#93000a",
+                      "on-primary": "#412d00",
+                      "surface-variant": "#353534",
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "on-surface": "#e5e2e1",
+                      "outline-variant": "#504534",
+                      "secondary-container": "#474746",
+                      "primary": "#ffd481",
+                      "on-surface-variant": "#d4c5ad",
+                      "inverse-on-surface": "#313030",
+                      "surface-grey": "#1A1A1A",
+                      "surface-container-highest": "#353534",
+                      "surface-dim": "#131313",
+                      "surface-container-lowest": "#0e0e0e",
+                      "on-error": "#690005",
+                      "surface-container-high": "#2a2a2a",
+                      "on-secondary-container": "#b7b5b4",
+                      "on-background": "#e5e2e1",
+                      "primary-fixed": "#ffdea4",
+                      "on-secondary": "#313030",
+                      "secondary-fixed": "#e5e2e1",
+                      "inverse-primary": "#7b5900",
+                      "text-primary": "#FFFFFF",
+                      "status-green": "#10B981",
+                      "on-primary-fixed": "#261900",
+                      "primary-fixed-dim": "#fabd32",
+                      "primary-container": "#f0b429",
+                      "on-tertiary": "#003549",
+                      "secondary": "#c8c6c5",
+                      "on-error-container": "#ffdad6",
+                      "tertiary": "#aee0ff",
+                      "surface": "#131313",
+                      "background": "#131313",
+                      "surface-bright": "#3a3939"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-sm": "8px",
+                      "margin-desktop": "40px",
+                      "stack-md": "16px",
+                      "margin-mobile": "16px",
+                      "container-max": "1280px",
+                      "gutter": "24px",
+                      "stack-lg": "32px"
+              },
+              "fontFamily": {
+                      "display-xl": [
+                              "Bebas Neue"
+                      ],
+                      "body-lg": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-lg": [
+                              "Bebas Neue"
+                      ],
+                      "body-md": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-md": [
+                              "Bebas Neue"
+                      ],
+                      "headline-lg": [
+                              "Bebas Neue"
+                      ],
+                      "label-sm": [
+                              "Plus Jakarta Sans"
+                      ],
+                      "display-xl-mobile": [
+                              "Bebas Neue"
+                      ]
+              },
+              "fontSize": {
+                      "display-xl": [
+                              "80px",
+                              {
+                                      "lineHeight": "80px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-xl-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Base styles from design system */
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        
+        .glass-card {
+            background-color: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .interactive-glow:hover {
+            box-shadow: 0 0 20px rgba(240, 184, 41, 0.3);
+            border-color: rgba(240, 184, 41, 0.5);
+            transform: scale(1.02);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .input-glow:focus-within {
+            box-shadow: 0 0 20px rgba(240, 184, 41, 0.2);
+            border-color: theme('colors.war-gold');
+        }
+
+        .pulse-live {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+        
+        /* Floating Action Button specific styles */
+        .fab-glow {
+            box-shadow: 0 4px 24px rgba(240, 184, 41, 0.4);
+        }
+        .fab-glow:hover {
+            box-shadow: 0 8px 32px rgba(240, 184, 41, 0.6);
+            transform: scale(1.05) translateY(-4px);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col font-body-md">
+<!-- TopNavBar (Shared Component) -->
+<!-- Note: TopNavBar is suppressed on sub-pages focused on specific tasks, but Help Center can be considered a destination/informational page depending on routing. We include it but keep it clean. -->
+<header class="bg-surface/80 backdrop-blur-xl dark:bg-surface/80 docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<!-- Desktop Nav -->
+<nav class="hidden md:flex items-center space-x-8">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 duration-200" href="#">Jelajahi</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 duration-200" href="#">Promo</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-war-gold transition-colors hover:scale-105 duration-200" href="#">Cek Pesanan</a>
+</nav>
+<div class="flex items-center space-x-4">
+<button class="text-war-gold dark:text-primary hover:scale-105 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span>
+</button>
+<button class="text-war-gold dark:text-primary hover:scale-105 transition-transform duration-200 active:scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span>
+</button>
+<div class="relative w-8 h-8 rounded-full overflow-hidden border border-white/10 hover:border-war-gold transition-colors">
+<img alt="User avatar with live pulse status" class="w-full h-full object-cover" data-alt="A close-up portrait of a user avatar in a sleek, dark UI setting. The lighting is moody with subtle golden rim light, fitting a premium ticketing platform aesthetic. High contrast, professional style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8q_V4IKM9ZVgWHt7kbfFG7YPnuGgj3N0cPBCzQViOt2OAjROc9jmxOWSOAG2exlUx1WnIiHNQJueSRycs08rZ0mTGwBpqkudNGws_X6DGrFwloWwrhdxPBZ7N-1YLybl4L4ZLLcjZM1PcYOiLJmDxFeyI5cxBRVN_PTzdbzLlvwBV466IOBaC_fONAn18f94357P9Yy4bNxnboUaYbu65kcFkkX0YC3rU-exy74xWd6FBLhZLUGHufA"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg flex flex-col gap-stack-lg relative">
+<!-- Hero Search Section -->
+<section class="text-center py-stack-lg md:py-16">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-stack-sm">PUSAT BANTUAN</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant mb-stack-md max-w-2xl mx-auto">Ada yang bisa kami bantu? Temukan jawaban untuk pertanyaan umum mengenai tiket, antrean, dan akun Anda.</p>
+<div class="max-w-2xl mx-auto w-full relative">
+<div class="bg-surface-container-high border border-surface-variant rounded-full flex items-center px-6 py-4 input-glow transition-all duration-300">
+<span class="material-symbols-outlined text-on-surface-variant mr-3">search</span>
+<input class="w-full bg-transparent border-none text-on-background focus:ring-0 p-0 font-body-md text-body-md placeholder-on-surface-variant/50" placeholder="Cari artikel bantuan..." type="text"/>
+<button class="text-war-gold hover:text-primary transition-colors font-label-sm text-label-sm ml-3">CARI</button>
+</div>
+</div>
+</section>
+<!-- Categories Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-stack-md md:gap-gutter mb-stack-lg">
+<!-- Category: Booking -->
+<a class="glass-card rounded-xl p-6 flex flex-col gap-4 interactive-glow group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-war-gold/20 transition-colors">
+<span class="material-symbols-outlined text-war-gold text-2xl">confirmation_number</span>
+</div>
+<div>
+<h3 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-1">Pemesanan</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Cara memesan tiket, masalah e-ticket, dan kebijakan pembatalan.</p>
+</div>
+</a>
+<!-- Category: Payment -->
+<a class="glass-card rounded-xl p-6 flex flex-col gap-4 interactive-glow group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-war-gold/20 transition-colors">
+<span class="material-symbols-outlined text-war-gold text-2xl">payment</span>
+</div>
+<div>
+<h3 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-1">Pembayaran</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Metode pembayaran yang diterima, konfirmasi, dan refund.</p>
+</div>
+</a>
+<!-- Category: Queue (War Ticket specific) -->
+<a class="glass-card rounded-xl p-6 flex flex-col gap-4 interactive-glow group relative overflow-hidden" href="#">
+<!-- Subtle background texture for the Queue card to emphasize 'War' aspect -->
+<div class="absolute inset-0 bg-gradient-to-br from-urgent-red/5 to-transparent pointer-events-none"></div>
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-urgent-red/20 transition-colors relative z-10">
+<span class="material-symbols-outlined text-urgent-red text-2xl">group</span>
+<!-- Live indicator pulse -->
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-urgent-red rounded-full pulse-live"></div>
+</div>
+<div class="relative z-10">
+<h3 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-1 flex items-center gap-2">Sistem Antrean <span class="bg-urgent-red/20 text-urgent-red text-[10px] font-bold px-2 py-0.5 rounded-sm border border-urgent-red/30">LIVE</span></h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Aturan "War Ticket", tips koneksi, dan status ruang tunggu.</p>
+</div>
+</a>
+<!-- Category: Account -->
+<a class="glass-card rounded-xl p-6 flex flex-col gap-4 interactive-glow group" href="#">
+<div class="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center group-hover:bg-war-gold/20 transition-colors">
+<span class="material-symbols-outlined text-war-gold text-2xl">person</span>
+</div>
+<div>
+<h3 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-primary mb-1">Akun Saya</h3>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">Pengaturan profil, keamanan akun, dan pemulihan password.</p>
+</div>
+</a>
+</section>
+<!-- FAQ List Section -->
+<section class="max-w-3xl mx-auto w-full mb-stack-lg">
+<h2 class="font-display-md text-display-md-mobile md:text-display-md text-primary mb-stack-md flex items-center gap-3">
+<span class="material-symbols-outlined text-war-gold">help</span>
+                Pertanyaan Populer
+            </h2>
+<div class="flex flex-col gap-3">
+<!-- FAQ Item 1 -->
+<details class="glass-card rounded-lg overflow-hidden group cursor-pointer transition-all duration-300">
+<summary class="flex items-center justify-between p-5 font-body-md font-semibold text-on-background group-open:text-war-gold group-open:border-b group-open:border-white/5 transition-colors list-none">
+<span>Bagaimana cara kerja sistem antrean saat "War Ticket"?</span>
+<span class="material-symbols-outlined transform group-open:rotate-180 transition-transform duration-300 text-on-surface-variant group-open:text-war-gold">expand_more</span>
+</summary>
+<div class="p-5 text-on-surface-variant font-body-md leading-relaxed bg-surface-dim/30">
+                        Sistem kami menggunakan mekanisme "Waiting Room" acak. Saat waktu penjualan dimulai, semua pengguna di ruang tunggu akan diberikan nomor antrean secara otomatis dan acak. Kecepatan internet Anda sebelum penjualan tidak menentukan posisi antrean Anda.
+                    </div>
+</details>
+<!-- FAQ Item 2 -->
+<details class="glass-card rounded-lg overflow-hidden group cursor-pointer transition-all duration-300">
+<summary class="flex items-center justify-between p-5 font-body-md font-semibold text-on-background group-open:text-war-gold group-open:border-b group-open:border-white/5 transition-colors list-none">
+<span>Berapa batas waktu untuk menyelesaikan pembayaran?</span>
+<span class="material-symbols-outlined transform group-open:rotate-180 transition-transform duration-300 text-on-surface-variant group-open:text-war-gold">expand_more</span>
+</summary>
+<div class="p-5 text-on-surface-variant font-body-md leading-relaxed bg-surface-dim/30">
+                        Anda memiliki waktu tepat 10 menit (600 detik) untuk menyelesaikan proses checkout dan pembayaran setelah tiket berhasil dimasukkan ke keranjang. Jika waktu habis, tiket akan otomatis dikembalikan ke sistem.
+                    </div>
+</details>
+<!-- FAQ Item 3 -->
+<details class="glass-card rounded-lg overflow-hidden group cursor-pointer transition-all duration-300">
+<summary class="flex items-center justify-between p-5 font-body-md font-semibold text-on-background group-open:text-war-gold group-open:border-b group-open:border-white/5 transition-colors list-none">
+<span>Apakah saya bisa membatalkan tiket yang sudah dibeli?</span>
+<span class="material-symbols-outlined transform group-open:rotate-180 transition-transform duration-300 text-on-surface-variant group-open:text-war-gold">expand_more</span>
+</summary>
+<div class="p-5 text-on-surface-variant font-body-md leading-relaxed bg-surface-dim/30">
+                        Sesuai dengan kebijakan festival, semua tiket yang telah dibeli bersifat final (Final Sale). Kami tidak menerima permintaan pengembalian dana (refund) atau pembatalan kecuali acara dibatalkan oleh pihak penyelenggara.
+                    </div>
+</details>
+</div>
+<div class="mt-8 text-center">
+<button class="px-6 py-3 border border-war-gold/50 text-war-gold rounded-full font-label-sm hover:bg-war-gold hover:text-black transition-all duration-300">LIHAT SEMUA FAQ</button>
+</div>
+</section>
+</main>
+<!-- Floating Action Button (FAB) - Live Chat -->
+<button aria-label="Live Chat with Admin" class="fixed bottom-24 md:bottom-8 right-margin-mobile md:right-margin-desktop bg-war-gold text-black rounded-full h-14 w-14 flex items-center justify-center fab-glow transition-all duration-300 z-[60] group">
+<span class="material-symbols-outlined text-2xl group-hover:scale-110 transition-transform" style="font-variation-settings: 'FILL' 1;">chat</span>
+<!-- Pulse effect for live chat availability -->
+<span class="absolute top-0 right-0 w-3.5 h-3.5 bg-status-green border-2 border-surface rounded-full"></span>
+</button>
+<!-- Footer (Shared Component) -->
+<footer class="bg-surface-container-lowest dark:bg-background full-width border-t border-surface-variant flat mt-auto z-40">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto">
+<div class="col-span-1 md:col-span-1 flex flex-col gap-4">
+<span class="font-display-md text-display-md text-war-gold">WAR TICKET</span>
+<p class="font-body-md text-body-md text-text-secondary text-sm">Platform eksklusif untuk tiket festival underground dan acara premium.</p>
+</div>
+<div class="col-span-1 md:col-span-3 flex flex-wrap gap-x-8 gap-y-4 md:justify-end">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Terms of Service</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Payment Partners</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface hover:text-war-gold transition-colors" href="#">Contact</a>
+</div>
+<div class="col-span-1 md:col-span-4 text-center md:text-left text-text-secondary text-xs mt-4 pt-4 border-t border-white/5">
+                © 2024 WAR TICKET. All Rights Reserved.
+            </div>
+</div>
+</footer>
+<!-- BottomNavBar (Shared Component) - Rendered only on mobile, suppressed on desktop -->
+<!-- Note: Semantic matching for active state. This is a Help Center, so no specific primary tab is perfectly matched. We'll leave them inactive as this is an informational sub-routing, but since it's a global nav, maybe 'Profile' is closest if Help is under account, otherwise None. We'll set none active to indicate we are not on a primary top-level tab. -->
+<nav class="bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex justify-around items-center h-16 w-full px-4">
+<!-- Inactive: Home -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl mb-1">home</span>
+<span class="font-label-sm text-label-sm" style="font-size: 10px; line-height: 1;">Home</span>
+</a>
+<!-- Inactive: Explore -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl mb-1">search</span>
+<span class="font-label-sm text-label-sm" style="font-size: 10px; line-height: 1;">Explore</span>
+</a>
+<!-- Inactive: Orders -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl mb-1">confirmation_number</span>
+<span class="font-label-sm text-label-sm" style="font-size: 10px; line-height: 1;">Orders</span>
+</a>
+<!-- Inactive: Profile -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-container-high p-2 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl mb-1">person</span>
+<span class="font-label-sm text-label-sm" style="font-size: 10px; line-height: 1;">Profile</span>
+</a>
+</div>
+</nav>
+</body></html>

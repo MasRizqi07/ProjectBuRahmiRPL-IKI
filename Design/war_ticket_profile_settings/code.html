@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Profile Settings - WAR TICKET</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "error": "#ffb4ab",
+                    "tertiary-fixed": "#c3e8ff",
+                    "on-secondary-fixed": "#1c1b1b",
+                    "brand-glow": "rgba(240, 180, 41, 0.1)",
+                    "surface-container": "#201f1f",
+                    "on-primary-fixed-variant": "#5d4200",
+                    "outline": "#9c8f7a",
+                    "tertiary-fixed-dim": "#7ad0ff",
+                    "on-tertiary-container": "#005371",
+                    "on-primary-container": "#644800",
+                    "secondary-fixed-dim": "#c8c6c5",
+                    "on-secondary-fixed-variant": "#474746",
+                    "surface-container-low": "#1c1b1b",
+                    "on-tertiary-fixed": "#001e2c",
+                    "tertiary-container": "#5bc9ff",
+                    "inverse-surface": "#e5e2e1",
+                    "urgent-red": "#EF4444",
+                    "war-gold": "#F0B429",
+                    "text-secondary": "#666666",
+                    "surface-tint": "#fabd32",
+                    "error-container": "#93000a",
+                    "on-primary": "#412d00",
+                    "surface-variant": "#353534",
+                    "on-tertiary-fixed-variant": "#004c69",
+                    "on-surface": "#e5e2e1",
+                    "outline-variant": "#504534",
+                    "secondary-container": "#474746",
+                    "primary": "#ffd481",
+                    "on-surface-variant": "#d4c5ad",
+                    "inverse-on-surface": "#313030",
+                    "surface-grey": "#1A1A1A",
+                    "surface-container-highest": "#353534",
+                    "surface-dim": "#131313",
+                    "surface-container-lowest": "#0e0e0e",
+                    "on-error": "#690005",
+                    "surface-container-high": "#2a2a2a",
+                    "on-secondary-container": "#b7b5b4",
+                    "on-background": "#e5e2e1",
+                    "primary-fixed": "#ffdea4",
+                    "on-secondary": "#313030",
+                    "secondary-fixed": "#e5e2e1",
+                    "inverse-primary": "#7b5900",
+                    "text-primary": "#FFFFFF",
+                    "status-green": "#10B981",
+                    "on-primary-fixed": "#261900",
+                    "primary-fixed-dim": "#fabd32",
+                    "primary-container": "#f0b429",
+                    "on-tertiary": "#003549",
+                    "secondary": "#c8c6c5",
+                    "on-error-container": "#ffdad6",
+                    "tertiary": "#aee0ff",
+                    "surface": "#131313",
+                    "background": "#131313",
+                    "surface-bright": "#3a3939"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "stack-sm": "8px",
+                    "margin-desktop": "40px",
+                    "stack-md": "16px",
+                    "margin-mobile": "16px",
+                    "container-max": "1280px",
+                    "gutter": "24px",
+                    "stack-lg": "32px"
+            },
+            "fontFamily": {
+                    "display-xl": ["Bebas Neue"],
+                    "body-lg": ["Plus Jakarta Sans"],
+                    "display-lg": ["Bebas Neue"],
+                    "body-md": ["Plus Jakarta Sans"],
+                    "display-md": ["Bebas Neue"],
+                    "headline-lg": ["Bebas Neue"],
+                    "label-sm": ["Plus Jakarta Sans"],
+                    "display-xl-mobile": ["Bebas Neue"]
+            },
+            "fontSize": {
+                    "display-xl": ["80px", {"lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-md": ["32px", {"lineHeight": "32px", "fontWeight": "700"}],
+                    "headline-lg": ["24px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-xl-mobile": ["36px", {"lineHeight": "40px", "fontWeight": "700"}]
+            }
+          }
+        }
+      }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(26, 26, 26, 0.4);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .form-input {
+            background-color: #090909;
+            border: 1px solid #1A1A1A;
+            color: #FFFFFF;
+        }
+        .form-input:focus {
+            border-color: #F0B429;
+            outline: none;
+            box-shadow: 0 0 10px rgba(240, 184, 41, 0.2) inset;
+        }
+        .btn-primary {
+            background-color: #F0B429;
+            color: #000000;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(240, 184, 41, 0.3);
+        }
+        
+        .pulse-badge {
+            animation: pulse-ring 2s infinite;
+        }
+        
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col font-body-md text-body-md selection:bg-war-gold selection:text-black">
+<!-- TopNavBar -->
+<nav class="bg-surface/80 backdrop-blur-xl dark:bg-surface/80 full-width top-0 sticky z-50 shadow-xl border-b border-white/10 hidden md:block">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<div class="flex items-center space-x-8">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Jelajahi</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Promo</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Cek Pesanan</a>
+</div>
+<div class="flex items-center space-x-6 text-war-gold dark:text-primary">
+<button class="hover:scale-105 transition-transform duration-200"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">notifications</span></button>
+<button class="hover:scale-105 transition-transform duration-200"><span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">shopping_bag</span></button>
+<div class="w-10 h-10 rounded-full border-2 border-war-gold overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="A futuristic, high-contrast avatar portrait of a user in a dark, neon-lit environment, cyberpunk aesthetic, deep blacks with glowing gold accents, detailed facial features, energetic and live." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyeE3CkZ2Ju-MJlB4HVROm-wBW6oi6GZNQ1kQiVo42KZ1Dpt-97K5LJXuTlWrmzTlneMKU_nqzhzDIjdHcehI5bA56cZfS2UCvT4hGJVxH9ZzKfb1MYD7YugxrIkonuwUrT1Chafeky7ehBstHc5AU452N5O-099OB-EWKunDzzTGhiTGiSJSIyRSOAmcv3DgutlAqHGiFakMklUVYTirLHRlVI0235Symplc5zTadOX-Rm6mKIA6eCw"/>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-status-green rounded-full border-2 border-background pulse-badge"></div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg flex flex-col md:flex-row gap-gutter">
+<!-- Sidebar Navigation (Desktop) -->
+<aside class="w-full md:w-1/4 hidden md:flex flex-col gap-2">
+<div class="font-display-lg text-display-lg mb-6">Settings</div>
+<a class="glass-card p-4 rounded-lg flex items-center justify-between border-war-gold border bg-brand-glow text-war-gold group" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-sm text-label-sm">Profile Details</span>
+</div>
+<span class="material-symbols-outlined text-war-gold">chevron_right</span>
+</a>
+<a class="p-4 rounded-lg flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-war-gold transition-colors">security</span>
+<span class="font-label-sm text-label-sm group-hover:text-war-gold transition-colors">Security</span>
+</a>
+<a class="p-4 rounded-lg flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-war-gold transition-colors">credit_card</span>
+<span class="font-label-sm text-label-sm group-hover:text-war-gold transition-colors">Payment Methods</span>
+</a>
+<a class="p-4 rounded-lg flex items-center gap-3 text-on-surface-variant hover:bg-surface-container-high transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:text-war-gold transition-colors">notifications</span>
+<span class="font-label-sm text-label-sm group-hover:text-war-gold transition-colors">Notifications</span>
+</a>
+</aside>
+<!-- Main Form Area -->
+<section class="w-full md:w-3/4 flex flex-col gap-stack-lg">
+<div class="md:hidden font-display-xl-mobile text-display-xl-mobile mb-4">Profile</div>
+<!-- Identity Card -->
+<div class="glass-card rounded-xl p-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4">
+<div class="flex items-center gap-2 bg-status-green/10 text-status-green px-3 py-1 rounded-full border border-status-green/30">
+<span class="material-symbols-outlined text-sm">verified</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-xs">NIK Verified</span>
+</div>
+</div>
+<h2 class="font-headline-lg text-headline-lg text-war-gold mb-6 border-b border-surface-variant pb-2">Personal Information</h2>
+<div class="flex flex-col md:flex-row gap-6 items-start">
+<!-- Avatar Upload -->
+<div class="flex flex-col items-center gap-4">
+<div class="w-32 h-32 rounded-full border-2 border-surface-variant overflow-hidden relative group cursor-pointer">
+<img class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" data-alt="A stylized, high-contrast portrait avatar in a dark setting, glowing gold highlights reflecting on the face, sleek and modern tech aesthetic, deep blacks." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTKEJw39zhDvrOxhuIFPPsL2uN3Rt6b9YJW24yvIBw3Av13y8HV0QnUiwnif8-MWhVALgzid1AY63WPoV4WfsAHGik8Snw8TADYyZ6cHPZWhWhcHY44UH4uBSCDfHkSdy1vHkEyid7mineO1gID7m-g3uiurVi7SmLDPznHX7ZzS3845cb9hRyTigFpYJlFGeze7m1bXzFO2dwZvx_6oQlmf8HbsHNuxwN8krAXQzUiNla6WtsijnM6A"/>
+<div class="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-war-gold text-3xl">photo_camera</span>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Change Avatar</span>
+</div>
+<!-- Details Form -->
+<form class="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Full Name</label>
+<input class="form-input rounded-lg p-3 font-body-md text-body-md w-full" type="text" value="Alex Mercer"/>
+</div>
+<div class="flex flex-col gap-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Username</label>
+<div class="relative">
+<span class="absolute left-3 top-3 text-on-surface-variant">@</span>
+<input class="form-input rounded-lg p-3 pl-8 font-body-md text-body-md w-full" type="text" value="mercer_tickets"/>
+</div>
+</div>
+<div class="flex flex-col gap-2 md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Email Address</label>
+<input class="form-input rounded-lg p-3 font-body-md text-body-md w-full text-text-secondary" disabled="" type="email" value="alex.mercer@example.com"/>
+<span class="text-xs text-text-secondary mt-1">Contact support to change email.</span>
+</div>
+<div class="flex flex-col gap-2 md:col-span-2">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Phone Number</label>
+<input class="form-input rounded-lg p-3 font-body-md text-body-md w-full" type="tel" value="+62 812 3456 7890"/>
+</div>
+</form>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="btn-primary rounded-lg px-8 py-3 font-label-sm text-label-sm uppercase tracking-wider">Save Changes</button>
+</div>
+</div>
+<!-- Saved Payment Methods -->
+<div class="glass-card rounded-xl p-6">
+<h2 class="font-headline-lg text-headline-lg text-war-gold mb-6 border-b border-surface-variant pb-2 flex items-center justify-between">
+<span>Payment Methods</span>
+<button class="text-sm font-label-sm text-on-surface hover:text-war-gold transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">add</span> Add New
+                    </button>
+</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container-high rounded-lg p-4 border border-surface-variant hover:border-war-gold transition-colors cursor-pointer group relative overflow-hidden">
+<div class="absolute right-0 top-0 w-16 h-16 bg-gradient-to-br from-war-gold/20 to-transparent rounded-bl-full opacity-50"></div>
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-war-gold">credit_card</span>
+<span class="font-body-md font-semibold">BCA Virtual Account</span>
+</div>
+<span class="text-xs bg-surface-variant px-2 py-1 rounded text-on-surface-variant">Primary</span>
+</div>
+<div class="font-label-sm text-on-surface-variant tracking-widest">**** **** **** 4920</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-high rounded-lg p-4 border border-surface-variant hover:border-war-gold transition-colors cursor-pointer group relative overflow-hidden">
+<div class="flex justify-between items-start mb-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container">account_balance_wallet</span>
+<span class="font-body-md font-semibold">GoPay</span>
+</div>
+</div>
+<div class="font-label-sm text-on-surface-variant">Linked: +62 812 *** 7890</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<div class="flex justify-around items-center h-16 w-full px-4">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+                Home
+            </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">search</span>
+                Explore
+            </a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1">confirmation_number</span>
+                Orders
+            </a>
+<a class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 active:bg-surface-container-high font-label-sm text-label-sm" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+                Profile
+            </a>
+</div>
+</nav>
+</body></html>

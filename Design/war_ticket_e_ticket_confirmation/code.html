@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAR TICKET - E-Ticket</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&amp;family=Bebas+Neue&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed": "#261900",
+                        "primary-fixed-dim": "#fabd32",
+                        "surface-container": "#201f1f",
+                        "primary-fixed": "#ffdea4",
+                        "inverse-on-surface": "#313030",
+                        "surface-container-low": "#1c1b1b",
+                        "on-error-container": "#ffdad6",
+                        "inverse-primary": "#7b5900",
+                        "error": "#ffb4ab",
+                        "text-secondary": "#666666",
+                        "background": "#131313",
+                        "outline": "#9c8f7a",
+                        "surface-container-high": "#2a2a2a",
+                        "surface-container-lowest": "#0e0e0e",
+                        "status-green": "#10B981",
+                        "surface-tint": "#fabd32",
+                        "surface-dim": "#131313",
+                        "surface-container-highest": "#353534",
+                        "tertiary-fixed-dim": "#7ad0ff",
+                        "outline-variant": "#504534",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary": "#003549",
+                        "on-tertiary-fixed": "#001e2c",
+                        "surface": "#131313",
+                        "secondary-fixed-dim": "#c8c6c5",
+                        "on-surface-variant": "#d4c5ad",
+                        "surface-variant": "#353534",
+                        "on-secondary-container": "#b7b5b4",
+                        "secondary-container": "#474746",
+                        "surface-bright": "#3a3939",
+                        "on-background": "#e5e2e1",
+                        "secondary": "#c8c6c5",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "war-gold": "#F0B429",
+                        "inverse-surface": "#e5e2e1",
+                        "primary-container": "#f0b429",
+                        "on-surface": "#e5e2e1",
+                        "urgent-red": "#EF4444",
+                        "on-secondary-fixed-variant": "#474746",
+                        "brand-glow": "rgba(240, 180, 41, 0.1)",
+                        "primary": "#ffd481",
+                        "tertiary": "#aee0ff",
+                        "error-container": "#93000a",
+                        "on-primary": "#412d00",
+                        "on-primary-container": "#644800",
+                        "text-primary": "#FFFFFF",
+                        "tertiary-fixed": "#c3e8ff",
+                        "on-error": "#690005",
+                        "on-secondary": "#313030",
+                        "on-primary-fixed-variant": "#5d4200",
+                        "surface-grey": "#1A1A1A",
+                        "tertiary-container": "#5bc9ff",
+                        "on-tertiary-container": "#005371",
+                        "on-secondary-fixed": "#1c1b1b"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        "container-max": "1280px",
+                        "stack-sm": "8px",
+                        "stack-md": "16px",
+                        "gutter": "24px",
+                        "margin-desktop": "40px",
+                        "stack-lg": "32px",
+                        "margin-mobile": "16px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Bebas Neue"],
+                        "display-lg": ["Bebas Neue"],
+                        "display-md": ["Bebas Neue"],
+                        "display-xl": ["Bebas Neue"],
+                        "label-sm": ["Plus Jakarta Sans"],
+                        "display-xl-mobile": ["Bebas Neue"],
+                        "body-md": ["Plus Jakarta Sans"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-lg": ["24px", { lineHeight: "28px", fontWeight: "400" }],
+                        "display-lg": ["48px", { lineHeight: "48px", letterSpacing: "0.02em", fontWeight: "700" }],
+                        "display-md": ["32px", { lineHeight: "32px", fontWeight: "700" }],
+                        "display-xl": ["80px", { lineHeight: "80px", letterSpacing: "0.02em", fontWeight: "700" }],
+                        "label-sm": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "display-xl-mobile": ["36px", { lineHeight: "40px", fontWeight: "700" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .metallic-texture {
+            background-image: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.05) 100%), url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.03"/></svg>');
+            background-size: cover, 150px 150px;
+        }
+        .holographic-seal {
+            background: linear-gradient(135deg, #F0B429 0%, #ffdea4 25%, #7b5900 50%, #F0B429 75%, #ffdea4 100%);
+            background-size: 200% 200%;
+            animation: holoFlow 4s ease infinite;
+        }
+        @keyframes holoFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .ticket-cutout {
+            mask-image: radial-gradient(circle at top left, transparent 16px, black 16px),
+                        radial-gradient(circle at top right, transparent 16px, black 16px),
+                        radial-gradient(circle at bottom left, transparent 16px, black 16px),
+                        radial-gradient(circle at bottom right, transparent 16px, black 16px),
+                        linear-gradient(black, black);
+            mask-position: top left, top right, bottom left, bottom right, center;
+            mask-size: 50% 50%, 50% 50%, 50% 50%, 50% 50%, calc(100% - 32px) calc(100% - 32px);
+            mask-repeat: no-repeat;
+        }
+        .ticket-border {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-text-primary font-body-md min-h-screen flex flex-col">
+<!-- Top Navigation App Bar -->
+<nav class="bg-surface/80 backdrop-blur-xl dark:bg-surface/80 font-display-md text-display-md. Navigation: font-label-sm text-label-sm docked full-width top-0 sticky z-50 border-b border-white/10 shadow-xl flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto hidden md:flex">
+<div class="font-display-md text-display-md text-war-gold tracking-tight">WAR TICKET</div>
+<div class="flex gap-stack-lg items-center">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">Jelajahi</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">Promo</a>
+<a class="text-war-gold border-b-2 border-war-gold pb-1 font-label-sm text-label-sm" href="#">Cek Pesanan</a>
+</div>
+<div class="flex gap-stack-md items-center text-war-gold dark:text-primary">
+<button aria-label="notifications" class="hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button aria-label="shopping bag" class="hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">shopping_bag</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-war-gold/50 relative ml-2">
+<img alt="User avatar with live pulse status" class="w-full h-full object-cover" data-alt="A futuristic neon avatar profile picture featuring a glowing visor and sleek cybernetic enhancements, rendered in high contrast against a deep black background with gold highlights, evoking a premium sci-fi aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoIsjhpKHJGDy_crk6fg2ND32wGXUJ7XzJgnW0UQeR42EJumavsNiD9hoo1hNAT3uhsws5GvHPHQldfj2njlsCjY_6tvuuoMhyFuSkpbr9y3YDtOwtBXysH4zvc6HfAi9V1725e3dBHL2LD2WMvdL3DGdEFUUXc5VAgIQgurOFuJRdcMl3oN5kYSiK3dnpHm3ZltaiesO5HVpvDFoqifG5JTqVj3i3AaabZJ8uW6mcYVb2UjTUlo0fwQ"/>
+<div class="absolute bottom-0 right-0 w-2 h-2 bg-status-green rounded-full border border-surface animate-pulse"></div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex items-center justify-center p-margin-mobile md:p-margin-desktop bg-surface-dim relative overflow-hidden">
+<!-- Background Ambient Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full max-h-[800px] bg-war-gold/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+<div class="w-full max-w-[480px] z-10">
+<!-- Ticket Card -->
+<div class="ticket-cutout ticket-border bg-surface-container relative overflow-hidden flex flex-col shadow-2xl">
+<!-- Header Image Section -->
+<div class="h-[240px] relative w-full">
+<img class="w-full h-full object-cover" data-alt="A highly detailed concert stage view from the crowd, illuminated by intense gold and white spotlights cutting through dense atmospheric fog. High contrast, deep blacks, electric underground festival vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBb_5ndkrqx8Gvpnmd4-RXvXWQV3n8zY9z-a3hh-9KDOIbr6wBv8yRpmGG_fIhNKLd77XTPrNQYA_1otJY8mFUJZhBmYdylDq-fA_ga2FnftrPZSLOJMbErU7G-XqrqYHnmGjpMWd3y1UcOgcajW8zrG4EoFjZG3GG2_Mh1HnCZ8L9hKXkx7igXbr7Ip-NB4HJUgtWWoIN22dOYTrgiqzGRFoX34FCqWgd-lNQZZmMLPbNANwJMhjU3Vg"/>
+<!-- Gradient Overlay -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+<!-- Holographic Seal / Badge -->
+<div class="absolute top-4 right-4 w-12 h-12 rounded-full holographic-seal flex items-center justify-center shadow-[0_0_15px_rgba(240,180,41,0.5)] z-20">
+<span class="material-symbols-outlined text-surface-container text-[24px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<!-- Artist Name Overlaid -->
+<div class="absolute bottom-4 left-6 z-20">
+<h1 class="font-display-md text-display-md text-text-primary drop-shadow-md">THE WEEKND</h1>
+<p class="font-label-sm text-label-sm text-war-gold uppercase tracking-wider">After Hours Til Dawn Tour</p>
+</div>
+</div>
+<!-- Ticket Details Section -->
+<div class="p-6 md:p-8 metallic-texture flex-grow flex flex-col gap-6 relative">
+<!-- Subtle watermarks -->
+<div class="absolute inset-0 pointer-events-none opacity-5 flex items-center justify-center overflow-hidden">
+<span class="font-display-xl text-[120px] text-war-gold rotate-[-45deg] select-none whitespace-nowrap">VIP ACCESS</span>
+</div>
+<!-- Info Grid -->
+<div class="grid grid-cols-2 gap-y-6 gap-x-4 relative z-10">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Tanggal &amp; Waktu</p>
+<p class="font-body-md text-body-md text-text-primary font-semibold">15 Nov 2024</p>
+<p class="font-label-sm text-label-sm text-text-secondary">19:30 WIB</p>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Lokasi</p>
+<p class="font-body-md text-body-md text-text-primary font-semibold">Jakarta Int. Stadium</p>
+<p class="font-label-sm text-label-sm text-text-secondary">Gate 4</p>
+</div>
+<div class="col-span-2 border-t border-white/10 pt-4 flex justify-between items-center">
+<div>
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Kategori</p>
+<p class="font-display-lg text-headline-lg text-war-gold">VIP STANDING</p>
+</div>
+<div class="text-right">
+<p class="font-label-sm text-label-sm text-on-surface-variant uppercase mb-1">Row / Seat</p>
+<p class="font-display-lg text-headline-lg text-text-primary">A / 042</p>
+</div>
+</div>
+</div>
+<!-- QR Code Section -->
+<div class="mt-4 bg-white p-4 rounded-xl flex flex-col items-center justify-center relative z-10 mx-auto w-3/4 max-w-[200px] shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+<img alt="QR Code" class="w-full h-auto aspect-square mix-blend-multiply" data-alt="A clean, high-contrast black and white QR code graphic, perfectly square, suitable for scanning as a digital ticket, set against a pristine white background to ensure maximum scannability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOrb9FDEL7c6LFn8UT3Y2cSgqTK8zlpZyWeiC1WlZjc_pBBY1KhWoGDm0_BHyyIUTi40Nrlwlm3zQTQ1aj51BF0jO3yrskJOFuNk9DgzODtEecv6jjRzIHTziArQ72n7LpN4RVdVVAOU4Hr6GHwXRuev2FtvnURdXv3NLFShuV5-3UuMB1rV98D-6dy_0xGl8Pmhe-S81hKL126Q70b10mUuXRiOc6lLTVA9RDGsMvNruM_EBP8vkB_g"/>
+<p class="font-label-sm text-label-sm text-surface-container mt-2 tracking-widest text-center">TKT-8924-X</p>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-8 flex flex-col gap-4">
+<button class="w-full bg-war-gold text-on-primary-container font-label-sm text-label-sm py-4 rounded-lg flex items-center justify-center gap-2 hover:scale-[1.02] transition-all hover:shadow-[0_0_20px_rgba(240,184,41,0.3)] uppercase">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">file_download</span>
+                    Download PDF
+                </button>
+<div class="grid grid-cols-2 gap-4">
+<button class="bg-surface-container-high border border-white/10 text-text-primary font-label-sm text-label-sm py-3 rounded-lg flex items-center justify-center gap-2 hover:border-war-gold hover:text-war-gold transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">account_balance_wallet</span>
+                        Apple Wallet
+                    </button>
+<button class="bg-surface-container-high border border-white/10 text-text-primary font-label-sm text-label-sm py-3 rounded-lg flex items-center justify-center gap-2 hover:border-war-gold hover:text-war-gold transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">share</span>
+                        Share
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Bar (Mobile Only) -->
+<nav class="bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 text-war-gold dark:text-primary Labels: font-label-sm text-label-sm docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)] flex justify-around items-center h-16 w-full px-4 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high rounded-xl px-4 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">home</span>
+<span class="font-label-sm text-label-sm text-[10px]">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high rounded-xl px-4 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">search</span>
+<span class="font-label-sm text-label-sm text-[10px]">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 relative" href="#">
+<span class="material-symbols-outlined mb-1 animate-pulse" style="font-variation-settings: 'FILL' 1;">confirmation_number</span>
+<span class="font-label-sm text-label-sm text-[10px]">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high rounded-xl px-4 py-1 transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 0;">person</span>
+<span class="font-label-sm text-label-sm text-[10px]">Profile</span>
+</a>
+</nav>
+<!-- Footer (Desktop Only for focus) -->
+<footer class="bg-surface-container-lowest dark:bg-background border-t border-surface-variant grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto w-full hidden md:grid mt-auto">
+<div>
+<div class="font-display-md text-display-md text-war-gold mb-4">WAR TICKET</div>
+<p class="font-label-sm text-label-sm text-text-secondary">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">About Us</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Payment Partners</a>
+</div>
+<div class="flex flex-col gap-2">
+<a class="font-label-sm text-label-sm text-on-surface-variant hover:text-on-surface transition-colors" href="#">Contact</a>
+</div>
+</footer>
+</body></html>

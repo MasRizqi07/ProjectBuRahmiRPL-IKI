@@ -1,82 +1,43 @@
-import { Navbar } from '@/components/navbar'
-import { InteractiveGrid } from '@/components/interactive-grid'
-import { HeroContent } from '@/components/hero-content'
-import { StatCard } from '@/components/stat-card'
-import { ConcertGrid } from '@/components/concert-grid'
-import { getFeaturedConcerts } from '@/lib/queries/concerts'
-import { ConcertTicker } from '@/components/concert-ticker'
 import Link from 'next/link'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Gauge, LockKeyhole, ShieldCheck } from 'lucide-react'
+import { ConcertGrid } from '@/components/concert-grid'
+import { ConcertTicker } from '@/components/concert-ticker'
+import { EmptyState } from '@/components/feedback/empty-state'
+import { HeroContent } from '@/components/hero-content'
+import { getFeaturedConcerts } from '@/lib/queries/concerts'
+
+const trustItems = [
+  { icon: Gauge, title: 'Traffic-ready', text: 'Antrean adaptif menjaga checkout tetap responsif.' },
+  { icon: ShieldCheck, title: 'Stok aktual', text: 'Inventori dikonfirmasi server sebelum pembayaran.' },
+  { icon: LockKeyhole, title: 'Pembayaran aman', text: 'Transaksi diteruskan ke kanal resmi Midtrans.' },
+] as const
 
 export default async function Home() {
   const featuredConcerts = await getFeaturedConcerts()
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col">
-      <Navbar />
-      
-      <main id="main-content" className="flex-1 flex flex-col">
-        {/* Hero Section */}
-        <section className="relative flex-1 flex flex-col items-center justify-center px-4 sm:px-6 lg:px-8 pt-32 pb-32 sm:pt-48 sm:pb-40 overflow-hidden min-h-screen hero-bg">
-          {/* Interactive Grid Background */}
-          <InteractiveGrid />
+    <main id="main-content" className="flex-1">
+      <section className="hero-bg relative grid min-h-[calc(100svh-var(--header-height))] place-items-center overflow-hidden px-4 py-20 sm:px-6">
+        <div className="absolute inset-0 grid-pattern opacity-35" />
+        <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-background to-transparent" />
+        <HeroContent />
+      </section>
 
-          {/* Premium Radial Gradient Mesh */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-amber-500/15 via-zinc-950/80 to-zinc-950 pointer-events-none" />
+      {featuredConcerts.length > 0 && <ConcertTicker concerts={featuredConcerts} />}
 
-          {/* Hero Animated Content */}
-          <HeroContent />
-        </section>
+      <section className="container-shell relative z-10 -mt-1 grid gap-4 py-12 md:grid-cols-3 md:py-16">
+        {trustItems.map(({ icon: Icon, title, text }) => (
+          <article key={title} className="interactive-lift glass-panel rounded-2xl p-6"><Icon className="size-6 text-war-gold" /><h2 className="mt-5 font-display text-2xl tracking-wide">{title}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{text}</p></article>
+        ))}
+      </section>
 
-        {/* Concert Ticker */}
-        <ConcertTicker concerts={featuredConcerts} />
-
-        {/* Floating Stats Bar */}
-        <section className="relative z-20 mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8 -mt-32 sm:-mt-24 mb-16 sm:mb-32">
-          {/* Layout: 1 col (mobile), 2 cols top + 1 col wide (tablet), 3 cols (desktop) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div className="h-40 sm:h-48">
-              <StatCard target={47821} label="Tiket Terjual" />
-            </div>
-
-            <div className="h-40 sm:h-48">
-              <StatCard target={230} suffix="+" label="Konser Tersedia" />
-            </div>
-
-            <div className="sm:col-span-2 lg:col-span-1 h-40 sm:h-48">
-              <StatCard target={99.9} isDecimal suffix="%" label="Ketersediaan Sistem" />
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Concerts Section */}
-        <section className="relative z-20 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 mb-32">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 sm:mb-12 gap-4">
-            <div className="animate-fade-up">
-              <h2 className="font-display text-3xl sm:text-5xl font-black text-foreground mb-3 tracking-tight">
-                Sedang <span className="bg-linear-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">Hangat</span>
-              </h2>
-              <p className="text-zinc-400 text-sm sm:text-base">
-                Deretan konser paling dicari yang tidak boleh kamu lewatkan.
-              </p>
-            </div>
-            <Link 
-              href="/concerts" 
-              className="hidden sm:flex items-center gap-2 text-amber-400 hover:text-amber-300 font-semibold transition-colors group"
-            >
-              Lihat Semua Konser <ArrowRight size={18} className="group-hover:translate-x-1.5 transition-transform" />
-            </Link>
-          </div>
-          
-          <ConcertGrid concerts={featuredConcerts.slice(0, 3)} />
-
-          {/* Mobile View All Button */}
-          <div className="mt-8 sm:hidden">
-            <Link href="/concerts" className="flex items-center justify-center gap-2 w-full bg-zinc-900 border border-zinc-800 hover:bg-amber-400 hover:text-zinc-950 py-4 rounded-full text-amber-400 font-bold transition-all duration-300">
-              Jelajahi Semua <ArrowRight size={18} />
-            </Link>
-          </div>
-        </section>
-      </main>
-    </div>
+      <section className="container-shell pb-16 sm:pb-24">
+        <div className="mb-8 flex items-end justify-between gap-5">
+          <div><p className="section-label mb-4">Trending now</p><h2 className="font-display text-4xl tracking-wide sm:text-6xl">Konser pilihan</h2><p className="mt-3 text-sm text-muted-foreground">Event dengan antusiasme tertinggi saat ini.</p></div>
+          <Link href="/concerts" className="hidden items-center gap-2 text-sm font-bold text-war-gold transition hover:text-war-gold-bright sm:flex">Lihat semua <ArrowRight className="size-4" /></Link>
+        </div>
+        {featuredConcerts.length ? <ConcertGrid concerts={featuredConcerts.slice(0, 3)} /> : <EmptyState title="Belum ada konser pilihan" description="Event pilihan akan muncul setelah organizer mempublikasikan jadwal terbaru." action={{ href: '/concerts', label: 'Lihat seluruh konser' }} />}
+        <Link href="/concerts" className="mt-6 flex min-h-12 items-center justify-center gap-2 rounded-xl border border-war-gold/25 text-sm font-bold text-war-gold sm:hidden">Lihat semua konser <ArrowRight className="size-4" /></Link>
+      </section>
+    </main>
   )
 }

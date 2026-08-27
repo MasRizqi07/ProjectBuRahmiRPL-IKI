@@ -1,17 +1,17 @@
 export function ConcertCardSkeleton() {
   return (
-    <div className="rounded-xl overflow-hidden aspect-[3/4] sm:aspect-[4/3] bg-zinc-900 border border-white/5 relative">
-      <div className="absolute inset-0 bg-gradient-to-r from-zinc-900 via-zinc-800 to-zinc-900 bg-[length:200%_100%] animate-shimmer" />
+    <div className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/8 bg-surface sm:aspect-[4/3]">
+      <div className="absolute inset-0 animate-shimmer bg-linear-to-r from-surface via-surface-high to-surface bg-[length:200%_100%]" />
       <div className="absolute bottom-0 inset-x-0 p-5 z-20 flex flex-col">
-        <div className="h-8 bg-zinc-800 rounded-md w-3/4 mb-4 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent bg-[length:200%_100%] animate-shimmer" />
+        <div className="relative mb-4 h-8 w-3/4 overflow-hidden rounded-md bg-white/8">
+          <div className="absolute inset-0 animate-shimmer bg-linear-to-r from-transparent via-white/8 to-transparent bg-[length:200%_100%]" />
         </div>
-        <div className="h-4 bg-zinc-800 rounded-md w-1/2 mb-6 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent bg-[length:200%_100%] animate-shimmer" />
+        <div className="relative mb-6 h-4 w-1/2 overflow-hidden rounded-md bg-white/8">
+          <div className="absolute inset-0 animate-shimmer bg-linear-to-r from-transparent via-white/8 to-transparent bg-[length:200%_100%]" />
         </div>
         <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
-          <div className="h-3 bg-zinc-800 rounded-md w-16 relative overflow-hidden" />
-          <div className="h-6 bg-zinc-800 rounded-md w-24 relative overflow-hidden" />
+          <div className="relative h-3 w-16 overflow-hidden rounded-md bg-white/8" />
+          <div className="relative h-6 w-24 overflow-hidden rounded-md bg-white/8" />
         </div>
       </div>
     </div>

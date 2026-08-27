@@ -1,40 +1,30 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import type { TicketTier } from '@/lib/types/concert'
-import { formatIDR } from '@/lib/utils/format'
-import { Check } from 'lucide-react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { cn } from '@/lib/utils'
+import { ArrowRight, Check, LoaderCircle } from 'lucide-react'
+import type { TicketTier } from '@/lib/types/concert'
 import { apiJson } from '@/lib/client/api'
-import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { InlineAlert } from '@/components/feedback/inline-alert'
+import { cn } from '@/lib/utils'
+import { formatIDR, getAvailabilityPercent } from '@/lib/utils/format'
 
-interface TicketTierCardProps {
-  tier: TicketTier
-  concertId: string
-}
-
-export function TicketTierCard({ tier, concertId }: TicketTierCardProps) {
+export function TicketTierCard({ tier, concertId }: { readonly tier: TicketTier; readonly concertId: string }) {
   const router = useRouter()
   const [openingQueue, setOpeningQueue] = useState(false)
   const [queueError, setQueueError] = useState<string | null>(null)
-  const remaining = tier.capacity - tier.sold
-  const isAvailable = remaining > 0
-  const availabilityPercent = tier.capacity > 0 ? (remaining / tier.capacity) * 100 : 0
+  const remaining = Math.max(0, tier.capacity - tier.sold)
+  const percentage = getAvailabilityPercent(tier)
+  const available = remaining > 0
 
-  const nameUpper = tier.name.toUpperCase()
-  const isVIP = nameUpper.includes('VIP') && !nameUpper.includes('VVIP')
-  const isVVIP = nameUpper.includes('VVIP') || nameUpper.includes('PLATINUM') || nameUpper.includes('CAT 1')
-
-  const enterQueue = async () => {
+  const enterQueue = async (): Promise<void> => {
     setOpeningQueue(true)
     setQueueError(null)
     try {
       const body = await apiJson(`/api/v1/events/${concertId}/active-sales-session`)
-      if (typeof body !== 'object' || body === null || !('id' in body) || typeof body.id !== 'string') {
-        throw new Error('Respons sales session tidak valid')
-      }
+      if (typeof body !== 'object' || body === null || !('id' in body) || typeof body.id !== 'string') throw new Error('Respons sales session tidak valid')
       router.push(`/waiting-room?salesSessionId=${body.id}`)
     } catch (error) {
       setQueueError(error instanceof Error ? error.message : 'Antrean tidak dapat dibuka')
@@ -43,94 +33,24 @@ export function TicketTierCard({ tier, concertId }: TicketTierCardProps) {
   }
 
   return (
-    <div
-      className={cn(
-        "group relative border rounded-2xl p-6 bg-zinc-900/80 backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 flex flex-col h-full overflow-hidden",
-        isVVIP
-          ? "border-violet-500/50 hover:border-violet-500 ring-2 ring-violet-500/20 shadow-[0_8px_30px_rgba(139,92,246,0.1)] scale-[1.02]"
-          : isVIP
-          ? "border-amber-500/50 hover:border-amber-400/80 shadow-[0_8px_30px_rgba(251,191,36,0.05)] relative before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-amber-500/10 before:to-transparent before:translate-x-[-200%] hover:before:animate-shimmer before:pointer-events-none overflow-hidden"
-          : "border-white/10 hover:border-white/20 hover:bg-zinc-900"
-      )}
-    >
-      {isVVIP && (
-        <div className="absolute top-0 right-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg tracking-wider uppercase">
-          Most Popular
-        </div>
-      )}
-
-      <div className="mb-4">
-        <h3 className={cn(
-          "text-xl font-black mb-2",
-          isVVIP ? "text-violet-400" : isVIP ? "text-amber-400" : "text-white"
-        )}>
-          {tier.name}
-        </h3>
-        <div className="flex flex-col gap-1">
-          <span className="font-mono text-3xl font-black text-white">{formatIDR(tier.price)}</span>
-        </div>
+    <article className="interactive-lift glass-panel relative flex h-full flex-col overflow-hidden rounded-2xl p-6">
+      <div className="absolute inset-x-0 top-0 h-1 bg-linear-to-r from-transparent via-war-gold to-transparent" />
+      <div className="flex items-start justify-between gap-4">
+        <div><p className="text-xs font-bold uppercase tracking-wider text-war-gold">Kategori</p><h3 className="mt-2 font-display text-3xl tracking-wide">{tier.name}</h3></div>
+        <span className={cn('rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider', available ? 'border-status-success/25 bg-status-success/8 text-emerald-300' : 'border-destructive/25 bg-destructive/8 text-red-300')}>{available ? 'Tersedia' : 'Habis'}</span>
       </div>
-
-      <div className="mb-6 pb-6 border-b border-white/10">
-        <div className="flex items-center justify-between text-sm mb-2">
-          <span className={isAvailable ? 'text-white/60' : 'text-red-400 font-medium'}>
-            {isAvailable ? 'Ketersediaan' : 'Habis'}
-          </span>
-          {isAvailable && (
-            <span className="font-mono font-medium text-white/80">{availabilityPercent.toFixed(0)}%</span>
-          )}
-        </div>
-        
-        {/* Availability Bar */}
-        <div className="w-full bg-white/5 rounded-full h-1.5 mt-3 overflow-hidden relative">
-          <motion.div
-            className={cn("absolute left-0 top-0 h-full rounded-full", {
-              "bg-emerald-500": availabilityPercent > 50,
-              "bg-amber-500": availabilityPercent > 20 && availabilityPercent <= 50,
-              "bg-red-500": availabilityPercent <= 20,
-            })}
-            initial={{ width: 0 }}
-            animate={{ width: `${availabilityPercent}%` }}
-            transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
-          />
-        </div>
-        <p className="text-xs text-white/40 mt-2 font-mono">
-          {remaining} tiket tersisa
-        </p>
+      <p className="mt-5 font-mono text-2xl font-bold text-war-gold">{formatIDR(tier.price)}</p>
+      <div className="mt-5">
+        <div className="mb-2 flex justify-between text-xs text-muted-foreground"><span>Ketersediaan</span><span>{remaining.toLocaleString('id-ID')} tersisa</span></div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-white/6"><motion.div initial={{ width: 0 }} whileInView={{ width: `${percentage}%` }} viewport={{ once: true }} className={cn('h-full rounded-full', percentage > 50 ? 'bg-status-success' : percentage > 20 ? 'bg-war-gold' : 'bg-destructive')} /></div>
       </div>
-
-      <ul className="space-y-3 mb-8 flex-1">
-        {tier.perks?.map((perk, i) => (
-          <li key={i} className="flex items-start gap-3 text-sm text-white/70 font-body">
-            <Check size={16} className={cn(
-              "flex-shrink-0 mt-0.5",
-              isVVIP ? "text-violet-400" : isVIP ? "text-amber-400" : "text-emerald-400"
-            )} />
-            <span>{perk}</span>
-          </li>
-        ))}
+      <ul className="my-6 flex-1 space-y-3 border-t border-white/8 pt-5">
+        {(tier.perks ?? []).map((perk) => <li key={perk} className="flex items-start gap-3 text-sm text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0 text-war-gold" />{perk}</li>)}
       </ul>
-
-      <div className="mt-auto">
-          <Button
-            type="button"
-            onClick={() => void enterQueue()}
-            className={cn(
-              "w-full py-6 text-base font-bold transition-all duration-300 font-body",
-              isAvailable 
-                ? isVVIP 
-                  ? "bg-violet-600 hover:bg-violet-500 text-white shadow-lg shadow-violet-500/25 group-hover:scale-[1.02]"
-                  : isVIP 
-                    ? "bg-amber-500 hover:bg-amber-400 text-zinc-950 shadow-lg shadow-amber-500/25 group-hover:scale-[1.02]"
-                    : "bg-white text-zinc-950 hover:bg-white/90 group-hover:scale-[1.02]"
-                : "bg-white/5 text-white/20 cursor-not-allowed"
-            )}
-            disabled={!isAvailable || openingQueue}
-          >
-            {openingQueue ? 'Membuka antrean…' : isAvailable ? 'Masuk Antrean Event' : 'Terjual Habis'}
-          </Button>
-        {queueError !== null && <p role="alert" className="mt-2 text-xs text-red-400">{queueError}</p>}
-      </div>
-    </div>
+      {queueError && <InlineAlert variant="error" className="mb-4">{queueError}</InlineAlert>}
+      <Button type="button" onClick={() => void enterQueue()} disabled={!available || openingQueue} size="lg" className="h-12 w-full rounded-xl font-bold">
+        {openingQueue ? <><LoaderCircle className="animate-spin" /> Membuka antrean…</> : available ? <>Masuk antrean <ArrowRight /></> : 'Terjual habis'}
+      </Button>
+    </article>
   )
 }

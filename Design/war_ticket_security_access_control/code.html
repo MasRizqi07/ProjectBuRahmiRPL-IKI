@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WAR TICKET - Security Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Plus+Jakarta+Sans:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "war-gold": "#F0B429",
+                      "inverse-primary": "#7b5900",
+                      "tertiary-fixed": "#c3e8ff",
+                      "on-primary-fixed": "#261900",
+                      "tertiary-container": "#5bc9ff",
+                      "on-secondary-container": "#b7b5b4",
+                      "on-tertiary": "#003549",
+                      "secondary-container": "#474746",
+                      "secondary": "#c8c6c5",
+                      "surface-container": "#201f1f",
+                      "background": "#131313",
+                      "on-primary-fixed-variant": "#5d4200",
+                      "on-secondary-fixed": "#1c1b1b",
+                      "on-background": "#e5e2e1",
+                      "outline-variant": "#504534",
+                      "text-secondary": "#666666",
+                      "on-error-container": "#ffdad6",
+                      "secondary-fixed": "#e5e2e1",
+                      "primary": "#ffd481",
+                      "surface-variant": "#353534",
+                      "surface-grey": "#1A1A1A",
+                      "on-secondary-fixed-variant": "#474746",
+                      "inverse-surface": "#e5e2e1",
+                      "on-error": "#690005",
+                      "status-green": "#10B981",
+                      "on-secondary": "#313030",
+                      "on-primary-container": "#644800",
+                      "tertiary": "#aee0ff",
+                      "outline": "#9c8f7a",
+                      "brand-glow": "rgba(240, 180, 41, 0.1)",
+                      "on-surface": "#e5e2e1",
+                      "error": "#ffb4ab",
+                      "primary-fixed": "#ffdea4",
+                      "primary-fixed-dim": "#fabd32",
+                      "on-primary": "#412d00",
+                      "on-surface-variant": "#d4c5ad",
+                      "urgent-red": "#EF4444",
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "surface-container-high": "#2a2a2a",
+                      "surface-dim": "#131313",
+                      "text-primary": "#FFFFFF",
+                      "surface": "#131313",
+                      "inverse-on-surface": "#313030",
+                      "surface-container-low": "#1c1b1b",
+                      "surface-container-highest": "#353534",
+                      "on-tertiary-container": "#005371",
+                      "error-container": "#93000a",
+                      "surface-bright": "#3a3939",
+                      "secondary-fixed-dim": "#c8c6c5",
+                      "primary-container": "#f0b429",
+                      "tertiary-fixed-dim": "#7ad0ff",
+                      "surface-tint": "#fabd32",
+                      "on-tertiary-fixed": "#001e2c",
+                      "surface-container-lowest": "#0e0e0e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "stack-md": "16px",
+                      "stack-sm": "8px",
+                      "stack-lg": "32px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "40px",
+                      "container-max": "1280px"
+              },
+              "fontFamily": {
+                      "display-lg": ["Bebas Neue"],
+                      "label-sm": ["Plus Jakarta Sans"],
+                      "display-md": ["Bebas Neue"],
+                      "body-md": ["Plus Jakarta Sans"],
+                      "display-xl": ["Bebas Neue"],
+                      "headline-lg": ["Bebas Neue"],
+                      "display-xl-mobile": ["Bebas Neue"],
+                      "body-lg": ["Plus Jakarta Sans"]
+              },
+              "fontSize": {
+                      "display-lg": ["48px", {"lineHeight": "48px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "display-md": ["32px", {"lineHeight": "32px", "fontWeight": "700"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-xl": ["80px", {"lineHeight": "80px", "letterSpacing": "0.02em", "fontWeight": "700"}],
+                      "headline-lg": ["24px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "display-xl-mobile": ["36px", {"lineHeight": "40px", "fontWeight": "700"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-surface');
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .input-dark {
+            background-color: #090909;
+            border: 1px solid theme('colors.surface-grey');
+            color: theme('colors.on-surface');
+            transition: all 0.2s ease-in-out;
+        }
+
+        .input-dark:focus {
+            border-color: theme('colors.war-gold');
+            box-shadow: 0 0 10px rgba(240, 184, 41, 0.1);
+            outline: none;
+        }
+
+        .btn-primary {
+            background-color: theme('colors.war-gold');
+            color: black;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(240, 184, 41, 0.3);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            border: 1px solid theme('colors.war-gold');
+            color: theme('colors.war-gold');
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: rgba(240, 184, 41, 0.1);
+            transform: scale(1.02);
+        }
+
+        .pulse-status {
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md">
+<!-- Top Navigation -->
+<nav class="hidden md:flex bg-surface/80 backdrop-blur-xl dark:bg-surface/80 full-width top-0 sticky z-50 border-b border-white/10 shadow-xl w-full">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+<div class="font-display-md text-display-md text-war-gold tracking-tight font-bold">WAR TICKET</div>
+<div class="flex gap-gutter items-center">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Jelajahi</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Promo</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Cek Pesanan</a>
+<a class="text-war-gold border-b-2 border-war-gold pb-1 font-label-sm text-label-sm hover:scale-105 transition-transform duration-200" href="#">Profile</a>
+</div>
+<div class="flex gap-stack-md items-center text-war-gold dark:text-primary">
+<button class="hover:scale-105 transition-transform duration-200 p-2"><span class="material-symbols-outlined">notifications</span></button>
+<button class="hover:scale-105 transition-transform duration-200 p-2"><span class="material-symbols-outlined">shopping_bag</span></button>
+<div class="w-8 h-8 rounded-full bg-surface-variant overflow-hidden border border-white/10 relative cursor-pointer hover:scale-105 transition-transform duration-200">
+<img alt="User avatar with live pulse status" class="w-full h-full object-cover" data-alt="A small circular user avatar image for a ticketing platform, featuring a stylized geometric portrait in deep grays and gold, suitable for a dark sleek interface. Lit with subtle neon accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgu2rLEQ53dBYNIAZIxndFiMmKgrPkHzAWGEu4cmeU5tOAlfMeot7nZxxZjmP5JmftyPjqkUqZsGzxoXfz4pNNKi6YyHoR6LX0kSrpBg6DEXfEvfr1DGV94X4l63qsVYcu-Fjw2d54ajQyKZ7Ulu9AwVSjX7yudoEA3tzc5siFU3D_qMWaReY1uLE7FSGWzQxX_fmJO20WnNUqkhR3euR7xz1A_qHL9HWK7MC683xIip57dWLF4h6e_g"/>
+<div class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-status-green rounded-full border border-surface pulse-status"></div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-stack-lg md:py-16">
+<header class="mb-stack-lg md:mb-12">
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-white mb-stack-sm">Security Hub</h1>
+<p class="text-on-surface-variant max-w-2xl">Manage your account security, passwords, and 2FA settings to ensure your tickets and data remain exclusively yours.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Left Column: Primary Security Actions -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Account Verification Status -->
+<section class="glass-card rounded-xl p-stack-md md:p-gutter">
+<div class="flex items-start justify-between flex-wrap gap-stack-md">
+<div class="flex items-center gap-stack-md">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center border border-white/10 relative">
+<span class="material-symbols-outlined text-status-green" style="font-variation-settings: 'FILL' 1;">verified</span>
+<div class="absolute inset-0 rounded-full border border-status-green pulse-status pointer-events-none"></div>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-white">Account Verified</h2>
+<p class="text-label-sm font-label-sm text-status-green mt-1">Level 2 Trust Identity</p>
+</div>
+</div>
+<button class="btn-secondary px-6 py-2 rounded-lg font-label-sm text-label-sm uppercase tracking-widest">View Details</button>
+</div>
+</section>
+<!-- Two-Factor Authentication -->
+<section class="glass-card rounded-xl p-stack-md md:p-gutter">
+<div class="flex justify-between items-center mb-stack-md border-b border-white/10 pb-stack-sm">
+<div class="flex items-center gap-stack-sm">
+<span class="material-symbols-outlined text-war-gold">shield_lock</span>
+<h2 class="font-headline-lg text-headline-lg text-white">Two-Factor Authentication (2FA)</h2>
+</div>
+<span class="px-3 py-1 bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant border border-white/5">Recommended</span>
+</div>
+<p class="text-on-surface-variant mb-stack-lg">Protect your account with an extra layer of security. Once configured, you'll be required to enter both your password and an authentication code from your mobile phone.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
+<!-- Authenticator App -->
+<div class="p-stack-md rounded-lg border border-war-gold/30 bg-surface-container/50 relative overflow-hidden group hover:border-war-gold transition-colors">
+<div class="absolute inset-0 bg-brand-glow opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="flex items-center gap-stack-sm mb-stack-sm">
+<span class="material-symbols-outlined text-white">smartphone</span>
+<h3 class="font-body-lg text-body-lg text-white font-bold">Authenticator App</h3>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mb-stack-md">Use an app like Google Authenticator or Authy.</p>
+<button class="btn-primary w-full py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-widest font-bold">Set Up App</button>
+</div>
+<!-- SMS Authentication -->
+<div class="p-stack-md rounded-lg border border-white/10 bg-surface-container/30">
+<div class="flex items-center gap-stack-sm mb-stack-sm">
+<span class="material-symbols-outlined text-on-surface-variant">sms</span>
+<h3 class="font-body-lg text-body-lg text-on-surface-variant">SMS Authentication</h3>
+</div>
+<p class="text-label-sm font-label-sm text-on-surface-variant mb-stack-md">Receive a text message with a verification code.</p>
+<button class="w-full py-3 rounded-lg border border-white/20 text-on-surface font-label-sm text-label-sm uppercase tracking-widest hover:bg-white/5 transition-colors">Enable SMS</button>
+</div>
+</div>
+</section>
+<!-- Change Password -->
+<section class="glass-card rounded-xl p-stack-md md:p-gutter">
+<div class="flex items-center gap-stack-sm mb-stack-md border-b border-white/10 pb-stack-sm">
+<span class="material-symbols-outlined text-war-gold">key</span>
+<h2 class="font-headline-lg text-headline-lg text-white">Change Password</h2>
+</div>
+<form class="space-y-stack-md max-w-lg">
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Current Password</label>
+<input class="w-full input-dark rounded-lg px-4 py-3 text-white" placeholder="••••••••" type="password"/>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-2">New Password</label>
+<input class="w-full input-dark rounded-lg px-4 py-3 text-white" placeholder="••••••••" type="password"/>
+</div>
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-2">Confirm New Password</label>
+<input class="w-full input-dark rounded-lg px-4 py-3 text-white" placeholder="••••••••" type="password"/>
+</div>
+<div class="pt-stack-sm">
+<button class="btn-primary px-8 py-3 rounded-lg font-label-sm text-label-sm uppercase tracking-widest font-bold" type="button">Update Password</button>
+</div>
+</form>
+</section>
+</div>
+<!-- Right Column: Contextual & Activity -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Recent Login Activity -->
+<section class="glass-card rounded-xl p-stack-md md:p-gutter h-full">
+<div class="flex items-center justify-between mb-stack-md border-b border-white/10 pb-stack-sm">
+<h2 class="font-headline-lg text-headline-lg text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-war-gold text-lg">history</span> Activity
+                        </h2>
+</div>
+<div class="space-y-stack-md">
+<!-- Current Session -->
+<div class="flex gap-stack-sm items-start relative pb-stack-md border-b border-white/5">
+<div class="mt-1 w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center border border-war-gold/30 shrink-0">
+<span class="material-symbols-outlined text-war-gold" style="font-size: 16px;">desktop_windows</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h4 class="text-white font-bold text-sm">Mac OS Safari</h4>
+<span class="text-[10px] bg-war-gold/20 text-war-gold px-2 py-0.5 rounded-full uppercase tracking-wider">Current</span>
+</div>
+<p class="text-xs text-on-surface-variant mt-1">Jakarta, Indonesia • IP: 192.168.1.1</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Active now</p>
+</div>
+</div>
+<!-- Past Session 1 -->
+<div class="flex gap-stack-sm items-start relative pb-stack-md border-b border-white/5">
+<div class="mt-1 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border border-white/10 shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">phone_iphone</span>
+</div>
+<div>
+<h4 class="text-on-surface font-bold text-sm">iPhone 14 Pro Max</h4>
+<p class="text-xs text-on-surface-variant mt-1">Bandung, Indonesia • IP: 114.120.33.2</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Yesterday, 14:30 WIB</p>
+</div>
+</div>
+<!-- Past Session 2 -->
+<div class="flex gap-stack-sm items-start relative">
+<div class="mt-1 w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border border-white/10 shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant" style="font-size: 16px;">desktop_windows</span>
+</div>
+<div>
+<h4 class="text-on-surface font-bold text-sm">Windows Chrome</h4>
+<p class="text-xs text-on-surface-variant mt-1">Surabaya, Indonesia • IP: 180.252.11.9</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Oct 12, 09:15 WIB</p>
+</div>
+</div>
+</div>
+<button class="w-full mt-stack-lg py-2 text-center text-xs text-urgent-red hover:text-white transition-colors border border-urgent-red/30 rounded-lg hover:bg-urgent-red/10">Sign out of all other sessions</button>
+</section>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation (Mobile) -->
+<nav class="flex justify-around items-center h-16 w-full px-4 bg-surface-container/90 backdrop-blur-lg dark:bg-surface-container/90 docked full-width bottom-0 fixed z-50 rounded-t-xl md:hidden border-t border-white/10 shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high font-label-sm text-label-sm w-16 h-full transition-all" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high font-label-sm text-label-sm w-16 h-full transition-all" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="mt-1">Explore</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container-high font-label-sm text-label-sm w-16 h-full transition-all" href="#">
+<span class="material-symbols-outlined">confirmation_number</span>
+<span class="mt-1">Orders</span>
+</a>
+<a class="flex flex-col items-center justify-center text-war-gold bg-brand-glow rounded-xl px-4 py-1 active:bg-surface-container-high font-label-sm text-label-sm w-20 h-12 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="mt-1">Profile</span>
+</a>
+</nav>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-background full-width border-t border-surface-variant flat hidden md:block">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-stack-lg px-margin-mobile md:px-margin-desktop py-stack-lg max-w-container-max mx-auto font-body-md text-body-md">
+<div class="flex flex-col gap-stack-sm">
+<div class="font-display-md text-display-md text-war-gold">WAR TICKET</div>
+<p class="text-on-surface-variant font-label-sm text-label-sm mt-2">© 2024 WAR TICKET. All Rights Reserved.</p>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">About Us</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">Terms of Service</a>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">Payment Partners</a>
+</div>
+<div class="flex flex-col gap-stack-sm">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors font-label-sm text-label-sm" href="#">Contact</a>
+<div class="flex gap-4 mt-2">
+<a class="text-on-surface-variant hover:text-war-gold transition-colors" href="#"><span class="material-symbols-outlined">mail</span></a>
+<a class="text-on-surface-variant hover:text-war-gold transition-colors" href="#"><span class="material-symbols-outlined">share</span></a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

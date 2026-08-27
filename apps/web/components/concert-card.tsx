@@ -1,109 +1,42 @@
 'use client'
 
+import Image from 'next/image'
+import Link from 'next/link'
+import { motion } from 'framer-motion'
+import { ArrowUpRight, CalendarDays, MapPin } from 'lucide-react'
 import type { Concert } from '@/lib/types/concert'
 import { formatIDR } from '@/lib/utils/format'
-import Link from 'next/link'
-import Image from 'next/image'
-import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
-interface ConcertCardProps {
-  concert: Concert
-  index?: number
-}
+const statusLabel = { available: 'Tersedia', limited: 'Terbatas', soldout: 'Habis' } as const
 
-function getAvailabilityBadge(status: Concert['status']) {
-  switch (status) {
-    case 'available':
-      return (
-        <span className="bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">
-          Tersedia
-        </span>
-      )
-    case 'limited':
-      return (
-        <span className="bg-amber-500/20 border border-amber-500/40 text-amber-400 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-          </span>
-          Terbatas
-        </span>
-      )
-    case 'soldout':
-      return (
-        <span className="bg-red-500/20 border border-red-500/40 text-red-400 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold">
-          Habis
-        </span>
-      )
-  }
-}
-
-export function ConcertCard({ concert, index = 0 }: ConcertCardProps) {
+export function ConcertCard({ concert, index = 0 }: { readonly concert: Concert; readonly index?: number }) {
   const tiers = concert.ticket_tiers || concert.tiers || []
-  const minPrice = tiers.length ? Math.min(...tiers.map((t) => t.price)) : 0
-
+  const minPrice = tiers.length ? Math.min(...tiers.map((tier) => tier.price)) : 0
   return (
-    <motion.div
-      whileHover={{
-        scale: 1.03,
-        rotateX: 2,
-        rotateY: -2,
-      }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      style={{ transformStyle: 'preserve-3d', perspective: '1000px' }}
-      className="h-full"
-    >
-      <Link
-        href={`/concerts/${concert.id}`}
-        aria-label={`Lihat detail konser ${concert.title} oleh ${concert.artist}`}
-        className="block h-full"
-      >
-        <div className="relative flex flex-col rounded-xl border border-white/5 overflow-hidden bg-neutral-900 aspect-[3/4] sm:aspect-[4/3] w-full">
-          {/* Background Image */}
-          <div className="absolute inset-0">
-            <Image
-              src={concert.image_url || concert.imageUrl || '/images/placeholder.jpg'}
-              alt={`Poster konser ${concert.artist} - ${concert.title}`}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className={`object-cover transition-transform duration-700 ${concert.status === 'soldout' ? 'grayscale opacity-70' : ''}`}
-              priority={index < 3}
-            />
+    <motion.article initial={{ opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-40px' }} transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.18) }} className="interactive-lift group h-full overflow-hidden rounded-2xl border border-white/8 bg-surface">
+      <Link href={`/concerts/${concert.id}`} aria-label={`Lihat ${concert.title} oleh ${concert.artist}`} className="flex h-full flex-col">
+        <div className="relative aspect-[4/3] overflow-hidden">
+          <Image src={concert.image_url || concert.imageUrl || '/placeholder.jpg'} alt={`Poster ${concert.artist} — ${concert.title}`} fill sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" className={cn('object-cover transition duration-700 group-hover:scale-105', concert.status === 'soldout' && 'grayscale')} priority={index < 3} />
+          <div className="card-gradient-overlay absolute inset-0" />
+          <div className="absolute inset-x-4 top-4 flex items-start justify-between gap-2">
+            <span className="rounded-full border border-white/15 bg-black/45 px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md">{concert.category}</span>
+            <span className={cn('rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider backdrop-blur-md', concert.status === 'available' ? 'border-status-success/35 bg-status-success/12 text-emerald-300' : concert.status === 'limited' ? 'border-war-gold/35 bg-war-gold/12 text-war-gold-bright' : 'border-destructive/35 bg-destructive/12 text-red-300')}>{statusLabel[concert.status]}</span>
           </div>
-
-          {/* Gradient Overlay */}
-          <div
-            className="absolute inset-0 z-10"
-            style={{
-              background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
-            }}
-          />
-
-          {/* Top Badges */}
-          <div className="absolute top-4 inset-x-4 flex justify-between items-start z-20">
-            <span className="bg-white/10 border border-white/20 backdrop-blur-md text-white/90 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider">
-              {concert.category}
-            </span>
-            {getAvailabilityBadge(concert.status)}
+        </div>
+        <div className="flex flex-1 flex-col p-5">
+          <p className="text-xs font-bold uppercase tracking-wider text-war-gold">{concert.artist}</p>
+          <h3 className="mt-2 font-display text-3xl leading-none tracking-wide">{concert.title}</h3>
+          <div className="mt-4 space-y-2 text-xs text-muted-foreground">
+            <p className="flex items-center gap-2"><CalendarDays className="size-4 text-war-gold" />{new Date(concert.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            <p className="flex items-center gap-2"><MapPin className="size-4 text-war-gold" />{concert.venue}, {concert.city}</p>
           </div>
-
-          {/* Bottom Content */}
-          <div className="absolute bottom-0 inset-x-0 p-5 z-20 flex flex-col">
-            <h3 className="font-display text-2xl sm:text-3xl font-bold text-white mb-2 leading-tight">
-              {concert.artist}
-            </h3>
-            <p className="font-body text-sm text-white/70 mb-3">
-              {new Date(concert.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })} • {concert.venue}
-            </p>
-            <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/10">
-              <span className="font-body text-xs text-white/50">Mulai dari</span>
-              <span className="font-mono text-lg sm:text-xl font-bold text-brand-400">
-                {formatIDR(minPrice)}
-              </span>
-            </div>
+          <div className="mt-6 flex items-end justify-between gap-4 border-t border-white/8 pt-4">
+            <div><p className="text-[10px] uppercase tracking-wider text-muted-foreground">Mulai dari</p><p className="mt-1 font-mono text-sm font-bold text-war-gold sm:text-base">{formatIDR(minPrice)}</p></div>
+            <span className="grid size-10 place-items-center rounded-full border border-war-gold/30 text-war-gold transition group-hover:bg-war-gold group-hover:text-primary-foreground"><ArrowUpRight className="size-4" /></span>
           </div>
         </div>
       </Link>
-    </motion.div>
+    </motion.article>
   )
 }

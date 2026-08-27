@@ -1,6 +1,6 @@
 import type { Concert } from '@/lib/types/concert'
 import { ConcertCard } from './concert-card'
-import { ConcertCardSkeleton } from './concert-card-skeleton'
+import { ConcertCardSkeleton } from './ui/skeleton-card'
 
 interface ConcertGridProps {
   concerts: Concert[]
@@ -20,9 +20,9 @@ export function ConcertGrid({ concerts, isLoading = false }: ConcertGridProps) {
               <ConcertCardSkeleton />
             </li>
           ))
-        : concerts.map((concert) => (
+        : concerts.map((concert, index) => (
             <li key={concert.id} className="list-none">
-              <ConcertCard concert={concert} />
+              <ConcertCard concert={concert} index={index} />
             </li>
           ))}
     </ul>

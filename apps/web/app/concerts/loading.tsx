@@ -1,28 +1,11 @@
 import { ConcertGridSkeleton } from '@/components/ui/skeleton-card'
-import { Navbar } from '@/components/navbar'
 
 export default function Loading() {
   return (
-    <div className="min-h-screen bg-zinc-950">
-      <Navbar />
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="mb-8">
-          <div className="h-12 w-64 bg-zinc-800 rounded-lg mb-4 relative overflow-hidden">
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent bg-[length:200%_100%] animate-shimmer" />
-          </div>
-          <div className="h-5 w-96 bg-zinc-800 rounded-lg relative overflow-hidden">
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-700/50 to-transparent bg-[length:200%_100%] animate-shimmer" />
-          </div>
-        </div>
-        
-        <div className="mb-10">
-          <div className="w-full h-32 bg-zinc-900 rounded-2xl border border-white/5 relative overflow-hidden">
-             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-zinc-800/50 to-transparent bg-[length:200%_100%] animate-shimmer" />
-          </div>
-        </div>
-
-        <ConcertGridSkeleton count={6} />
-      </main>
-    </div>
+    <main id="main-content" className="container-shell flex-1 py-10 sm:py-14" aria-busy="true">
+      <div className="mb-8 space-y-3"><div className="h-4 w-32 animate-pulse rounded bg-war-gold/20" /><div className="h-14 max-w-xl animate-pulse rounded-xl bg-white/8" /><div className="h-5 max-w-md animate-pulse rounded bg-white/6" /></div>
+      <div className="mb-8 h-48 animate-pulse rounded-2xl border border-white/8 bg-white/4" />
+      <ConcertGridSkeleton count={6} />
+    </main>
   )
 }
