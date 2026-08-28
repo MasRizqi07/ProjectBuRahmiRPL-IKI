@@ -6,6 +6,7 @@ const baseUrl = __ENV.BASE_URL ?? 'http://localhost:3000'
 const eventId = __ENV.EVENT_ID
 const tierId = __ENV.TIER_ID
 const appOrigin = __ENV.APP_ORIGIN ?? baseUrl
+const vercelBypassSecret = __ENV.VERCEL_BYPASS_SECRET
 const authCookies = JSON.parse(__ENV.AUTH_COOKIES_JSON ?? '[]')
 
 if (!eventId || !tierId) fail('EVENT_ID and TIER_ID are required')
@@ -33,9 +34,17 @@ export const options = {
 }
 
 function requestParams() {
+  const protectionHeaders = vercelBypassSecret
+    ? {
+        'x-vercel-protection-bypass': vercelBypassSecret,
+        'x-vercel-set-bypass-cookie': 'true',
+      }
+    : {}
+
   return {
     responseCallback: http.expectedStatuses({ min: 200, max: 299 }, 409),
     headers: {
+      ...protectionHeaders,
       Cookie: authCookies[__VU - 1],
       Origin: appOrigin,
       'Content-Type': 'application/json',

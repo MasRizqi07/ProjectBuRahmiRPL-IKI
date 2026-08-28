@@ -1,0 +1,12 @@
+.git
+.next
+**/.next
+.pnpm-store
+.turbo
+node_modules
+**/node_modules
+Design
+coverage
+**/coverage
+infra
+tests

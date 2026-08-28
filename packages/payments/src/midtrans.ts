@@ -1,7 +1,7 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
 import { z } from 'zod'
-import type { MidtransNotification } from '@war-ticket/contracts'
-import { DomainError } from '@war-ticket/domain'
+import type { MidtransNotification, PaymentStatus } from '@war-ticket/contracts'
+import { DomainError, mapMidtransStatus } from '@war-ticket/domain'
 
 const snapResponseSchema = z.object({
   token: z.string().min(1),
@@ -17,6 +17,19 @@ const transactionStatusSchema = z.object({
   fraud_status: z.string().optional(),
   signature_key: z.string().optional(),
 })
+
+export type MidtransTransactionStatus = z.infer<typeof transactionStatusSchema>
+
+export interface MidtransStatusClient {
+  getStatus(providerOrderId: string): Promise<MidtransTransactionStatus>
+}
+
+export interface MidtransPaymentResolution {
+  readonly paymentStatus: PaymentStatus
+  readonly statusCode: string
+  readonly transactionId: string
+  readonly reconciled: boolean
+}
 
 export interface MidtransLineItem {
   readonly id: string
@@ -197,4 +210,49 @@ export function verifyMidtransSignature(
     .digest()
   const actual = Buffer.from(notification.signature_key, 'hex')
   return actual.length === expected.length && timingSafeEqual(actual, expected)
+}
+
+function mappedStatus(input: {
+  readonly transaction_status: string
+  readonly fraud_status?: string | undefined
+}): PaymentStatus {
+  return mapMidtransStatus({
+    transactionStatus: input.transaction_status,
+    ...(input.fraud_status === undefined ? {} : { fraudStatus: input.fraud_status }),
+  })
+}
+
+export async function resolveMidtransPaymentStatus(input: {
+  readonly notification: MidtransNotification
+  readonly providerOrderId: string
+  readonly expectedAmount: number
+  readonly client: MidtransStatusClient
+}): Promise<MidtransPaymentResolution> {
+  const notificationStatus = mappedStatus(input.notification)
+  const ambiguous =
+    ['PENDING', 'AUTHORIZED', 'UNKNOWN'].includes(notificationStatus) ||
+    (notificationStatus === 'SUCCEEDED' && input.notification.status_code !== '200')
+
+  if (!ambiguous) {
+    return {
+      paymentStatus: notificationStatus,
+      statusCode: input.notification.status_code,
+      transactionId: input.notification.transaction_id,
+      reconciled: false,
+    }
+  }
+
+  const current = await input.client.getStatus(input.providerOrderId)
+  if (current.order_id !== input.providerOrderId) {
+    throw new DomainError('CONFLICT', 'Midtrans status belongs to another order')
+  }
+  if (Number(current.gross_amount) !== input.expectedAmount) {
+    throw new DomainError('CONFLICT', 'Midtrans status amount does not match the order')
+  }
+  return {
+    paymentStatus: mappedStatus(current),
+    statusCode: current.status_code,
+    transactionId: current.transaction_id ?? input.notification.transaction_id,
+    reconciled: true,
+  }
 }

@@ -82,8 +82,8 @@ for migration context.
    encryption key without a credential re-encryption procedure.
 
 3. Set the Supabase URL, anon key and service-role key. Apply migrations
-   `001_initial_schema.sql` and `002_ticketing_engine.sql`, then `seed.sql`, to
-   the database used by `DATABASE_URL`.
+   `001_initial_schema.sql` through `004_legacy_order_hardening.sql` in numeric
+   order, then `seed.sql`, to the database used by `DATABASE_URL`.
 
 4. For a disposable PostgreSQL/Redis migration harness:
 
@@ -154,7 +154,7 @@ and no duplicate order per idempotency key.
 ## Production deployment
 
 Deploy `apps/web` to Vercel and configure the one-minute hold sweeper in
-`vercel.json`; this schedule requires Vercel Pro. Keep the legacy `apps/worker`
+`apps/web/vercel.json`; this schedule requires Vercel Pro. Keep the legacy `apps/worker`
 deployment only while `/api/v1` traffic is still enabled. Use managed
 PostgreSQL with PITR and pooling, region-aligned Upstash Redis, TLS-only
 connections, and a central secret manager. Run migrations as a one-off release

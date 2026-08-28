@@ -1,6 +1,10 @@
 import { midtransNotificationSchema, uuidSchema } from '@war-ticket/contracts'
-import { DomainError, mapMidtransStatus } from '@war-ticket/domain'
-import { verifyMidtransSignature } from '@war-ticket/payments'
+import { DomainError } from '@war-ticket/domain'
+import {
+  MidtransClient,
+  resolveMidtransPaymentStatus,
+  verifyMidtransSignature,
+} from '@war-ticket/payments'
 import { apiError, parseJson } from '@/lib/server/api'
 import { edgeCheckoutRepository, serverlessCheckoutService } from '@/lib/server/runtime'
 import { parseEdgePaymentEnvironment } from '@/lib/serverless-ticketing/config'
@@ -33,12 +37,17 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     }
 
     await repository.recordNotification(orderId, notification)
-    const paymentStatus = mapMidtransStatus({
-      transactionStatus: notification.transaction_status,
-      ...(notification.fraud_status === undefined
-        ? {}
-        : { fraudStatus: notification.fraud_status }),
+    const resolution = await resolveMidtransPaymentStatus({
+      notification,
+      providerOrderId: order.providerOrderId,
+      expectedAmount: order.amount,
+      client: new MidtransClient(
+        environment.MIDTRANS_SERVER_KEY,
+        environment.MIDTRANS_ENVIRONMENT === 'PRODUCTION',
+      ),
     })
+    const paymentStatus = resolution.paymentStatus
+    const transactionId = resolution.transactionId
 
     let orderStatus = order.status
     const failedPayment = ['DENIED', 'EXPIRED', 'CANCELLED'].includes(paymentStatus)
@@ -46,7 +55,7 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
       await repository.markNotificationProcessed(orderId, notification)
       return Response.json({ accepted: true, orderId, orderStatus })
     }
-    if (paymentStatus === 'SUCCEEDED' && notification.status_code === '200') {
+    if (paymentStatus === 'SUCCEEDED' && resolution.statusCode === '200') {
       const finalization = await serverlessCheckoutService().finalizeHold({
         eventId: order.eventId,
         tierId: order.tierId,
@@ -55,10 +64,10 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
         outcome: 'SUCCESS',
       })
       if (finalization === 'ALREADY_RELEASED') {
-        await repository.markReviewRequired(orderId, notification.transaction_id)
+        await repository.markReviewRequired(orderId, transactionId)
         orderStatus = 'PAYMENT_REVIEW_REQUIRED'
       } else {
-        orderStatus = await repository.markPaid(order, notification.transaction_id)
+        orderStatus = await repository.markPaid(order, transactionId)
       }
     } else if (failedPayment) {
       const finalization = await serverlessCheckoutService().finalizeHold({
@@ -69,10 +78,10 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
         outcome: 'FAILURE',
       })
       if (finalization === 'ALREADY_SUCCESS') {
-        await repository.markReviewRequired(orderId, notification.transaction_id)
+        await repository.markReviewRequired(orderId, transactionId)
         orderStatus = 'PAYMENT_REVIEW_REQUIRED'
       } else {
-        await repository.markFailed(orderId, notification.transaction_id)
+        await repository.markFailed(orderId, transactionId)
         orderStatus = 'FAILED'
       }
     }

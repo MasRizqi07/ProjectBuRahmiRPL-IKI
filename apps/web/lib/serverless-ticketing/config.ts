@@ -19,20 +19,33 @@ const cronEnvironmentSchema = z.object({
 const paymentEnvironmentSchema = z.object({
   MIDTRANS_MERCHANT_ID: z.string().min(1),
   MIDTRANS_SERVER_KEY: z.string().min(1),
+  MIDTRANS_ENVIRONMENT: z.enum(['SANDBOX', 'PRODUCTION']).default('SANDBOX'),
 })
 
-export function parseEdgeRedisEnvironment(environment: NodeJS.ProcessEnv) {
-  return redisEnvironmentSchema.parse(environment)
+type Environment = Readonly<Record<string, string | undefined>>
+
+function normalizeEdgeRedisEnvironment(environment: Environment): Environment {
+  return {
+    ...environment,
+    UPSTASH_REDIS_REST_URL:
+      environment.UPSTASH_REDIS_REST_URL ?? environment.KV_REST_API_URL,
+    UPSTASH_REDIS_REST_TOKEN:
+      environment.UPSTASH_REDIS_REST_TOKEN ?? environment.KV_REST_API_TOKEN,
+  }
 }
 
-export function parseEdgeQueueEnvironment(environment: NodeJS.ProcessEnv) {
-  return queueEnvironmentSchema.parse(environment)
+export function parseEdgeRedisEnvironment(environment: Environment) {
+  return redisEnvironmentSchema.parse(normalizeEdgeRedisEnvironment(environment))
 }
 
-export function parseEdgeCronEnvironment(environment: NodeJS.ProcessEnv) {
+export function parseEdgeQueueEnvironment(environment: Environment) {
+  return queueEnvironmentSchema.parse(normalizeEdgeRedisEnvironment(environment))
+}
+
+export function parseEdgeCronEnvironment(environment: Environment) {
   return cronEnvironmentSchema.parse(environment)
 }
 
-export function parseEdgePaymentEnvironment(environment: NodeJS.ProcessEnv) {
+export function parseEdgePaymentEnvironment(environment: Environment) {
   return paymentEnvironmentSchema.parse(environment)
 }

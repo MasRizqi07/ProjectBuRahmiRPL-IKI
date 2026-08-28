@@ -17,7 +17,9 @@ Target: Next.js Route Handlers on Vercel with Upstash Redis REST
    and idempotency response write.
 4. A signed Midtrans notification finalizes the hold exactly once. Successful
    payment releases a checkout slot without returning inventory. Failure
-   releases both the checkout slot and inventory.
+   releases both the checkout slot and inventory. Pending, authorized,
+   unknown, or internally inconsistent success notifications are reconciled
+   against Midtrans GET Status before changing order state.
 5. Vercel Cron performs the same expiry sweep as a safety net; correctness does
    not depend on cron timing. The cron advances an `SSCAN` cursor and processes
    events in bounded parallel batches instead of starving events beyond a
@@ -38,6 +40,9 @@ Target: Next.js Route Handlers on Vercel with Upstash Redis REST
   compare-and-delete single-flight lock; clients never provide the price.
 - Expired Redis holds are recorded in an expiry reconciliation set before the
   SQL order is updated.
+- The prototype's direct `public.orders` insert policy and client-priced
+  `createOrder()` helper are removed. Authenticated clients must pass through a
+  reservation and a server-authoritative checkout repository.
 
 ## Redis namespace
 

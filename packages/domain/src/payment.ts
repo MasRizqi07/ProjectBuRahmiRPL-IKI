@@ -8,12 +8,14 @@ export function mapMidtransStatus(input: {
   const fraudStatus = input.fraudStatus?.toLowerCase()
 
   if (status === 'capture') {
-    return fraudStatus === 'accept' ? 'SUCCEEDED' : 'AUTHORIZED'
+    if (fraudStatus === 'accept') return 'SUCCEEDED'
+    return fraudStatus === 'deny' ? 'DENIED' : 'AUTHORIZED'
   }
 
   switch (status) {
     case 'settlement':
-      return 'SUCCEEDED'
+      if (fraudStatus === undefined || fraudStatus === 'accept') return 'SUCCEEDED'
+      return fraudStatus === 'deny' ? 'DENIED' : 'AUTHORIZED'
     case 'pending':
       return 'PENDING'
     case 'authorize':
