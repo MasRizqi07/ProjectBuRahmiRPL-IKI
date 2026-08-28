@@ -14,7 +14,8 @@ services:
       - ./postgres-init/000-auth-stub.sql:/docker-entrypoint-initdb.d/000-auth-stub.sql:ro
       - ../supabase/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/001_initial_schema.sql:ro
       - ../supabase/migrations/002_ticketing_engine.sql:/docker-entrypoint-initdb.d/002_ticketing_engine.sql:ro
-      - ../supabase/seed.sql:/docker-entrypoint-initdb.d/003_seed.sql:ro
+      - ../supabase/migrations/003_serverless_checkout.sql:/docker-entrypoint-initdb.d/003_serverless_checkout.sql:ro
+      - ../supabase/seed.sql:/docker-entrypoint-initdb.d/004_seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d war_ticket"]
       interval: 2s

@@ -10,14 +10,12 @@ export interface AuthenticatedUser {
 
 export async function requireUser(): Promise<AuthenticatedUser> {
   const supabase = await createClient()
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser()
-  if (error !== null || user === null) {
+  const { data, error } = await supabase.auth.getClaims()
+  const subject = data?.claims.sub
+  if (error !== null || typeof subject !== 'string' || subject.length === 0) {
     throw new DomainError('UNAUTHORIZED', 'Authentication is required')
   }
-  return { id: user.id }
+  return { id: subject }
 }
 
 export async function parseJson<T>(request: Request, schema: ZodType<T>): Promise<T> {

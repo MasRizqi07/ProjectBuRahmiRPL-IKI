@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowRight, Check, LoaderCircle } from 'lucide-react'
 import type { TicketTier } from '@/lib/types/concert'
-import { apiJson } from '@/lib/client/api'
 import { Button } from '@/components/ui/button'
 import { InlineAlert } from '@/components/feedback/inline-alert'
 import { cn } from '@/lib/utils'
@@ -19,13 +18,11 @@ export function TicketTierCard({ tier, concertId }: { readonly tier: TicketTier;
   const percentage = getAvailabilityPercent(tier)
   const available = remaining > 0
 
-  const enterQueue = async (): Promise<void> => {
+  const enterQueue = (): void => {
     setOpeningQueue(true)
     setQueueError(null)
     try {
-      const body = await apiJson(`/api/v1/events/${concertId}/active-sales-session`)
-      if (typeof body !== 'object' || body === null || !('id' in body) || typeof body.id !== 'string') throw new Error('Respons sales session tidak valid')
-      router.push(`/waiting-room?salesSessionId=${body.id}`)
+      router.push(`/waiting-room?eventId=${concertId}&tierId=${tier.id}`)
     } catch (error) {
       setQueueError(error instanceof Error ? error.message : 'Antrean tidak dapat dibuka')
       setOpeningQueue(false)
@@ -48,7 +45,7 @@ export function TicketTierCard({ tier, concertId }: { readonly tier: TicketTier;
         {(tier.perks ?? []).map((perk) => <li key={perk} className="flex items-start gap-3 text-sm text-muted-foreground"><Check className="mt-0.5 size-4 shrink-0 text-war-gold" />{perk}</li>)}
       </ul>
       {queueError && <InlineAlert variant="error" className="mb-4">{queueError}</InlineAlert>}
-      <Button type="button" onClick={() => void enterQueue()} disabled={!available || openingQueue} size="lg" className="h-12 w-full rounded-xl font-bold">
+      <Button type="button" onClick={enterQueue} disabled={!available || openingQueue} size="lg" className="h-12 w-full rounded-xl font-bold">
         {openingQueue ? <><LoaderCircle className="animate-spin" /> Membuka antrean…</> : available ? <>Masuk antrean <ArrowRight /></> : 'Terjual habis'}
       </Button>
     </article>

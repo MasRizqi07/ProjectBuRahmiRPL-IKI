@@ -1,5 +1,10 @@
-import type { QueueStatusResponse } from '@war-ticket/contracts'
 import { Clock3, ShieldCheck, Users } from 'lucide-react'
+
+interface QueueStatusView {
+  readonly entryId: string
+  readonly position: number | null
+  readonly estimatedWaitSeconds: number | null
+}
 
 function formatDuration(seconds: number | null): string {
   if (seconds === null) return 'Menghitung…'
@@ -7,7 +12,7 @@ function formatDuration(seconds: number | null): string {
   return `${String(minutes).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`
 }
 
-export function QueueStatusCard({ queue }: { readonly queue: QueueStatusResponse }) {
+export function QueueStatusCard({ queue }: { readonly queue: QueueStatusView }) {
   return (
     <div className="space-y-4" aria-live="polite">
       <section className="glass-panel relative overflow-hidden rounded-3xl p-7 text-center sm:p-10">

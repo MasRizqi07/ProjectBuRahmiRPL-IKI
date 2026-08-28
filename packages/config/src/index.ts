@@ -1,18 +1,24 @@
 import { z } from 'zod'
 
-const sharedSchema = z.object({
+const baseSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   DATABASE_URL: z.string().url(),
+})
+
+const sharedSchema = baseSchema.extend({
   REDIS_URL: z.string().url(),
   QUEUE_SIGNING_SECRET: z.string().min(32),
   CREDENTIAL_ENCRYPTION_KEY: z.string().min(32),
 })
 
-const webSchema = sharedSchema.extend({
+const webSchema = baseSchema.extend({
   NEXT_PUBLIC_APP_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  REDIS_URL: z.string().url().optional(),
+  QUEUE_SIGNING_SECRET: z.string().min(32).optional(),
+  CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
 })
 
 const workerSchema = sharedSchema.extend({

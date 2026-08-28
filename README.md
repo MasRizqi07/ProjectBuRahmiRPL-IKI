@@ -1,9 +1,9 @@
 # War Ticket Platform
 
-Production-oriented multi-tenant concert ticket marketplace for high-demand
-ticket drops. This repository contains the first vertical slice: authenticated
-waiting room, fair queue admission, atomic inventory reservation, checkout,
-and organizer-scoped Midtrans payment orchestration.
+Production-oriented concert ticket marketplace for high-demand ticket drops.
+The primary Vercel path is a Next.js fullstack vertical slice with authenticated
+lazy admission, atomic Upstash Redis holds, durable PostgreSQL orders, and
+signed Midtrans payment confirmation.
 
 War Ticket is independent from War Event/BLACKBOX. The previous repository was
 a UI prototype; the current codebase is a pnpm/Turborepo application with real
@@ -13,30 +13,38 @@ PostgreSQL, Redis, Supabase Auth, API, and worker boundaries.
 
 ```text
 Browser
-  -> apps/web (Next.js UI + authenticated HTTP API)
-       -> PostgreSQL (authoritative inventory/orders/payments)
-       -> Redis (queue/admission traffic-control plane)
-  -> apps/worker (queue scheduler, outbox, Midtrans, expiry)
+  -> apps/web (Next.js UI + authenticated Route Handlers on Vercel)
+       -> Upstash Redis REST (queue, admission, inventory holds, idempotency)
+       -> PostgreSQL (catalog, durable order/payment state)
+  -> Vercel Cron (expiry safety net; not a correctness timer)
 ```
 
 | Workspace | Responsibility |
 | --- | --- |
 | `apps/web` | Buyer UI, Supabase Auth session, versioned APIs |
-| `apps/worker` | queue lifecycle, admission, outbox, payment and expiry jobs |
+| `apps/worker` | legacy v1 outbox/payment worker retained during migration |
 | `packages/contracts` | runtime-validated Zod API/event contracts |
 | `packages/domain` | price, inventory, order, reservation and payment rules |
 | `packages/database` | tenant-safe transactions and repositories |
-| `packages/redis` | atomic queue/admission Lua operations and signed tokens |
+| `apps/web/lib/serverless-ticketing` | Upstash REST Lua scripts and lazy admission |
+| `packages/redis` | legacy TCP Redis queue implementation |
 | `packages/payments` | Midtrans Snap adapter, signature verification/status API |
 | `packages/config` | fail-fast environment validation |
 | `packages/observability` | structured, redacted logging |
 
-The complete accepted design is in
-[`docs/architecture/ticket-war-checkout-engine.md`](docs/architecture/ticket-war-checkout-engine.md).
+The Vercel design is in
+[`docs/architecture/serverless-checkout-engine.md`](docs/architecture/serverless-checkout-engine.md).
+The earlier worker-based design remains documented in
+[`docs/architecture/ticket-war-checkout-engine.md`](docs/architecture/ticket-war-checkout-engine.md)
+for migration context.
 
 ## Implemented vertical slice
 
 - One queue per sales session with authenticated, idempotent entry
+- Lazy admission on status reads; no always-on queue scheduler
+- Connectionless Upstash Redis REST client for Vercel functions
+- Atomic reserve and idempotency result in the same Lua execution
+- Idempotent hold completion/release and recoverable hold expiry indexes
 - Cryptographic pre-queue shuffle and FIFO arrivals after opening
 - Single-use, short-lived admission token
 - General-admission counters and exact assigned-seat locks
@@ -53,7 +61,7 @@ The complete accepted design is in
 
 - Node.js 22 or newer
 - pnpm 9 (`corepack enable` if needed)
-- PostgreSQL 15+ and Redis 7+
+- PostgreSQL 15+ and an Upstash Redis database
 - A Supabase project for Auth
 - A Midtrans Sandbox merchant account for payment testing
 - Docker Desktop is optional for the local PostgreSQL/Redis harness
@@ -94,9 +102,9 @@ The complete accepted design is in
    pnpm dev
    ```
 
-   Turborepo starts the Next.js application and worker together. The worker
-   must be running for queue opening, admissions, payment initiation and hold
-   expiry.
+   The Vercel checkout path runs entirely in `apps/web`. The legacy worker is
+   still started by the root development command while the old `/api/v1`
+   checkout endpoints remain available during migration.
 
 ## Configure an organizer's Midtrans Sandbox merchant
 
@@ -124,28 +132,33 @@ pnpm verify
 This runs strict linting, TypeScript checks, unit/property tests and the
 production build. No TypeScript or build errors are ignored.
 
-The k6 queue test models three simultaneous drops and requires 10,000 unique
-authenticated Supabase cookie strings:
+The serverless checkout k6 gate models one 10,000-user drop against an event
+with exactly 100 tickets. It requires 10,000 authenticated Supabase cookie
+strings and a staging capacity of 10,000 so every virtual user can attempt the
+same atomic reserve boundary:
 
 ```bash
 k6 run \
   -e BASE_URL=https://staging.example.com \
-  -e SALES_SESSION_IDS=id-1,id-2,id-3 \
+  -e EVENT_ID=event-uuid \
+  -e TIER_ID=tier-uuid \
   -e AUTH_COOKIES_JSON='["cookie-1", "cookie-2"]' \
-  tests/load/queue.js
+  tests/load/serverless-reserve.js
 ```
 
 Run load tests only against an isolated staging stack with production-like
-PostgreSQL/Redis limits. The release threshold is no oversell, less than 1%
-failed requests and p95 under 500 ms for admitted checkout APIs.
+PostgreSQL/Upstash limits. The gate is exactly 100 successful holds, exactly
+9,900 sold-out responses, zero unexpected responses, no negative inventory,
+and no duplicate order per idempotency key.
 
 ## Production deployment
 
-Deploy `apps/web` and `apps/worker` as separate processes from the same commit.
-Use managed PostgreSQL with PITR and connection pooling, Redis with persistence
-and `noeviction`, at least two worker replicas, TLS-only connections and a
-central secret manager. Run migrations as a one-off release job before rolling
-out application processes.
+Deploy `apps/web` to Vercel and configure the one-minute hold sweeper in
+`vercel.json`; this schedule requires Vercel Pro. Keep the legacy `apps/worker`
+deployment only while `/api/v1` traffic is still enabled. Use managed
+PostgreSQL with PITR and pooling, region-aligned Upstash Redis, TLS-only
+connections, and a central secret manager. Run migrations as a one-off release
+job before rolling out application code.
 
 Required launch checks:
 

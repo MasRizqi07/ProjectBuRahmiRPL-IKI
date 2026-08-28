@@ -2,7 +2,7 @@
 
 import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { queueJoinResponseSchema, queueStatusResponseSchema, type QueueStatusResponse } from '@war-ticket/contracts'
+import { queueJoinResponseSchema, queueStatusResponseSchema } from '@war-ticket/contracts'
 import { CheckoutProgress } from '@/components/checkout/checkout-progress'
 import { InlineAlert } from '@/components/feedback/inline-alert'
 import { LoadingState } from '@/components/feedback/loading-state'
@@ -10,40 +10,101 @@ import { PageShell } from '@/components/layout/page-shell'
 import { QueueStatusCard } from '@/components/queue/queue-status-card'
 import { Button } from '@/components/ui/button'
 import { ApiClientError, apiJson } from '@/lib/client/api'
+import { queueResponseSchema } from '@/lib/serverless-ticketing/contracts'
 
-interface WaitingRoomProps { readonly searchParams: Promise<{ salesSessionId?: string; title?: string }> }
+interface WaitingRoomProps {
+  readonly searchParams: Promise<{
+    salesSessionId?: string
+    eventId?: string
+    tierId?: string
+    title?: string
+  }>
+}
+
+interface QueueView {
+  readonly entryId: string
+  readonly state: string
+  readonly position: number | null
+  readonly estimatedWaitSeconds: number | null
+  readonly pollAfterMs: number
+  readonly admissionToken?: string
+}
 
 export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
   const params = use(searchParams)
   const router = useRouter()
-  const [queue, setQueue] = useState<QueueStatusResponse | null>(null)
+  const [queue, setQueue] = useState<QueueView | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const eventId = params.eventId
   const salesSessionId = params.salesSessionId
 
   useEffect(() => {
-    if (!salesSessionId) { setError('Sales session tidak ditemukan.'); return }
+    if (!eventId && !salesSessionId) {
+      setError('Event atau sales session tidak ditemukan.')
+      return
+    }
     let cancelled = false
     let timer: ReturnType<typeof setTimeout> | undefined
 
     const handleError = (cause: unknown): boolean => {
       if (cancelled) return false
       if (cause instanceof ApiClientError && cause.status === 401) {
-        router.replace(`/login?callbackUrl=${encodeURIComponent(`/waiting-room?salesSessionId=${salesSessionId}`)}`)
+        const callback = eventId
+          ? `/waiting-room?eventId=${eventId}${params.tierId ? `&tierId=${params.tierId}` : ''}`
+          : `/waiting-room?salesSessionId=${salesSessionId}`
+        router.replace(`/login?callbackUrl=${encodeURIComponent(callback)}`)
         return false
       }
       setError(cause instanceof Error ? cause.message : 'Antrean sedang tidak tersedia.')
       return true
     }
 
+    const parseQueue = (body: unknown, initial: boolean): QueueView => {
+      if (eventId) {
+        const result = queueResponseSchema.parse(body)
+        return {
+          entryId: eventId,
+          state: result.state,
+          position: result.position,
+          estimatedWaitSeconds: null,
+          pollAfterMs: result.pollAfterMs,
+        }
+      }
+      const result = initial
+        ? queueJoinResponseSchema.parse(body)
+        : queueStatusResponseSchema.parse(body)
+      return {
+        entryId: result.entryId,
+        state: result.state,
+        position: result.position,
+        estimatedWaitSeconds: result.estimatedWaitSeconds,
+        pollAfterMs: result.pollAfterMs,
+        ...('admissionToken' in result && typeof result.admissionToken === 'string'
+          ? { admissionToken: result.admissionToken }
+          : {}),
+      }
+    }
+
+    const route = eventId
+      ? `/api/events/${eventId}`
+      : `/api/v1/sales-sessions/${salesSessionId}/queue`
+
     const poll = async (): Promise<void> => {
       try {
-        const next = queueStatusResponseSchema.parse(await apiJson(`/api/v1/sales-sessions/${salesSessionId}/queue`))
+        const body = await apiJson(eventId ? `${route}/queue-status` : route)
+        const next = parseQueue(body, false)
         if (cancelled) return
         setQueue(next)
         setError(null)
-        if (next.state === 'ADMITTED' && next.admissionToken) {
-          sessionStorage.setItem(`admission:${salesSessionId}`, next.admissionToken)
-          router.replace(`/checkout/select?salesSessionId=${salesSessionId}`)
+        if (next.state === 'ADMITTED') {
+          if (eventId) {
+            router.replace(
+              `/checkout/edge?eventId=${eventId}${params.tierId ? `&tierId=${params.tierId}` : ''}`,
+            )
+          } else if (next.admissionToken && salesSessionId) {
+            sessionStorage.setItem(`admission:${salesSessionId}`, next.admissionToken)
+            router.replace(`/checkout/select?salesSessionId=${salesSessionId}`)
+          }
           return
         }
         if (next.state !== 'EXPIRED') timer = setTimeout(() => void poll(), next.pollAfterMs)
@@ -54,25 +115,48 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
 
     const join = async (): Promise<void> => {
       try {
-        const joined = queueJoinResponseSchema.parse(await apiJson(`/api/v1/sales-sessions/${salesSessionId}/queue`, { method: 'POST' }))
+        const body = await apiJson(eventId ? `${route}/join-queue` : route, { method: 'POST' })
+        const joined = parseQueue(body, true)
         if (cancelled) return
         setQueue(joined)
         timer = setTimeout(() => void poll(), joined.pollAfterMs)
-      } catch (cause) { handleError(cause) }
+      } catch (cause) {
+        handleError(cause)
+      }
     }
 
     void join()
-    return () => { cancelled = true; if (timer) clearTimeout(timer) }
-  }, [router, salesSessionId])
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
+  }, [eventId, params.tierId, router, salesSessionId])
 
   return (
-    <PageShell eyebrow="Live queue" title={params.title ?? 'Ruang antrean'} description="Tetap di halaman ini. Posisi diproses secara fair dan akan dialihkan otomatis saat giliran Anda tiba." className="max-w-3xl">
+    <PageShell
+      eyebrow="Live queue"
+      title={params.title ?? 'Ruang antrean'}
+      description="Tetap di halaman ini. Posisi diproses secara fair dan akan dialihkan otomatis saat giliran Anda tiba."
+      className="max-w-3xl"
+    >
       <CheckoutProgress current={1} />
       {error ? (
-        <div className="space-y-4"><InlineAlert variant="error">{error}</InlineAlert><Button variant="outline" onClick={() => window.location.reload()} className="w-full rounded-xl">Coba lagi</Button></div>
+        <div className="space-y-4">
+          <InlineAlert variant="error">{error}</InlineAlert>
+          <Button variant="outline" onClick={() => window.location.reload()} className="w-full rounded-xl">
+            Coba lagi
+          </Button>
+        </div>
       ) : queue ? (
-        <><QueueStatusCard queue={queue} /><InlineAlert className="mt-4">Halaman boleh dibuka kembali, tetapi jangan keluar dari akun selama antrean berlangsung.</InlineAlert></>
-      ) : <LoadingState label="Mendaftarkan posisi antrean…" />}
+        <>
+          <QueueStatusCard queue={queue} />
+          <InlineAlert className="mt-4">
+            Halaman boleh dibuka kembali, tetapi jangan keluar dari akun selama antrean berlangsung.
+          </InlineAlert>
+        </>
+      ) : (
+        <LoadingState label="Mendaftarkan posisi antrean…" />
+      )}
     </PageShell>
   )
 }

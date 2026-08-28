@@ -3,6 +3,7 @@ import {
   CheckoutRepository,
   CatalogRepository,
   createDatabaseClient,
+  EdgeCheckoutRepository,
   EnvelopeCipher,
   InventoryRepository,
   PaymentRepository,
@@ -10,6 +11,8 @@ import {
 } from '@war-ticket/database'
 import { createLogger } from '@war-ticket/observability'
 import { createRedisClient, QueueService, type RedisClient } from '@war-ticket/redis'
+import { ServerlessCheckoutService } from '@/lib/serverless-ticketing/service'
+import { edgeRedis } from '@/lib/serverless-ticketing/redis'
 
 interface RuntimeState {
   config?: WebConfig
@@ -37,18 +40,29 @@ export function database(): DatabaseClient {
   return state.database
 }
 
+function requiredLegacyValue(name: string, value: string | undefined): string {
+  if (value === undefined) {
+    throw new Error(`${name} is required by the legacy checkout engine`)
+  }
+  return value
+}
+
 export function redis(): RedisClient {
-  state.redis ??= createRedisClient(config().REDIS_URL)
+  state.redis ??= createRedisClient(requiredLegacyValue('REDIS_URL', config().REDIS_URL))
   return state.redis
 }
 
 export function cipher(): EnvelopeCipher {
-  state.cipher ??= new EnvelopeCipher(config().CREDENTIAL_ENCRYPTION_KEY)
+  state.cipher ??= new EnvelopeCipher(
+    requiredLegacyValue('CREDENTIAL_ENCRYPTION_KEY', config().CREDENTIAL_ENCRYPTION_KEY),
+  )
   return state.cipher
 }
 
 export function queueService(): QueueService {
-  return new QueueService(redis(), { signingSecret: config().QUEUE_SIGNING_SECRET })
+  return new QueueService(redis(), {
+    signingSecret: requiredLegacyValue('QUEUE_SIGNING_SECRET', config().QUEUE_SIGNING_SECRET),
+  })
 }
 
 export function inventoryRepository(): InventoryRepository {
@@ -65,4 +79,12 @@ export function checkoutRepository(): CheckoutRepository {
 
 export function paymentRepository(): PaymentRepository {
   return new PaymentRepository(database(), cipher())
+}
+
+export function edgeCheckoutRepository(): EdgeCheckoutRepository {
+  return new EdgeCheckoutRepository(database())
+}
+
+export function serverlessCheckoutService(): ServerlessCheckoutService {
+  return new ServerlessCheckoutService(edgeRedis(), edgeCheckoutRepository())
 }
