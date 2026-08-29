@@ -1,19 +1,14 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   Calendar,
   CheckCircle2,
-  Clock,
   Download,
   MapPin,
   QrCode,
-  RefreshCw,
   Share2,
-  ShieldCheck,
   Sparkles,
-  Ticket,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -50,23 +45,6 @@ export function MetallicTicketCard({
   onDownload,
   onShare,
 }: MetallicTicketCardProps) {
-  // Anti-screenshot dynamic QR countdown (30s refresh)
-  const [secondsLeft, setSecondsLeft] = useState(30)
-  const [qrKey, setQrKey] = useState(0)
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => {
-        if (prev <= 1) {
-          setQrKey((k) => k + 1)
-          return 30
-        }
-        return prev - 1
-      })
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
-
   return (
     <div className={cn('mx-auto w-full max-w-md', className)}>
       {/* Holographic metallic card container */}
@@ -85,7 +63,7 @@ export function MetallicTicketCard({
           <div>
             <div className="flex items-center gap-2">
               <span className="inline-flex items-center gap-1 rounded-full border border-war-gold/30 bg-war-gold/10 px-2.5 py-0.5 text-[11px] font-bold text-war-gold-bright uppercase tracking-wider">
-                <Sparkles className="size-3" /> OFFICIAL E-TICKET
+                <Sparkles className="size-3" /> TICKET UI PREVIEW
               </span>
               <span className="inline-flex items-center gap-1 rounded-full border border-status-success/30 bg-status-success/10 px-2 py-0.5 text-[10px] font-bold text-status-success uppercase">
                 <CheckCircle2 className="size-3" /> {ticket.status.toUpperCase()}
@@ -105,7 +83,7 @@ export function MetallicTicketCard({
           </div>
         </div>
 
-        {/* Dynamic Live QR Section */}
+        {/* QR presentation preview. A signed rotating token is added in the ticket issuance phase. */}
         <div className="relative z-10 my-6 flex flex-col items-center justify-center rounded-2xl border border-white/8 bg-black/50 p-5 text-center backdrop-blur-md">
           <div className="relative size-44 rounded-xl border border-war-gold/30 bg-white p-3 shadow-[0_0_25px_rgba(240,180,41,0.2)]">
             {/* Real SVG-styled QR representation */}
@@ -119,16 +97,8 @@ export function MetallicTicketCard({
             </div>
           </div>
 
-          {/* Dynamic Rolling Code Security */}
-          <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-            <RefreshCw className="size-3.5 animate-spin text-war-gold" />
-            <span>
-              Kode QR berganti otomatis dalam{' '}
-              <strong className="font-mono text-war-gold-bright">{secondsLeft}s</strong>
-            </span>
-          </div>
-          <p className="mt-1 text-[11px] text-muted-foreground/80">
-            Screenshot tidak berlaku. Tunjukkan QR dinamis ini saat masuk gate.
+          <p className="mt-4 text-[11px] text-muted-foreground/80">
+            Preview visual — token QR dinamis belum diterbitkan oleh server.
           </p>
         </div>
 
@@ -198,6 +168,8 @@ export function MetallicTicketCard({
       <div className="mt-4 grid grid-cols-2 gap-3">
         <Button
           onClick={onDownload}
+          disabled={!onDownload}
+          title={onDownload ? 'Unduh tiket' : 'Dokumen tiket belum tersedia'}
           variant="outline"
           className="flex items-center justify-center gap-2 rounded-xl border-white/15 bg-white/5 py-5 text-xs font-bold transition hover:border-war-gold/40 hover:bg-white/10"
         >
@@ -205,6 +177,8 @@ export function MetallicTicketCard({
         </Button>
         <Button
           onClick={onShare}
+          disabled={!onShare}
+          title={onShare ? 'Bagikan tiket' : 'Fitur berbagi belum tersedia'}
           variant="outline"
           className="flex items-center justify-center gap-2 rounded-xl border-white/15 bg-white/5 py-5 text-xs font-bold transition hover:border-war-gold/40 hover:bg-white/10"
         >
@@ -214,4 +188,3 @@ export function MetallicTicketCard({
     </div>
   )
 }
-

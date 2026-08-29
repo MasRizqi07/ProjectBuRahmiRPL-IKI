@@ -1,48 +1,24 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import {
-  Activity,
   AlertOctagon,
   ArrowUpRight,
-  BarChart3,
   CalendarPlus,
-  CheckCircle2,
   DollarSign,
-  Flame,
-  Gauge,
   PauseCircle,
-  PlayCircle,
   Plus,
-  Radio,
   Send,
   ShieldAlert,
-  ShieldCheck,
-  Sparkles,
-  Ticket,
   TrendingUp,
   Users,
   Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
-import { DemandMeter } from '@/components/ui/demand-meter'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 
 export default function OrganizerCommandCenterPage() {
-  const [salesPaused, setSalesPaused] = useState(false)
-  const [quotaReleased, setQuotaReleased] = useState(false)
-  const [broadcastSent, setBroadcastSent] = useState(false)
-
-  const handleReleaseExtraQuota = () => {
-    setQuotaReleased(true)
-    setTimeout(() => setQuotaReleased(false), 4000)
-  }
-
-  const handleBroadcast = () => {
-    setBroadcastSent(true)
-    setTimeout(() => setBroadcastSent(false), 4000)
-  }
-
   return (
     <div className="space-y-8 max-w-7xl">
       {/* Top Bar */}
@@ -51,7 +27,7 @@ export default function OrganizerCommandCenterPage() {
           <div className="flex items-center gap-2">
             <span className="section-label">PROMOTER COMMAND & CONTROL</span>
             <span className="inline-flex items-center gap-1 rounded-full border border-status-success/30 bg-status-success/10 px-2.5 py-0.5 text-[10px] font-bold text-status-success">
-              <span className="pulse-dot size-1.5 rounded-full bg-status-success" /> LIVE WAR ENGINE ACTIVE
+              DESIGN PREVIEW · SAMPLE DATA
             </span>
           </div>
           <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-foreground">
@@ -71,23 +47,12 @@ export default function OrganizerCommandCenterPage() {
         </div>
       </div>
 
-      {/* Emergency Action Alerts */}
-      {quotaReleased && (
-        <div className="flex items-center gap-3 rounded-2xl border border-war-gold/40 bg-war-gold/10 p-4 text-war-gold animate-fade-up">
-          <Sparkles className="size-5" />
-          <span className="text-xs font-bold">Kuota cadangan 500 tiket CAT 1 berhasil dirilis ke publik secara live!</span>
-        </div>
-      )}
-      {broadcastSent && (
-        <div className="flex items-center gap-3 rounded-2xl border border-status-success/40 bg-status-success/10 p-4 text-status-success animate-fade-up">
-          <CheckCircle2 className="size-5" />
-          <span className="text-xs font-bold">Broadcast pengumuman darurat berhasil dikirim ke 125.000 penonton di antrean!</span>
-        </div>
-      )}
+      <CapabilityNotice capability="organizerLiveOperations" />
 
       {/* Real-time Telemetry Grid */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl relative overflow-hidden">
+          <DesignBackdrop group="war_ticket_organizer_command_center" index={0} variant="card" imageClassName="opacity-20" overlayClassName="bg-black/75" sizes="(max-width: 1024px) 100vw, 25vw" />
           <div className="flex items-center justify-between text-muted-foreground">
             <span className="text-[11px] font-bold uppercase tracking-wider">Gross Revenue Live</span>
             <DollarSign className="size-4 text-war-gold" />
@@ -153,23 +118,21 @@ export default function OrganizerCommandCenterPage() {
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
-            onClick={() => setSalesPaused(!salesPaused)}
-            className={`flex items-center justify-between rounded-2xl border p-5 transition-all text-left ${
-              salesPaused
-                ? 'border-status-success/50 bg-status-success/10 text-status-success'
-                : 'border-urgent-red/40 bg-urgent-red/5 text-urgent-red hover:bg-urgent-red/10'
-            }`}
+            disabled
+            title="Emergency operations belum tersedia"
+            className="flex items-center justify-between rounded-2xl border border-urgent-red/40 bg-urgent-red/5 p-5 text-left text-urgent-red opacity-60 cursor-not-allowed"
           >
             <div>
-              <h4 className="font-display text-xl">{salesPaused ? 'Lanjutkan Penjualan' : 'Jeda Penjualan Darurat'}</h4>
-              <p className="text-xs opacity-80">{salesPaused ? 'Tiket sedang di-pause' : 'Hentikan sementara war tiket'}</p>
+              <h4 className="font-display text-xl">Jeda Penjualan Darurat</h4>
+              <p className="text-xs opacity-80">Hentikan sementara war tiket</p>
             </div>
-            {salesPaused ? <PlayCircle className="size-6 shrink-0" /> : <PauseCircle className="size-6 shrink-0" />}
+            <PauseCircle className="size-6 shrink-0" />
           </button>
 
           <button
-            onClick={handleReleaseExtraQuota}
-            className="flex items-center justify-between rounded-2xl border border-war-gold/40 bg-war-gold/5 p-5 text-war-gold hover:bg-war-gold/10 transition-all text-left"
+            disabled
+            title="Emergency operations belum tersedia"
+            className="flex items-center justify-between rounded-2xl border border-war-gold/40 bg-war-gold/5 p-5 text-left text-war-gold opacity-60 cursor-not-allowed"
           >
             <div>
               <h4 className="font-display text-xl">Rilis Kuota Cadangan</h4>
@@ -179,8 +142,9 @@ export default function OrganizerCommandCenterPage() {
           </button>
 
           <button
-            onClick={handleBroadcast}
-            className="flex items-center justify-between rounded-2xl border border-blue-500/40 bg-blue-500/5 p-5 text-blue-400 hover:bg-blue-500/10 transition-all text-left"
+            disabled
+            title="Emergency operations belum tersedia"
+            className="flex items-center justify-between rounded-2xl border border-blue-500/40 bg-blue-500/5 p-5 text-left text-blue-400 opacity-60 cursor-not-allowed"
           >
             <div>
               <h4 className="font-display text-xl">Push Notifikasi Blast</h4>
@@ -244,4 +208,3 @@ export default function OrganizerCommandCenterPage() {
     </div>
   )
 }
-

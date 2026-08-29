@@ -1,21 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  Activity,
-  ArrowUpRight,
-  BarChart3,
-  Calendar,
-  Flame,
-  Info,
-  MapPin,
-  Maximize2,
-  PieChart,
-  Sparkles,
-  TrendingUp,
-  Users,
-} from 'lucide-react'
-import { Button } from '@/components/ui/button'
 
 interface SectionData {
   id: string

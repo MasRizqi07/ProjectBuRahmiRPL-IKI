@@ -1,49 +1,26 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft,
-  ArrowRight,
   Crown,
-  Flame,
   Headphones,
-  Lock,
-  MapPin,
-  MessageCircle,
-  Radio,
   Send,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  Ticket,
-  Wine,
-  Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
+
+const conciergeChat = [
+  { sender: 'concierge', text: 'Selamat datang di preview Vanguard Lounge. Layanan concierge realtime belum aktif.' },
+]
 
 export default function VanguardLoungePage() {
-  const [conciergeInput, setConciergeInput] = useState('')
-  const [conciergeChat, setConciergeChat] = useState([
-    { sender: 'concierge', text: 'Selamat datang di Vanguard Lounge, Commander Rizqi. Bagaimana saya dapat membantu alokasi tiket VIP Anda hari ini?' },
-  ])
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!conciergeInput.trim()) return
-    const newMsg = { sender: 'user', text: conciergeInput }
-    setConciergeChat((prev) => [
-      ...prev,
-      newMsg,
-      { sender: 'concierge', text: 'Permintaan Anda telah dicatat. Concierge kami sedang mengamankan alokasi kursi VVIP khusus untuk Anda.' },
-    ])
-    setConciergeInput('')
-  }
-
   return (
     <main className="container-shell py-8 sm:py-12 space-y-12 max-w-6xl">
       {/* Lounge Header */}
       <div className="relative overflow-hidden rounded-3xl border border-war-gold/40 bg-linear-to-r from-[#2a220d] via-[#161514] to-[#0a0a09] p-8 sm:p-12 shadow-[0_20px_60px_rgba(240,180,41,0.2)]">
+        <DesignBackdrop group="war_ticket_elite_vanguard_lounge" index={0} priority imageClassName="opacity-35" overlayClassName="bg-linear-to-r from-black/95 via-black/85 to-black/60" />
         <div className="absolute -right-20 -top-20 size-80 rounded-full bg-war-gold/15 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -52,7 +29,7 @@ export default function VanguardLoungePage() {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-war-gold bg-war-gold/20 px-3.5 py-1 text-xs font-black text-war-gold-bright tracking-widest uppercase">
                 <Crown className="size-4 text-war-gold" /> VANGUARD PLATINUM LOUNGE
               </span>
-              <span className="text-xs font-bold text-status-success">● PRIVAT & TERENKRIPSI</span>
+              <span className="text-xs font-bold text-war-gold">DESIGN PREVIEW</span>
             </div>
             <h1 className="mt-3 font-display text-4xl sm:text-6xl tracking-wide text-foreground">
               RUANG EKSKLUSIF <span className="text-war-gold">VIP COMMANDER</span>
@@ -70,6 +47,8 @@ export default function VanguardLoungePage() {
           </Link>
         </div>
       </div>
+
+      <CapabilityNotice capability="communityMessaging" />
 
       {/* Secret War Drops Section */}
       <section className="space-y-6">
@@ -174,15 +153,14 @@ export default function VanguardLoungePage() {
           ))}
         </div>
 
-        <form onSubmit={handleSendMessage} className="flex items-center gap-2 pt-2 border-t border-white/8">
+        <form onSubmit={(event) => event.preventDefault()} className="flex items-center gap-2 pt-2 border-t border-white/8">
           <input
+            disabled
             type="text"
-            value={conciergeInput}
-            onChange={(e) => setConciergeInput(e.target.value)}
-            placeholder="Ketik instruksi pemesanan tiket / request khusus VVIP..."
+            placeholder="Concierge realtime belum tersedia"
             className="flex-1 rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-war-gold"
           />
-          <Button type="submit" className="rounded-xl bg-primary px-6 font-bold text-primary-foreground hover:bg-war-gold-bright">
+          <Button disabled type="submit" title="Concierge realtime belum tersedia" className="rounded-xl bg-primary px-6 font-bold text-primary-foreground hover:bg-war-gold-bright">
             <Send className="size-4 mr-1.5" /> Kirim
           </Button>
         </form>
@@ -190,4 +168,3 @@ export default function VanguardLoungePage() {
     </main>
   )
 }
-

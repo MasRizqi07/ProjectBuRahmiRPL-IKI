@@ -6,16 +6,10 @@ import {
   ChevronDown,
   CreditCard,
   Flame,
-  HelpCircle,
-  LifeBuoy,
   MessageCircle,
   QrCode,
   RotateCcw,
   Search,
-  ShieldCheck,
-  Sparkles,
-  Ticket,
-  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -193,4 +187,3 @@ export default function HelpCenterPage() {
     </main>
   )
 }
-

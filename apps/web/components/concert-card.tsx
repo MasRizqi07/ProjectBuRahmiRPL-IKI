@@ -3,8 +3,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ArrowUpRight, CalendarDays, Flame, MapPin, Zap } from 'lucide-react'
+import { ArrowUpRight, CalendarDays, MapPin, Zap } from 'lucide-react'
 import { DemandMeter, type DemandLevel } from '@/components/ui/demand-meter'
+import { designAssetByPath } from '@/lib/assets/design-assets'
 import type { Concert } from '@/lib/types/concert'
 import { formatIDR } from '@/lib/utils/format'
 import { cn } from '@/lib/utils'
@@ -19,6 +20,8 @@ export function ConcertCard({ concert, index = 0 }: { readonly concert: Concert;
   const tiers = concert.ticket_tiers || concert.tiers || []
   const minPrice = tiers.length ? Math.min(...tiers.map((tier) => tier.price)) : 0
   const statusInfo = statusConfig[concert.status] || statusConfig.available
+  const imageUrl = concert.image_url || concert.imageUrl || '/placeholder.svg'
+  const designAsset = designAssetByPath[imageUrl]
 
   return (
     <motion.article
@@ -32,12 +35,13 @@ export function ConcertCard({ concert, index = 0 }: { readonly concert: Concert;
         {/* Poster Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-black/40">
           <Image
-            src={concert.image_url || concert.imageUrl || '/placeholder.jpg'}
+            src={imageUrl}
             alt={`Poster ${concert.artist} — ${concert.title}`}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={cn('object-cover transition duration-700 group-hover:scale-105', concert.status === 'soldout' && 'grayscale')}
             priority={index < 3}
+            {...(designAsset ? { placeholder: 'blur' as const, blurDataURL: designAsset.blurDataUrl } : {})}
           />
           <div className="card-gradient-overlay absolute inset-0" />
           

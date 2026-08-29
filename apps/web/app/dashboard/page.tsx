@@ -1,17 +1,9 @@
 import Link from 'next/link'
 import {
-  Activity,
   ArrowRight,
   Award,
-  Bell,
-  Calendar,
-  CheckCircle2,
   Crown,
-  Flame,
-  History,
   MapPin,
-  QrCode,
-  Radio,
   ShieldCheck,
   Sparkles,
   Ticket,
@@ -21,7 +13,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { DemandMeter } from '@/components/ui/demand-meter'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 
 export const metadata = {
   title: 'Dashboard Pengguna — WAR TICKET',
@@ -33,6 +25,7 @@ export default function UserDashboardPage() {
     <main className="container-shell py-8 sm:py-12 space-y-10">
       {/* Welcome Header */}
       <section className="glass-panel relative overflow-hidden rounded-3xl p-6 sm:p-10 border border-white/10">
+        <DesignBackdrop group="war_ticket_user_dashboard" index={0} imageClassName="opacity-30" overlayClassName="bg-linear-to-r from-black/95 via-black/80 to-black/55" />
         <div className="absolute -top-24 -right-24 size-72 rounded-full bg-war-gold/15 blur-3xl pointer-events-none" />
         
         <div className="relative z-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-center">
@@ -224,4 +217,3 @@ export default function UserDashboardPage() {
     </main>
   )
 }
-

@@ -2,15 +2,7 @@ import Link from 'next/link'
 import {
   ArrowRight,
   Flame,
-  Globe,
-  Instagram,
-  Lock,
-  MessageCircle,
-  Radio,
   ShieldCheck,
-  Twitter,
-  Youtube,
-  Zap,
 } from 'lucide-react'
 
 export function SiteFooter() {
@@ -33,12 +25,14 @@ export function SiteFooter() {
 
           <div className="flex w-full max-w-md items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur-xl">
             <input
+              disabled
               type="email"
-              placeholder="Masukkan email kamu..."
+              placeholder="Notifikasi segera tersedia"
+              title="Pendaftaran notifikasi belum tersedia"
               className="flex-1 bg-transparent px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden"
             />
-            <button className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground transition hover:bg-war-gold-bright">
-              <span>Langganan</span>
+            <button disabled title="Pendaftaran notifikasi belum tersedia" className="flex cursor-not-allowed items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground opacity-60">
+              <span>Segera hadir</span>
               <ArrowRight className="size-3.5" />
             </button>
           </div>

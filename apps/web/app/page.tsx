@@ -1,27 +1,16 @@
 import Link from 'next/link'
 import {
-  Activity,
   ArrowRight,
-  CheckCircle2,
-  Clock,
   Crown,
   Flame,
   Gauge,
   LockKeyhole,
-  MapPin,
-  Radio,
-  ShieldAlert,
   ShieldCheck,
-  Sparkles,
-  Ticket,
-  TrendingUp,
-  Users,
-  Zap,
 } from 'lucide-react'
 import { ConcertGrid } from '@/components/concert-grid'
 import { ConcertTicker } from '@/components/concert-ticker'
 import { HeroContent } from '@/components/hero-content'
-import { DemandMeter } from '@/components/ui/demand-meter'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 import { getFeaturedConcerts } from '@/lib/queries/concerts'
 
 const statsData = [
@@ -56,6 +45,7 @@ export default async function Home() {
     <main id="main-content" className="flex-1 overflow-x-hidden">
       {/* Hero Section with Glowing Atmosphere */}
       <section className="hero-bg relative grid min-h-[calc(100svh-var(--header-height))] place-items-center overflow-hidden px-4 py-20 sm:px-6">
+        <DesignBackdrop group="war_ticket_landing_page" index={0} priority imageClassName="opacity-55" overlayClassName="bg-linear-to-b from-black/55 via-black/70 to-background" />
         <div className="absolute inset-0 grid-pattern opacity-30 pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-background to-transparent pointer-events-none" />
         <HeroContent />
@@ -154,6 +144,7 @@ export default async function Home() {
       {/* Elite VIP Program Banner */}
       <section className="container-shell py-12 sm:py-16">
         <div className="relative overflow-hidden rounded-3xl border border-war-gold/30 bg-linear-to-r from-[#1f1a0d] via-[#161514] to-[#0d0d0c] p-8 sm:p-12 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">
+          <DesignBackdrop group="war_ticket_elite_membership_program" index={0} imageClassName="opacity-30" overlayClassName="bg-linear-to-r from-black/95 via-black/80 to-black/60" />
           <div className="absolute -right-20 -top-20 size-80 rounded-full bg-war-gold/15 blur-3xl pointer-events-none" />
           
           <div className="relative z-10 flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">

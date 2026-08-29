@@ -69,7 +69,7 @@ export default function LoginPage() {
               {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
             </button>
           </div>
-          <div className="mt-3 text-right"><span className="text-xs text-muted-foreground">Pemulihan password segera tersedia</span></div>
+          <div className="mt-3 text-right"><Link href="/forgot-password" className="text-xs font-semibold text-war-gold hover:text-war-gold-bright">Lupa password?</Link></div>
         </div>
         <Button type="submit" size="lg" disabled={submitting} className="h-12 w-full rounded-xl font-bold">
           <LogIn /> {submitting ? 'Mengautentikasi…' : 'Masuk'}

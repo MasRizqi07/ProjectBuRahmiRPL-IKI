@@ -1,4 +1,14 @@
 import type { Concert } from '../types/concert'
+import { getDesignAsset } from '../assets/design-assets'
+
+const concertArtwork = [
+  getDesignAsset('war_ticket_landing_page', 0).cardSrc,
+  getDesignAsset('war_ticket_concert_discovery', 0).cardSrc,
+  getDesignAsset('war_ticket_order_history', 3).cardSrc,
+  getDesignAsset('war_ticket_order_history', 2).cardSrc,
+  getDesignAsset('war_ticket_order_history', 0).cardSrc,
+  getDesignAsset('war_ticket_order_history', 1).cardSrc,
+] as const
 
 export const concerts: Concert[] = [
   {
@@ -8,7 +18,7 @@ export const concerts: Concert[] = [
     venue: 'Gelora Bung Karno, Jakarta',
     city: 'Jakarta',
     date: '2026-05-20T19:00:00Z',
-    imageUrl: '/images/coldplay.jpg',
+    imageUrl: concertArtwork[0],
     category: 'rock',
     status: 'limited',
     tiers: [
@@ -24,7 +34,7 @@ export const concerts: Concert[] = [
     venue: 'Istora Senayan, Jakarta',
     city: 'Jakarta',
     date: '2026-06-12T20:00:00Z',
-    imageUrl: '/images/blackpink.jpg',
+    imageUrl: concertArtwork[1],
     category: 'pop',
     status: 'soldout',
     tiers: [
@@ -40,7 +50,7 @@ export const concerts: Concert[] = [
     venue: 'Allianz Stadium, Jakarta',
     city: 'Jakarta',
     date: '2026-06-03T18:30:00Z',
-    imageUrl: '/images/dewa19.jpg',
+    imageUrl: concertArtwork[2],
     category: 'rock',
     status: 'available',
     tiers: [
@@ -56,7 +66,7 @@ export const concerts: Concert[] = [
     venue: 'Mainstage Festival, Bandung',
     city: 'Bandung',
     date: '2026-05-25T19:00:00Z',
-    imageUrl: '/images/pamungkas.jpg',
+    imageUrl: concertArtwork[3],
     category: 'indie',
     status: 'available',
     tiers: [
@@ -72,7 +82,7 @@ export const concerts: Concert[] = [
     venue: 'Kota Tua Jakarta, Jakarta',
     city: 'Jakarta',
     date: '2026-05-18T20:00:00Z',
-    imageUrl: '/images/richbrian.jpg',
+    imageUrl: concertArtwork[4],
     category: 'hiphop',
     status: 'limited',
     tiers: [
@@ -88,7 +98,7 @@ export const concerts: Concert[] = [
     venue: 'Balai Kartini, Jakarta',
     city: 'Jakarta',
     date: '2026-06-22T20:30:00Z',
-    imageUrl: '/images/tulus.jpg',
+    imageUrl: concertArtwork[5],
     category: 'pop',
     status: 'available',
     tiers: [

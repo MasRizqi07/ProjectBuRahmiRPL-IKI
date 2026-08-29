@@ -7,21 +7,20 @@ import {
   Bell,
   ChevronDown,
   Crown,
-  HelpCircle,
   LayoutDashboard,
   Menu,
   Radio,
   Scan,
   ShieldCheck,
-  Sparkles,
   Ticket,
   User,
-  Users,
   Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetClose, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
+import { logout } from '@/app/actions/auth'
+import type { Viewer } from '@/lib/auth/authorization'
 
 const mainNavigation = [
   { href: '/concerts', label: 'Jelajahi' },
@@ -31,7 +30,7 @@ const mainNavigation = [
   { href: '/help', label: 'Bantuan' },
 ] as const
 
-export function SiteHeader() {
+export function SiteHeader({ viewer }: { readonly viewer: Viewer | null }) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const [portalDropdownOpen, setPortalDropdownOpen] = useState(false)
@@ -165,9 +164,17 @@ export function SiteHeader() {
           </div>
 
           {/* User Account / Login Button */}
-          <Button asChild className="hidden rounded-full px-5 text-xs font-bold md:inline-flex bg-primary text-primary-foreground hover:bg-war-gold-bright">
-            <Link href="/my-tickets">Tiket Saya</Link>
-          </Button>
+          {viewer ? (
+            <form action={logout} className="hidden md:block">
+              <Button type="submit" variant="outline" className="rounded-full px-4 text-xs" title={`Keluar dari ${viewer.email ?? 'akun'}`}>
+                {viewer.name?.split(' ')[0] ?? 'Keluar'} · Keluar
+              </Button>
+            </form>
+          ) : (
+            <Button asChild className="hidden rounded-full px-5 text-xs font-bold md:inline-flex bg-primary text-primary-foreground hover:bg-war-gold-bright">
+              <Link href="/login">Masuk</Link>
+            </Button>
+          )}
 
           {/* Mobile Sheet Menu */}
           <Sheet open={open} onOpenChange={setOpen}>
@@ -231,11 +238,19 @@ export function SiteHeader() {
                 </SheetClose>
 
                 <div className="mt-6 pt-4 border-t border-white/10">
-                  <SheetClose asChild>
-                    <Link href="/login" className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground">
-                      <Radio className="size-4" /> Masuk ke Akun
-                    </Link>
-                  </SheetClose>
+                  {viewer ? (
+                    <form action={logout}>
+                      <button type="submit" className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-bold">
+                        <Radio className="size-4" /> Keluar dari Akun
+                      </button>
+                    </form>
+                  ) : (
+                    <SheetClose asChild>
+                      <Link href="/login" className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground">
+                        <Radio className="size-4" /> Masuk ke Akun
+                      </Link>
+                    </SheetClose>
+                  )}
                 </div>
               </div>
             </SheetContent>

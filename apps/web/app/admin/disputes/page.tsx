@@ -2,21 +2,10 @@
 
 import { useState } from 'react'
 import {
-  AlertCircle,
   Check,
-  CheckCircle2,
-  Clock,
-  CreditCard,
-  FileText,
-  Filter,
-  HelpCircle,
-  MessageSquare,
-  RotateCcw,
-  Search,
-  ShieldAlert,
-  User,
   X,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 interface Dispute {
@@ -30,6 +19,15 @@ interface Dispute {
   date: string
   status: 'pending' | 'resolved' | 'rejected'
 }
+
+type DisputeFilter = 'all' | Dispute['status']
+
+const disputeFilters: ReadonlyArray<{ key: DisputeFilter; label: string }> = [
+  { key: 'all', label: 'Semua Laporan' },
+  { key: 'pending', label: 'Menunggu Review (Pending)' },
+  { key: 'resolved', label: 'Selesai (Refund Sukses)' },
+  { key: 'rejected', label: 'Ditolak' },
+]
 
 const initialDisputes: Dispute[] = [
   {
@@ -68,21 +66,8 @@ const initialDisputes: Dispute[] = [
 ]
 
 export default function AdminDisputesPage() {
-  const [disputes, setDisputes] = useState<Dispute[]>(initialDisputes)
-  const [filter, setFilter] = useState<'all' | 'pending' | 'resolved' | 'rejected'>('all')
-  const [actionAlert, setActionAlert] = useState<string | null>(null)
-
-  const handleResolve = (id: string, action: 'approve' | 'reject') => {
-    setDisputes((prev) =>
-      prev.map((d) => (d.id === id ? { ...d, status: action === 'approve' ? 'resolved' : 'rejected' } : d))
-    )
-    setActionAlert(
-      action === 'approve'
-        ? `Sengketa #${id} disetujui. Dana refund berhasil diproses ke rekening pembeli!`
-        : `Sengketa #${id} ditolak.`
-    )
-    setTimeout(() => setActionAlert(null), 3500)
-  }
+  const disputes = initialDisputes
+  const [filter, setFilter] = useState<DisputeFilter>('all')
 
   const formatRupiah = (val: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
@@ -102,24 +87,14 @@ export default function AdminDisputesPage() {
         </p>
       </div>
 
-      {actionAlert && (
-        <div className="flex items-center gap-3 rounded-2xl border border-war-gold/40 bg-war-gold/10 p-4 text-war-gold animate-fade-up">
-          <CheckCircle2 className="size-5" />
-          <span className="text-xs font-bold">{actionAlert}</span>
-        </div>
-      )}
+      <CapabilityNotice capability="adminDisputeResolution" />
 
       {/* Filter Chips */}
       <div className="flex flex-wrap gap-2">
-        {[
-          { key: 'all', label: 'Semua Laporan' },
-          { key: 'pending', label: 'Menunggu Review (Pending)' },
-          { key: 'resolved', label: 'Selesai (Refund Sukses)' },
-          { key: 'rejected', label: 'Ditolak' },
-        ].map((tab) => (
+        {disputeFilters.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setFilter(tab.key as any)}
+            onClick={() => setFilter(tab.key)}
             className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
               filter === tab.key
                 ? 'bg-war-gold text-black shadow-[0_0_15px_rgba(240,180,41,0.25)]'
@@ -193,14 +168,16 @@ export default function AdminDisputesPage() {
               {item.status === 'pending' && (
                 <div className="flex items-center justify-end gap-2 border-t border-white/8 pt-4">
                   <Button
-                    onClick={() => handleResolve(item.id, 'reject')}
+                    disabled
+                    title="Resolusi sengketa belum tersedia"
                     variant="outline"
                     className="rounded-xl border-white/15 text-xs text-muted-foreground hover:border-urgent-red/40 hover:text-urgent-red"
                   >
                     <X className="size-3.5 mr-1" /> Tolak Klaim
                   </Button>
                   <Button
-                    onClick={() => handleResolve(item.id, 'approve')}
+                    disabled
+                    title="Resolusi sengketa belum tersedia"
                     className="rounded-xl bg-status-success font-bold text-xs text-black hover:bg-emerald-400"
                   >
                     <Check className="size-3.5 mr-1" /> Setujui Refund Dana
@@ -214,4 +191,3 @@ export default function AdminDisputesPage() {
     </div>
   )
 }
-

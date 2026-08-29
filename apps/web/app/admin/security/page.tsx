@@ -1,41 +1,25 @@
 'use client'
 
-import { useState } from 'react'
 import {
-  AlertOctagon,
-  CheckCircle2,
-  Cpu,
-  Flame,
-  Globe,
-  Key,
   Lock,
-  Radio,
-  RefreshCw,
-  Server,
-  ShieldAlert,
   ShieldCheck,
   Smartphone,
-  Trash2,
   Unlock,
   Zap,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 
 export default function AdminSecurityPage() {
-  const [turnstileStrict, setTurnstileStrict] = useState(true)
-  const [nikValidation, setNikValidation] = useState(true)
-  const [rateLimiter, setRateLimiter] = useState(true)
-  const [twoFactorHighValue, setTwoFactorHighValue] = useState(true)
+  const turnstileStrict = true
+  const nikValidation = true
+  const rateLimiter = true
+  const twoFactorHighValue = true
 
-  const [blockedIps, setBlockedIps] = useState([
+  const blockedIps = [
     { ip: '185.220.101.5', reason: 'High-speed automated bot script (250 req/s)', count: '4.890 Hits', blockedAt: '5 menit lalu', country: 'RU' },
     { ip: '103.149.28.12', reason: 'Repeated credit card brute force attempts', count: '128 Hits', blockedAt: '20 menit lalu', country: 'ID' },
     { ip: '45.154.255.88', reason: 'Known residential proxy calo network', count: '1.240 Hits', blockedAt: '1 jam lalu', country: 'NL' },
-  ])
-
-  const unblockIp = (ip: string) => {
-    setBlockedIps(blockedIps.filter((b) => b.ip !== ip))
-  }
+  ]
 
   return (
     <div className="space-y-8 max-w-7xl">
@@ -56,6 +40,8 @@ export default function AdminSecurityPage() {
         </div>
       </div>
 
+      <CapabilityNotice capability="adminSecurityControls" />
+
       {/* Security Policies Toggle Cards */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 sm:p-8 flex items-start justify-between gap-4 shadow-xl">
@@ -69,8 +55,9 @@ export default function AdminSecurityPage() {
             </p>
           </div>
           <button
-            onClick={() => setTurnstileStrict(!turnstileStrict)}
-            className={`relative h-7 w-12 rounded-full p-1 transition-colors ${turnstileStrict ? 'bg-war-gold' : 'bg-white/20'}`}
+            disabled
+            title="Kontrol keamanan belum tersedia"
+            className={`relative h-7 w-12 cursor-not-allowed rounded-full p-1 opacity-60 ${turnstileStrict ? 'bg-war-gold' : 'bg-white/20'}`}
           >
             <div className={`size-5 rounded-full bg-black transition-transform ${turnstileStrict ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
@@ -87,8 +74,9 @@ export default function AdminSecurityPage() {
             </p>
           </div>
           <button
-            onClick={() => setNikValidation(!nikValidation)}
-            className={`relative h-7 w-12 rounded-full p-1 transition-colors ${nikValidation ? 'bg-war-gold' : 'bg-white/20'}`}
+            disabled
+            title="Kontrol keamanan belum tersedia"
+            className={`relative h-7 w-12 cursor-not-allowed rounded-full p-1 opacity-60 ${nikValidation ? 'bg-war-gold' : 'bg-white/20'}`}
           >
             <div className={`size-5 rounded-full bg-black transition-transform ${nikValidation ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
@@ -105,8 +93,9 @@ export default function AdminSecurityPage() {
             </p>
           </div>
           <button
-            onClick={() => setRateLimiter(!rateLimiter)}
-            className={`relative h-7 w-12 rounded-full p-1 transition-colors ${rateLimiter ? 'bg-war-gold' : 'bg-white/20'}`}
+            disabled
+            title="Kontrol keamanan belum tersedia"
+            className={`relative h-7 w-12 cursor-not-allowed rounded-full p-1 opacity-60 ${rateLimiter ? 'bg-war-gold' : 'bg-white/20'}`}
           >
             <div className={`size-5 rounded-full bg-black transition-transform ${rateLimiter ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
@@ -123,8 +112,9 @@ export default function AdminSecurityPage() {
             </p>
           </div>
           <button
-            onClick={() => setTwoFactorHighValue(!twoFactorHighValue)}
-            className={`relative h-7 w-12 rounded-full p-1 transition-colors ${twoFactorHighValue ? 'bg-war-gold' : 'bg-white/20'}`}
+            disabled
+            title="Kontrol keamanan belum tersedia"
+            className={`relative h-7 w-12 cursor-not-allowed rounded-full p-1 opacity-60 ${twoFactorHighValue ? 'bg-war-gold' : 'bg-white/20'}`}
           >
             <div className={`size-5 rounded-full bg-black transition-transform ${twoFactorHighValue ? 'translate-x-5' : 'translate-x-0'}`} />
           </button>
@@ -166,8 +156,9 @@ export default function AdminSecurityPage() {
                 <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
                   <span className="text-[10px] text-muted-foreground font-mono">{b.blockedAt}</span>
                   <button
-                    onClick={() => unblockIp(b.ip)}
-                    className="flex items-center gap-1 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-white/10 transition"
+                    disabled
+                    title="Kontrol keamanan belum tersedia"
+                    className="flex cursor-not-allowed items-center gap-1 rounded-xl border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold text-muted-foreground opacity-60"
                   >
                     <Unlock className="size-3.5" /> Buka Blokir
                   </button>
@@ -180,4 +171,3 @@ export default function AdminSecurityPage() {
     </div>
   )
 }
-

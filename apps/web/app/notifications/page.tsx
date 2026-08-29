@@ -6,16 +6,9 @@ import {
   ArrowRight,
   Bell,
   Check,
-  CheckCircle2,
-  Clock,
   Flame,
   Info,
-  Radio,
-  Settings,
-  ShieldAlert,
-  Sparkles,
   Ticket,
-  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -29,6 +22,15 @@ interface NotificationItem {
   actionHref?: string
   actionLabel?: string
 }
+
+type NotificationFilter = 'all' | 'unread' | 'war' | 'system'
+
+const notificationFilters: ReadonlyArray<{ key: NotificationFilter; label: string }> = [
+  { key: 'all', label: 'Semua Notifikasi' },
+  { key: 'unread', label: 'Belum Dibaca' },
+  { key: 'war', label: 'War & Flash Alerts 🔥' },
+  { key: 'system', label: 'Transaksi & Sistem' },
+]
 
 const initialNotifications: NotificationItem[] = [
   {
@@ -73,7 +75,7 @@ const initialNotifications: NotificationItem[] = [
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<NotificationItem[]>(initialNotifications)
-  const [filter, setFilter] = useState<'all' | 'unread' | 'war' | 'system'>('all')
+  const [filter, setFilter] = useState<NotificationFilter>('all')
 
   const markAllAsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })))
@@ -111,15 +113,10 @@ export default function NotificationsPage() {
 
       {/* Filter Chips */}
       <div className="flex flex-wrap gap-2">
-        {[
-          { key: 'all', label: 'Semua Notifikasi' },
-          { key: 'unread', label: 'Belum Dibaca' },
-          { key: 'war', label: 'War & Flash Alerts 🔥' },
-          { key: 'system', label: 'Transaksi & Sistem' },
-        ].map((tab) => (
+        {notificationFilters.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setFilter(tab.key as any)}
+            onClick={() => setFilter(tab.key)}
             className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
               filter === tab.key
                 ? 'bg-war-gold text-black shadow-[0_0_15px_rgba(240,180,41,0.25)]'
@@ -206,4 +203,3 @@ export default function NotificationsPage() {
     </main>
   )
 }
-

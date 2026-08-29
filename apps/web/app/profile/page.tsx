@@ -3,31 +3,17 @@
 import { useState } from 'react'
 import {
   Bell,
-  CheckCircle2,
   CreditCard,
-  KeyRound,
-  Lock,
-  Mail,
-  Phone,
   Save,
   ShieldCheck,
-  Smartphone,
-  Sparkles,
   User,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 export default function ProfileSettingsPage() {
-  const [saved, setSaved] = useState(false)
   const [twoFactor, setTwoFactor] = useState(true)
   const [waNotifications, setWaNotifications] = useState(true)
-  const [emailAlerts, setEmailAlerts] = useState(true)
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
-  }
 
   return (
     <main className="container-shell py-8 sm:py-12 max-w-4xl space-y-8">
@@ -42,14 +28,9 @@ export default function ProfileSettingsPage() {
         </p>
       </div>
 
-      {saved && (
-        <div className="flex items-center gap-3 rounded-2xl border border-status-success/30 bg-status-success/10 p-4 text-status-success animate-fade-up">
-          <CheckCircle2 className="size-5" />
-          <span className="text-xs font-bold">Perubahan profil dan preferensi keamanan berhasil disimpan!</span>
-        </div>
-      )}
+      <CapabilityNotice capability="profilePersistence" />
 
-      <form onSubmit={handleSave} className="space-y-8">
+      <form onSubmit={(event) => event.preventDefault()} className="space-y-8">
         {/* Section 1: Personal Info */}
         <section className="rounded-3xl border border-white/10 bg-[#141413] p-6 sm:p-8 space-y-6">
           <div className="flex items-center gap-3 border-b border-white/8 pb-4">
@@ -146,8 +127,8 @@ export default function ProfileSettingsPage() {
                   <p className="text-[11px] text-muted-foreground">GoPay, OVO, ShopeePay, Dana</p>
                 </div>
               </div>
-              <Button type="button" variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
-                Jadikan Default
+              <Button disabled type="button" title="Penyimpanan profil belum tersedia" variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
+                Belum tersedia
               </Button>
             </div>
           </div>
@@ -197,15 +178,16 @@ export default function ProfileSettingsPage() {
         {/* Submit */}
         <div className="flex justify-end gap-3 pt-4">
           <Button
+            disabled
             type="submit"
             size="lg"
+            title="Penyimpanan profil belum tersedia"
             className="rounded-xl bg-primary px-8 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.2)]"
           >
-            <Save className="size-4 mr-2" /> Simpan Pengaturan
+            <Save className="size-4 mr-2" /> Penyimpanan Belum Tersedia
           </Button>
         </div>
       </form>
     </main>
   )
 }
-

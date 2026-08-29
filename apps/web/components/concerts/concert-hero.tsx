@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { CalendarDays, MapPin } from 'lucide-react'
 import { CountdownTimer } from '@/components/countdown-timer'
+import { designAssetByPath } from '@/lib/assets/design-assets'
 
 interface ConcertHeroProps {
   readonly title: string
@@ -13,9 +14,12 @@ interface ConcertHeroProps {
 }
 
 export function ConcertHero({ title, artist, category, imageUrl, date, venue, city }: ConcertHeroProps) {
+  const resolvedImageUrl = imageUrl || '/placeholder.svg'
+  const designAsset = designAssetByPath[resolvedImageUrl]
+
   return (
     <section className="relative min-h-[620px] overflow-hidden">
-      <Image src={imageUrl || '/placeholder.jpg'} alt={`Poster ${artist} — ${title}`} fill sizes="100vw" className="object-cover" priority />
+      <Image src={resolvedImageUrl} alt={`Poster ${artist} — ${title}`} fill sizes="100vw" className="object-cover" priority {...(designAsset ? { placeholder: 'blur' as const, blurDataURL: designAsset.blurDataUrl } : {})} />
       <div className="absolute inset-0 bg-linear-to-t from-background via-background/70 to-black/25" />
       <div className="absolute inset-0 grid-pattern opacity-20" />
       <div className="container-shell relative flex min-h-[620px] items-end py-12 sm:py-16">

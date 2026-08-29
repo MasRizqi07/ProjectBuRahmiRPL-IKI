@@ -1,6 +1,6 @@
 'use client'
 
-import { AlertTriangle, Clock3, Flame, RefreshCw, ShieldCheck, Users, Zap } from 'lucide-react'
+import { AlertTriangle, Clock3, Flame, Users } from 'lucide-react'
 import { RadialProgress } from '@/components/ui/radial-progress'
 
 interface QueueStatusView {

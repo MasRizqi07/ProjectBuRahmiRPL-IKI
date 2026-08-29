@@ -4,6 +4,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { AppProviders } from '@/components/app-providers'
 import { SiteFooter } from '@/components/layout/site-footer'
 import { SiteHeader } from '@/components/layout/site-header'
+import { getViewer } from '@/lib/auth/viewer'
 import './globals.css'
 
 const bebasNeue = Bebas_Neue({
@@ -47,11 +48,13 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const viewer = await getViewer()
+
   return (
     <html lang="id" className={`dark ${bebasNeue.variable} ${plusJakartaSans.variable} ${spaceMono.variable}`}>
       <body className="font-body antialiased">
@@ -60,7 +63,7 @@ export default function RootLayout({
             Lewati navigasi
           </a>
           <div className="flex min-h-screen flex-col">
-            <SiteHeader />
+            <SiteHeader viewer={viewer} />
             <div className="flex flex-1 flex-col">{children}</div>
             <SiteFooter />
           </div>

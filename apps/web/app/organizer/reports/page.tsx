@@ -1,34 +1,13 @@
 'use client'
 
-import { useState } from 'react'
 import {
-  ArrowDownToLine,
-  Calendar,
-  CheckCircle2,
-  CreditCard,
-  DollarSign,
   FileSpreadsheet,
   FileText,
-  Filter,
-  PieChart,
-  TrendingUp,
-  Users,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 export default function OrganizerReportsPage() {
-  const [downloading, setDownloading] = useState(false)
-  const [downloadSuccess, setDownloadSuccess] = useState(false)
-
-  const handleExport = (type: 'csv' | 'pdf') => {
-    setDownloading(true)
-    setTimeout(() => {
-      setDownloading(false)
-      setDownloadSuccess(true)
-      setTimeout(() => setDownloadSuccess(false), 3000)
-    }, 1200)
-  }
-
   return (
     <div className="space-y-8 max-w-7xl">
       {/* Header */}
@@ -45,14 +24,16 @@ export default function OrganizerReportsPage() {
 
         <div className="flex items-center gap-2">
           <Button
-            onClick={() => handleExport('csv')}
+            disabled
+            title="Ekspor laporan belum tersedia"
             variant="outline"
             className="rounded-xl border-white/15 bg-white/5 font-bold text-xs hover:border-war-gold/40"
           >
             <FileSpreadsheet className="size-4 mr-1.5 text-status-success" /> Export CSV
           </Button>
           <Button
-            onClick={() => handleExport('pdf')}
+            disabled
+            title="Ekspor laporan belum tersedia"
             className="rounded-xl bg-primary font-bold text-xs text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_15px_rgba(240,180,41,0.2)]"
           >
             <FileText className="size-4 mr-1.5" /> Unduh Laporan PDF
@@ -60,12 +41,7 @@ export default function OrganizerReportsPage() {
         </div>
       </div>
 
-      {downloadSuccess && (
-        <div className="flex items-center gap-3 rounded-2xl border border-status-success/40 bg-status-success/10 p-4 text-status-success animate-fade-up">
-          <CheckCircle2 className="size-5" />
-          <span className="text-xs font-bold">Laporan audit keuangan berhasil di-generate dan diunduh!</span>
-        </div>
-      )}
+      <CapabilityNotice capability="organizerReportExport" />
 
       {/* Top Level Summary Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -149,4 +125,3 @@ export default function OrganizerReportsPage() {
     </div>
   )
 }
-

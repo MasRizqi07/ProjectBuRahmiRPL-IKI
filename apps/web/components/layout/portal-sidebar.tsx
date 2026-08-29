@@ -3,27 +3,18 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  Activity,
   ArrowLeft,
   BarChart3,
   CalendarPlus,
-  CreditCard,
   FileSpreadsheet,
   Gauge,
   History,
   LayoutDashboard,
-  LogOut,
-  QrCode,
-  Radio,
   Scan,
   ShieldAlert,
-  ShieldCheck,
-  Ticket,
   UserCheck,
-  Users,
   Wallet,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 export interface PortalSidebarProps {
@@ -141,4 +132,3 @@ export function PortalSidebar({ portalType }: PortalSidebarProps) {
     </aside>
   )
 }
-

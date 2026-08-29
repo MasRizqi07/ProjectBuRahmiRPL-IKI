@@ -52,7 +52,7 @@ export type Database = {
           full_name: string | null
           phone: string | null
           avatar_url: string | null
-          role: 'user' | 'admin'
+          role: 'buyer' | 'support' | 'platform_admin'
           created_at: string
           updated_at: string
         }
@@ -113,6 +113,27 @@ export type Database = {
     Views: Record<string, never>
     Functions: Record<string, never>
     Enums: Record<string, never>
+    CompositeTypes: Record<string, never>
+  }
+  ticketing: {
+    Tables: {
+      tenant_memberships: {
+        Row: {
+          tenant_id: string
+          user_id: string
+          role: 'OWNER' | 'ADMIN' | 'OPERATOR' | 'FINANCE' | 'VIEWER'
+          created_at: string
+        }
+        Insert: Omit<Database['ticketing']['Tables']['tenant_memberships']['Row'], 'created_at'>
+        Update: Pick<Database['ticketing']['Tables']['tenant_memberships']['Row'], 'role'>
+        Relationships: []
+      }
+    }
+    Views: Record<string, never>
+    Functions: Record<string, never>
+    Enums: {
+      membership_role: 'OWNER' | 'ADMIN' | 'OPERATOR' | 'FINANCE' | 'VIEWER'
+    }
     CompositeTypes: Record<string, never>
   }
 }

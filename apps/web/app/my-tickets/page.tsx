@@ -5,17 +5,11 @@ import Link from 'next/link'
 import {
   ArrowRight,
   Calendar,
-  CheckCircle2,
-  Clock,
   Download,
-  Filter,
   MapPin,
   QrCode,
   Search,
-  Share2,
-  Sparkles,
   Ticket,
-  XCircle,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { MetallicTicketCard, type TicketDetails } from '@/components/ui/metallic-ticket-card'
@@ -36,6 +30,14 @@ interface OrderItem {
   status: 'upcoming' | 'completed' | 'cancelled'
   ticketDetails: TicketDetails
 }
+
+type TicketTab = OrderItem['status']
+
+const ticketTabs: ReadonlyArray<{ key: TicketTab; label: string; count: number }> = [
+  { key: 'upcoming', label: 'Tiket Mendatang', count: 2 },
+  { key: 'completed', label: 'Selesai', count: 1 },
+  { key: 'cancelled', label: 'Dibatalkan', count: 0 },
+]
 
 const mockOrders: OrderItem[] = [
   {
@@ -137,7 +139,7 @@ const mockOrders: OrderItem[] = [
 ]
 
 export default function MyTicketsPage() {
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'completed' | 'cancelled'>('upcoming')
+  const [activeTab, setActiveTab] = useState<TicketTab>('upcoming')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedTicket, setSelectedTicket] = useState<TicketDetails | null>(null)
 
@@ -174,14 +176,10 @@ export default function MyTicketsPage() {
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Tabs */}
         <div className="flex rounded-2xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-xl">
-          {[
-            { key: 'upcoming', label: 'Tiket Mendatang', count: 2 },
-            { key: 'completed', label: 'Selesai', count: 1 },
-            { key: 'cancelled', label: 'Dibatalkan', count: 0 },
-          ].map((tab) => (
+          {ticketTabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
+              onClick={() => setActiveTab(tab.key)}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
                 activeTab === tab.key
                   ? 'bg-war-gold text-black shadow-[0_0_15px_rgba(240,180,41,0.3)]'

@@ -1,23 +1,14 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ArrowRight,
-  Check,
   CheckCircle2,
   Crown,
-  Flame,
-  Headphones,
-  Lock,
-  Radio,
-  ShieldCheck,
   Sparkles,
-  Star,
-  Ticket,
-  Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 
 const plans = [
   {
@@ -76,12 +67,12 @@ const plans = [
 ]
 
 export default function EliteMembershipPage() {
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null)
-
   return (
     <main className="container-shell py-8 sm:py-16 space-y-16">
       {/* Hero */}
-      <section className="text-center max-w-3xl mx-auto space-y-4">
+      <section className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl px-6 py-12 text-center space-y-4">
+        <DesignBackdrop group="war_ticket_elite_membership_program" index={0} priority imageClassName="opacity-40" overlayClassName="bg-black/75" />
+        <div className="relative z-10 space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-war-gold/40 bg-war-gold/10 px-4 py-1.5 text-xs font-bold text-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.25)]">
           <Crown className="size-4 text-war-gold" />
           <span>WAR TICKET ELITE MEMBERSHIP PROGRAM</span>
@@ -103,7 +94,10 @@ export default function EliteMembershipPage() {
             </Link>
           </Button>
         </div>
+        </div>
       </section>
+
+      <CapabilityNotice capability="eliteMembershipPurchase" />
 
       {/* Pricing Plans Grid */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
@@ -161,14 +155,15 @@ export default function EliteMembershipPage() {
 
             {/* Button */}
             <Button
-              onClick={() => setSelectedPlan(plan.id)}
+              disabled
+              title="Pembelian membership belum tersedia"
               className={`w-full rounded-xl py-6 font-bold text-xs uppercase tracking-wider transition ${
                 plan.highlighted
                   ? 'bg-war-gold text-black hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.3)]'
                   : 'border border-white/20 bg-white/5 text-foreground hover:bg-white/10 hover:border-war-gold/40'
               }`}
             >
-              {plan.cta}
+              {plan.cta} · Belum tersedia
             </Button>
           </div>
         ))}
@@ -222,4 +217,3 @@ export default function EliteMembershipPage() {
     </main>
   )
 }
-

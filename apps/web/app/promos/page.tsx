@@ -7,15 +7,11 @@ import {
   Check,
   Clock,
   Copy,
-  CreditCard,
   Flame,
-  Gift,
-  Percent,
-  Sparkles,
   Tag,
-  Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 
 interface PromoItem {
   id: string
@@ -27,6 +23,15 @@ interface PromoItem {
   category: 'bank' | 'flash' | 'early'
   color: string
 }
+
+type PromoFilter = 'all' | PromoItem['category']
+
+const promoFilters: ReadonlyArray<{ key: PromoFilter; label: string }> = [
+  { key: 'all', label: 'Semua Penawaran' },
+  { key: 'bank', label: 'Partner Bank (BCA, Mandiri)' },
+  { key: 'flash', label: 'Flash Deals 🔥' },
+  { key: 'early', label: 'Early Bird Presale' },
+]
 
 const promos: PromoItem[] = [
   {
@@ -73,12 +78,16 @@ const promos: PromoItem[] = [
 
 export default function PromosPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null)
-  const [categoryFilter, setCategoryFilter] = useState<'all' | 'bank' | 'flash' | 'early'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<PromoFilter>('all')
 
-  const copyCode = (code: string) => {
-    navigator.clipboard.writeText(code)
-    setCopiedCode(code)
-    setTimeout(() => setCopiedCode(null), 2500)
+  const copyCode = async (code: string) => {
+    try {
+      await navigator.clipboard.writeText(code)
+      setCopiedCode(code)
+      setTimeout(() => setCopiedCode(null), 2500)
+    } catch {
+      setCopiedCode(null)
+    }
   }
 
   const filtered = promos.filter((p) => (categoryFilter === 'all' ? true : p.category === categoryFilter))
@@ -98,6 +107,7 @@ export default function PromosPage() {
 
       {/* Featured Flash Sale Hero Banner */}
       <section className="relative overflow-hidden rounded-3xl border border-urgent-red/40 bg-linear-to-r from-[#200e0e] via-[#161514] to-[#0e0e0e] p-8 sm:p-12 shadow-[0_20px_50px_rgba(239,68,68,0.25)]">
+        <DesignBackdrop group="war_ticket_promos_exclusive_deals" index={0} imageClassName="opacity-35" overlayClassName="bg-linear-to-r from-black/95 via-black/85 to-black/55" />
         <div className="absolute -right-20 -top-20 size-80 rounded-full bg-urgent-red/15 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
@@ -122,7 +132,7 @@ export default function PromosPage() {
                 WARFLASH50
               </span>
               <button
-                onClick={() => copyCode('WARFLASH50')}
+                onClick={() => void copyCode('WARFLASH50')}
                 className="flex items-center gap-1 text-xs font-bold text-war-gold-bright hover:underline"
               >
                 {copiedCode === 'WARFLASH50' ? <Check className="size-4" /> : <Copy className="size-4" />}
@@ -141,15 +151,10 @@ export default function PromosPage() {
 
       {/* Category Tabs */}
       <div className="flex flex-wrap gap-2">
-        {[
-          { key: 'all', label: 'Semua Penawaran' },
-          { key: 'bank', label: 'Partner Bank (BCA, Mandiri)' },
-          { key: 'flash', label: 'Flash Deals 🔥' },
-          { key: 'early', label: 'Early Bird Presale' },
-        ].map((tab) => (
+        {promoFilters.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => setCategoryFilter(tab.key as any)}
+            onClick={() => setCategoryFilter(tab.key)}
             className={`rounded-full px-5 py-2.5 text-xs font-bold transition-all ${
               categoryFilter === tab.key
                 ? 'bg-war-gold text-black shadow-[0_0_15px_rgba(240,180,41,0.25)]'
@@ -198,7 +203,7 @@ export default function PromosPage() {
               </div>
 
               <button
-                onClick={() => copyCode(promo.code)}
+                onClick={() => void copyCode(promo.code)}
                 className="flex items-center gap-1.5 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-bold text-foreground hover:border-war-gold/40 hover:bg-white/10 transition"
               >
                 {copiedCode === promo.code ? (
@@ -218,4 +223,3 @@ export default function PromosPage() {
     </main>
   )
 }
-

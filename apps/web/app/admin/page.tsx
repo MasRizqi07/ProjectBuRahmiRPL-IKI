@@ -1,41 +1,22 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import {
-  Activity,
-  AlertTriangle,
-  ArrowUpRight,
   Check,
-  CheckCircle2,
-  Cpu,
-  DollarSign,
-  Globe,
-  HardDrive,
   History,
-  Radio,
-  Server,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
-  Ticket,
-  TrendingUp,
-  UserCheck,
-  Users,
   X,
-  Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 
 export default function PlatformAdminDashboardPage() {
-  const [approvals, setApprovals] = useState([
+  const approvals = [
     { id: 'EVT-091', title: 'Bruno Mars 24K Magic World Tour Jakarta', organizer: 'Live Nation Indonesia', date: '20 Okt 2026', venue: 'GBK Stadium', capacity: '75.000 Tiket', gmv: 'Rp 65.000.000.000' },
     { id: 'EVT-092', title: 'Dua Lipa Radical Optimism Tour', organizer: 'PK Entertainment', date: '05 Nov 2026', venue: 'Indonesia Arena', capacity: '16.000 Tiket', gmv: 'Rp 22.000.000.000' },
-  ])
-
-  const handleApprove = (id: string) => {
-    setApprovals(approvals.filter((a) => a.id !== id))
-  }
+  ]
 
   return (
     <div className="space-y-8 max-w-7xl">
@@ -70,9 +51,12 @@ export default function PlatformAdminDashboardPage() {
         </div>
       </div>
 
+      <CapabilityNotice capability="adminEventModeration" />
+
       {/* Global Ecosystem Metrics */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl">
+        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl">
+          <DesignBackdrop group="war_ticket_platform_admin_dashboard" index={0} variant="card" imageClassName="opacity-20" overlayClassName="bg-black/75" sizes="(max-width: 1024px) 100vw, 25vw" />
           <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Total GMV Ekosistem</span>
           <p className="mt-2 font-display text-3xl sm:text-4xl text-war-gold-bright">Rp 142.850.000.000</p>
           <p className="mt-1 text-xs text-status-success font-semibold">● 28 Event Aktif Terdaftar</p>
@@ -133,13 +117,15 @@ export default function PlatformAdminDashboardPage() {
 
                 <div className="flex items-center gap-2 w-full lg:w-auto shrink-0 justify-end border-t lg:border-t-0 border-white/8 pt-4 lg:pt-0">
                   <Button
-                    onClick={() => handleApprove(evt.id)}
+                    disabled
+                    title="Moderasi event belum tersedia"
                     className="flex-1 lg:flex-initial rounded-xl bg-status-success text-black font-bold hover:bg-emerald-400 text-xs"
                   >
                     <Check className="size-4 mr-1.5" /> Setujui & Rilis Event
                   </Button>
                   <Button
-                    onClick={() => handleApprove(evt.id)}
+                    disabled
+                    title="Moderasi event belum tersedia"
                     variant="outline"
                     className="rounded-xl border-urgent-red/40 text-urgent-red hover:bg-urgent-red/10 text-xs"
                   >
@@ -196,4 +182,3 @@ export default function PlatformAdminDashboardPage() {
     </div>
   )
 }
-

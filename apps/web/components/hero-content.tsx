@@ -6,14 +6,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   ArrowRight,
-  Flame,
-  MapPin,
-  Play,
   Search,
-  ShieldCheck,
   Sparkles,
-  Ticket,
-  TrendingUp,
   Zap,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'

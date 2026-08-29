@@ -1,24 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
 import {
-  Activity,
-  ArrowRight,
   CheckCircle2,
-  Clock,
-  Flame,
-  Globe,
   MessageSquare,
-  Radio,
   Send,
-  Sparkles,
-  Ticket,
-  TrendingUp,
   Users,
-  Zap,
 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 
 interface Victory {
   id: string
@@ -36,28 +24,20 @@ const mockVictories: Victory[] = [
   { id: 'v5', user: '@budi_sound', ticketInfo: '1x CAT 2 WING', event: 'Pamungkas Acoustic', timeAgo: '2 menit lalu' },
 ]
 
+const chatMessages = [
+  { user: 'BudiS', text: 'Server lancar banget gaes, 2 detik langsung masuk antrean!' },
+  { user: 'Siti_A', text: 'Coldplay CAT 1 sisa dikit, buruan masuk waiting room!' },
+  { user: 'Rian99', text: 'Gokil hold 15 menitnya beneran aman pas bayar QRIS.' },
+]
+
 export default function CommunityLiveStatusPage() {
-  const [chatMessage, setChatMessage] = useState('')
-  const [chatMessages, setChatMessages] = useState([
-    { user: 'BudiS', text: 'Server lancar banget gaes, 2 detik langsung masuk antrean!' },
-    { user: 'Siti_A', text: 'Coldplay CAT 1 sisa dikit, buruan masuk waiting room!' },
-    { user: 'Rian99', text: 'Gokil hold 15 menitnya beneran aman pas bayar QRIS.' },
-  ])
-
-  const handleSendChat = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!chatMessage.trim()) return
-    setChatMessages((prev) => [...prev, { user: 'Saya (Commander)', text: chatMessage }])
-    setChatMessage('')
-  }
-
   return (
     <main className="container-shell py-8 sm:py-12 space-y-10">
       {/* Header & Status Indicator */}
       <section className="text-center max-w-3xl mx-auto space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-status-success/30 bg-status-success/10 px-4 py-1.5 text-xs font-bold text-status-success">
           <span className="pulse-dot size-2 rounded-full bg-status-success" />
-          <span>SYSTEM HEALTH: 99.99% OPTIMAL • LATENSI 12ms</span>
+          <span>DESIGN PREVIEW • SAMPLE TELEMETRY</span>
         </div>
         <h1 className="font-display text-5xl sm:text-7xl tracking-wide text-foreground">
           THE FRONTLINE <span className="text-war-gold">LIVE</span>
@@ -66,6 +46,8 @@ export default function CommunityLiveStatusPage() {
           Intelijen dan telemetri langsung dari medan perang tiket konser. Pantau siapa yang berhasil mengamankan tiket secara real-time.
         </p>
       </section>
+
+      <CapabilityNotice capability="communityMessaging" />
 
       {/* Live Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -154,17 +136,18 @@ export default function CommunityLiveStatusPage() {
             </div>
           </div>
 
-          <form onSubmit={handleSendChat} className="mt-4 flex items-center gap-2 border-t border-white/10 pt-4">
+          <form onSubmit={(event) => event.preventDefault()} className="mt-4 flex items-center gap-2 border-t border-white/10 pt-4">
             <input
+              disabled
               type="text"
-              value={chatMessage}
-              onChange={(e) => setChatMessage(e.target.value)}
-              placeholder="Tulis pesan ke sesama fans..."
+              placeholder="Chat realtime belum tersedia"
               className="flex-1 rounded-xl border border-white/10 bg-black/50 px-3.5 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-war-gold"
             />
             <button
+              disabled
               type="submit"
-              className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground hover:bg-war-gold-bright transition"
+              title="Chat realtime belum tersedia"
+              className="flex size-9 cursor-not-allowed items-center justify-center rounded-xl bg-primary text-primary-foreground opacity-60"
             >
               <Send className="size-4" />
             </button>
@@ -174,4 +157,3 @@ export default function CommunityLiveStatusPage() {
     </main>
   )
 }
-

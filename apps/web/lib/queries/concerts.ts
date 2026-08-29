@@ -11,7 +11,7 @@ function getDemoConcerts(): ConcertWithTiers[] {
     venue: concert.venue,
     city: concert.city,
     date: concert.date,
-    image_url: '/placeholder.jpg',
+    image_url: concert.imageUrl ?? '/placeholder.svg',
     category: concert.category,
     status: concert.status,
     description: null,

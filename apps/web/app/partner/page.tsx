@@ -3,28 +3,17 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import {
-  ArrowRight,
-  Building,
-  CheckCircle2,
   Cpu,
-  Flame,
-  Globe,
-  Lock,
-  Mail,
-  Phone,
-  Radio,
   Send,
   ShieldCheck,
-  Sparkles,
-  User,
-  Users,
   Wallet,
   Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
+import { DesignBackdrop } from '@/components/ui/design-backdrop'
 
 export default function PartnerOnboardingPage() {
-  const [submitted, setSubmitted] = useState(false)
   const [formData, setFormData] = useState({
     companyName: '',
     picName: '',
@@ -34,15 +23,12 @@ export default function PartnerOnboardingPage() {
     eventGenre: 'Festival Musik Internasional',
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSubmitted(true)
-  }
-
   return (
     <main className="container-shell py-8 sm:py-16 space-y-16 max-w-6xl">
       {/* Hero Section */}
-      <section className="text-center max-w-3xl mx-auto space-y-4">
+      <section className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl px-6 py-12 text-center space-y-4">
+        <DesignBackdrop group="war_ticket_partner_onboarding" index={0} priority imageClassName="opacity-35" overlayClassName="bg-black/75" />
+        <div className="relative z-10 space-y-4">
         <div className="inline-flex items-center gap-2 rounded-full border border-war-gold/40 bg-war-gold/10 px-4 py-1.5 text-xs font-bold text-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.2)]">
           <Zap className="size-4 text-war-gold" />
           <span>PROMOTER & EVENT ORGANIZER PARTNER PROGRAM</span>
@@ -64,6 +50,7 @@ export default function PartnerOnboardingPage() {
           <Button asChild variant="outline" className="rounded-xl border-white/20 bg-white/5 font-bold">
             <Link href="/organizer">Masuk Command Center</Link>
           </Button>
+        </div>
         </div>
       </section>
 
@@ -120,19 +107,9 @@ export default function PartnerOnboardingPage() {
           </p>
         </div>
 
-        {submitted ? (
-          <div className="rounded-2xl border border-status-success/40 bg-status-success/10 p-8 text-center space-y-4">
-            <CheckCircle2 className="size-12 mx-auto text-status-success" />
-            <h3 className="font-display text-3xl text-foreground">Pendaftaran Berhasil Dikirim!</h3>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto">
-              Akun Promoter Hub Anda sedang disiapkan. Anda dapat langsung mencoba dashboard simulasi kami.
-            </p>
-            <Button asChild className="rounded-xl bg-primary px-8 py-5 font-bold text-primary-foreground">
-              <Link href="/organizer">Buka Promoter Command Center</Link>
-            </Button>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <CapabilityNotice capability="partnerApplication" />
+
+          <form onSubmit={(event) => event.preventDefault()} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nama Perusahaan / Promotor</label>
@@ -209,14 +186,12 @@ export default function PartnerOnboardingPage() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button type="submit" size="lg" className="rounded-xl bg-primary px-8 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.2)]">
-                <Send className="size-4 mr-2" /> Ajukan Kemitraan Promotor
+              <Button disabled type="submit" size="lg" title="Pengajuan partner belum tersedia" className="rounded-xl bg-primary px-8 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.2)]">
+                <Send className="size-4 mr-2" /> Pengajuan Belum Tersedia
               </Button>
             </div>
           </form>
-        )}
       </section>
     </main>
   )
 }
-

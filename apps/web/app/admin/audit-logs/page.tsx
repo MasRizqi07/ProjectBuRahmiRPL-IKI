@@ -2,22 +2,10 @@
 
 import { useState } from 'react'
 import {
-  Activity,
-  CheckCircle2,
-  Clock,
-  Code,
   Download,
-  FileSpreadsheet,
-  Filter,
-  History,
-  Lock,
   Search,
-  Server,
-  ShieldAlert,
-  Terminal,
-  User,
-  Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 interface LogEntry {
@@ -30,6 +18,10 @@ interface LogEntry {
   details: string
   level: 'CRITICAL' | 'WARN' | 'INFO'
 }
+
+type LogLevelFilter = 'ALL' | LogEntry['level']
+
+const logLevelFilters: readonly LogLevelFilter[] = ['ALL', 'CRITICAL', 'WARN', 'INFO']
 
 const auditLogs: LogEntry[] = [
   {
@@ -86,7 +78,7 @@ const auditLogs: LogEntry[] = [
 
 export default function SystemAuditLogsPage() {
   const [search, setSearch] = useState('')
-  const [selectedLevel, setSelectedLevel] = useState<'ALL' | 'CRITICAL' | 'WARN' | 'INFO'>('ALL')
+  const [selectedLevel, setSelectedLevel] = useState<LogLevelFilter>('ALL')
 
   const filtered = auditLogs.filter((l) => {
     if (selectedLevel !== 'ALL' && l.level !== selectedLevel) return false
@@ -115,10 +107,12 @@ export default function SystemAuditLogsPage() {
           </p>
         </div>
 
-        <Button variant="outline" className="rounded-xl border-white/15 bg-white/5 text-xs font-bold hover:border-war-gold/40">
+        <Button disabled title="Ekspor audit log belum tersedia" variant="outline" className="rounded-xl border-white/15 bg-white/5 text-xs font-bold hover:border-war-gold/40">
           <Download className="size-4 mr-1.5" /> Ekspor Log Terenkripsi
         </Button>
       </div>
+
+      <CapabilityNotice capability="adminAuditExport" />
 
       {/* Filter & Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
@@ -134,10 +128,10 @@ export default function SystemAuditLogsPage() {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {['ALL', 'CRITICAL', 'WARN', 'INFO'].map((lvl) => (
+          {logLevelFilters.map((lvl) => (
             <button
               key={lvl}
-              onClick={() => setSelectedLevel(lvl as any)}
+              onClick={() => setSelectedLevel(lvl)}
               className={`rounded-xl px-3.5 py-2 text-xs font-mono font-bold transition ${
                 selectedLevel === lvl
                   ? 'bg-war-gold text-black'
@@ -197,4 +191,3 @@ export default function SystemAuditLogsPage() {
     </div>
   )
 }
-

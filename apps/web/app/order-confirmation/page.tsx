@@ -2,14 +2,14 @@
 
 import { use, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { CheckCircle2, Clock3, Download, Home, QrCode, Share2, ShieldCheck, TicketCheck } from 'lucide-react'
+import { CheckCircle2, Clock3, Home, TicketCheck } from 'lucide-react'
 import { checkoutResponseSchema, type CheckoutResponse } from '@war-ticket/contracts'
 import { CheckoutProgress } from '@/components/checkout/checkout-progress'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { InlineAlert } from '@/components/feedback/inline-alert'
 import { LoadingState } from '@/components/feedback/loading-state'
 import { PageShell } from '@/components/layout/page-shell'
 import { Button } from '@/components/ui/button'
-import { MetallicTicketCard, type TicketDetails } from '@/components/ui/metallic-ticket-card'
 import { apiJson } from '@/lib/client/api'
 
 interface ConfirmationProps {
@@ -23,15 +23,7 @@ export default function OrderConfirmationPage({ searchParams }: ConfirmationProp
 
   useEffect(() => {
     if (!orderId) {
-      // Create a demo state if direct visit
-      setCheckout({
-        orderId: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-        orderStatus: 'PAID',
-        paymentStatus: 'SUCCEEDED',
-        paymentToken: null,
-        redirectUrl: null,
-        retryAfterMs: null,
-      })
+      setError('Order ID tidak ditemukan. Buka halaman ini dari alur checkout yang valid.')
       return
     }
     let cancelled = false
@@ -58,32 +50,13 @@ export default function OrderConfirmationPage({ searchParams }: ConfirmationProp
 
   const paid = checkout?.orderStatus === 'PAID'
 
-  const demoTicket: TicketDetails = {
-    orderId: checkout?.orderId ?? 'WT-2026-X8910',
-    ticketCode: `WT-QR-${(checkout?.orderId ?? '2026').slice(-4)}-9982`,
-    concertTitle: 'Coldplay Live in Jakarta 2026',
-    artist: 'Coldplay',
-    venue: 'Stadion Gelora Bung Karno',
-    city: 'Jakarta Pusat',
-    eventDate: '20 Mei 2026',
-    eventTime: '19:00',
-    gateOpen: '16:30',
-    tierName: 'VIP STANDING',
-    section: 'Zone VIP-A',
-    seatNumber: 'A-142',
-    holderName: 'Rizqi Pratama',
-    nik: '317101******0004',
-    price: 3500000,
-    status: 'valid',
-  }
-
   return (
     <PageShell
       eyebrow="KONFIRMASI PEMBAYARAN"
-      title={paid ? 'E-Ticket Resmi Anda Siap' : 'Memverifikasi Pembayaran'}
+      title={paid ? 'Pembayaran Berhasil Diverifikasi' : 'Memverifikasi Pembayaran'}
       description={
         paid
-          ? 'Pembayaran berhasil dikonfirmasi secara real-time. Tunjukkan E-Ticket di bawah ini saat masuk gerbang venue.'
+          ? 'Status pembayaran telah dikonfirmasi oleh server. Penerbitan e-ticket akan tersedia setelah integrasi ticket issuance selesai.'
           : 'Kami sedang mencocokkan status transaksi terbaru dari gateway pembayaran.'
       }
       className="max-w-4xl"
@@ -107,17 +80,14 @@ export default function OrderConfirmationPage({ searchParams }: ConfirmationProp
                   TRANSAKSI SELESAI & AMAN
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Order ID: <strong className="font-mono text-war-gold">{checkout.orderId}</strong> • Salinan tiket dikirim ke email
+                  Order ID: <strong className="font-mono text-war-gold">{checkout.orderId}</strong>
                 </p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-status-success font-semibold">
-              <ShieldCheck className="size-4" /> Blockchain Verified
-            </div>
+            <span className="hidden text-xs font-semibold text-status-success sm:block">Status server: PAID</span>
           </div>
 
-          {/* Interactive Metallic Hologram Ticket */}
-          <MetallicTicketCard ticket={demoTicket} />
+          <CapabilityNotice capability="ticketDocumentActions" />
 
           {/* Bottom Actions */}
           <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4 border-t border-white/10">

@@ -2,6 +2,7 @@ import { ZodError, type ZodType } from 'zod'
 import { DomainError } from '@war-ticket/domain'
 import { requestId as createRequestId } from '@war-ticket/observability'
 import { createClient } from '@/lib/supabase/server'
+export { requirePlatformRole, requireTenantRole } from '@/lib/auth/authorization'
 import { config, logger } from './runtime'
 
 export interface AuthenticatedUser {

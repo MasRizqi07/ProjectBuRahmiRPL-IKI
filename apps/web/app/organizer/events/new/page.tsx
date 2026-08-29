@@ -2,25 +2,15 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
   ArrowRight,
-  Calendar,
   Check,
-  CheckCircle2,
-  Clock,
-  Flame,
-  Image as ImageIcon,
-  MapPin,
   Plus,
-  Save,
-  ShieldCheck,
   Sparkles,
-  Ticket,
   Trash2,
-  Zap,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 interface TicketTierConfig {
@@ -31,9 +21,7 @@ interface TicketTierConfig {
 }
 
 export default function NewEventSetupPage() {
-  const router = useRouter()
   const [step, setStep] = useState(1)
-  const [success, setSuccess] = useState(false)
 
   const [eventData, setEventData] = useState({
     title: '',
@@ -65,14 +53,6 @@ export default function NewEventSetupPage() {
 
   const removeTier = (index: number) => {
     setTiers(tiers.filter((_, i) => i !== index))
-  }
-
-  const handlePublish = (e: React.FormEvent) => {
-    e.preventDefault()
-    setSuccess(true)
-    setTimeout(() => {
-      router.push('/organizer')
-    }, 2500)
   }
 
   return (
@@ -112,14 +92,6 @@ export default function NewEventSetupPage() {
           ))}
         </div>
       </div>
-
-      {success && (
-        <div className="rounded-2xl border border-status-success/40 bg-status-success/10 p-6 text-center space-y-2 animate-fade-up">
-          <CheckCircle2 className="size-8 mx-auto text-status-success" />
-          <h3 className="font-display text-2xl text-foreground">Event Berhasil Dipublikasikan!</h3>
-          <p className="text-xs text-muted-foreground">Mengalihkan ke Command Center Promotor...</p>
-        </div>
-      )}
 
       {/* Step 1: Info Dasar & Venue */}
       {step === 1 && (
@@ -321,6 +293,8 @@ export default function NewEventSetupPage() {
         <section className="rounded-3xl border border-white/10 bg-[#141413] p-8 space-y-6">
           <h2 className="font-display text-2xl text-foreground">3. Aturan Queue War & Proteksi Anti-Bot</h2>
 
+          <CapabilityNotice capability="organizerEventPublishing" />
+
           <div className="space-y-4">
             <div className="rounded-2xl border border-white/8 bg-black/40 p-5 space-y-4">
               <div className="flex items-center justify-between">
@@ -366,10 +340,11 @@ export default function NewEventSetupPage() {
             </Button>
             <Button
               type="button"
-              onClick={handlePublish}
+              disabled
+              title="Publikasi event belum tersedia"
               className="rounded-xl bg-primary px-8 py-6 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_25px_rgba(240,180,41,0.3)]"
             >
-              <Sparkles className="size-4 mr-2" /> Publikasikan Event & Buka War Room
+              <Sparkles className="size-4 mr-2" /> Publikasi Belum Tersedia
             </Button>
           </div>
         </section>

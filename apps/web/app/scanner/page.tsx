@@ -8,17 +8,9 @@ import {
   Camera,
   CheckCircle2,
   Flashlight,
-  QrCode,
-  RotateCcw,
-  Scan,
-  ShieldAlert,
-  ShieldCheck,
-  Sparkles,
-  Ticket,
-  Users,
-  Volume2,
   XCircle,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 type ScanResult = 'idle' | 'valid' | 'used' | 'invalid'
@@ -26,7 +18,7 @@ type ScanResult = 'idle' | 'valid' | 'used' | 'invalid'
 export default function GateScannerPage() {
   const [scanState, setScanState] = useState<ScanResult>('idle')
   const [scannedCount, setScannedCount] = useState(1240)
-  const [activeGate, setActiveGate] = useState('GATE 1A — VIP ENTRANCE')
+  const activeGate = 'GATE 1A — VIP ENTRANCE'
   const [flashlightOn, setFlashlightOn] = useState(false)
 
   const triggerScan = (result: ScanResult) => {
@@ -68,6 +60,8 @@ export default function GateScannerPage() {
           <Flashlight className="size-4" />
         </button>
       </div>
+
+      <CapabilityNotice capability="gateRedemption" className="mx-auto mt-4 w-full max-w-md" />
 
       {/* Main Viewport & Camera Canvas */}
       <div className="relative my-4 mx-auto w-full max-w-md aspect-square rounded-3xl border-2 border-white/20 bg-[#0e0e0d] flex items-center justify-center overflow-hidden shadow-2xl">
@@ -180,4 +174,3 @@ export default function GateScannerPage() {
     </main>
   )
 }
-

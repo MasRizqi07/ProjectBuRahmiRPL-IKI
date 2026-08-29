@@ -3,17 +3,10 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  AlertTriangle,
-  Check,
-  Flame,
-  Info,
-  Maximize2,
   Minus,
   Plus,
   RotateCcw,
   Sparkles,
-  Ticket,
-  Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'

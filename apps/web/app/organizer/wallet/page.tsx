@@ -1,20 +1,12 @@
 'use client'
 
-import { useState } from 'react'
 import {
   ArrowDownRight,
   ArrowUpRight,
-  Building,
-  CheckCircle2,
-  Clock,
-  DollarSign,
-  History,
   Lock,
-  Plus,
-  ShieldCheck,
-  Sparkles,
   Wallet,
 } from 'lucide-react'
+import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
 
 const settlements = [
@@ -24,17 +16,6 @@ const settlements = [
 ]
 
 export default function OrganizerWalletPage() {
-  const [withdrawModalOpen, setWithdrawModalOpen] = useState(false)
-  const [withdrawSuccess, setWithdrawSuccess] = useState(false)
-  const [withdrawAmount, setWithdrawAmount] = useState('2000000000')
-
-  const handleWithdraw = (e: React.FormEvent) => {
-    e.preventDefault()
-    setWithdrawModalOpen(false)
-    setWithdrawSuccess(true)
-    setTimeout(() => setWithdrawSuccess(false), 4000)
-  }
-
   const formatRupiah = (val: number) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
 
@@ -53,22 +34,15 @@ export default function OrganizerWalletPage() {
         </div>
 
         <Button
-          onClick={() => setWithdrawModalOpen(true)}
+          disabled
+          title="Pencairan dana belum tersedia"
           className="rounded-xl bg-primary px-6 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.25)]"
         >
           <ArrowUpRight className="size-4 mr-1.5" /> Tarik Dana Penjualan
         </Button>
       </div>
 
-      {withdrawSuccess && (
-        <div className="flex items-center gap-3 rounded-2xl border border-status-success/40 bg-status-success/10 p-5 text-status-success animate-fade-up">
-          <CheckCircle2 className="size-6 shrink-0" />
-          <div>
-            <h4 className="font-display text-xl">Permintaan Pencairan Sedang Diproses!</h4>
-            <p className="text-xs text-muted-foreground">Dana akan masuk ke rekening BCA Anda dalam waktu maksimal 1 jam kerja.</p>
-          </div>
-        </div>
-      )}
+      <CapabilityNotice capability="organizerPayout" />
 
       {/* Balance Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -175,52 +149,6 @@ export default function OrganizerWalletPage() {
         </div>
       </section>
 
-      {/* Withdraw Modal */}
-      {withdrawModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl animate-fade-up">
-          <div className="relative w-full max-w-md rounded-3xl border border-white/15 bg-[#141413] p-8 shadow-2xl space-y-6">
-            <button
-              onClick={() => setWithdrawModalOpen(false)}
-              className="absolute top-4 right-4 text-muted-foreground hover:text-foreground"
-            >
-              ✕
-            </button>
-
-            <div>
-              <span className="text-[10px] font-black uppercase text-war-gold">PENCAIRAN DANA PROMOTOR</span>
-              <h3 className="font-display text-3xl text-foreground mt-1">Tarik Saldo ke Rekening</h3>
-              <p className="text-xs text-muted-foreground">Saldo maksimal yang dapat ditarik: <strong>Rp 16.236.000.000</strong></p>
-            </div>
-
-            <form onSubmit={handleWithdraw} className="space-y-4">
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nominal Penarikan (Rp)</label>
-                <input
-                  type="number"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3 font-mono text-sm text-war-gold font-bold focus:outline-hidden focus:border-war-gold"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Pilih Rekening Tujuan</label>
-                <select className="mt-1 w-full rounded-xl border border-white/10 bg-black/50 px-4 py-3 text-xs text-foreground focus:outline-hidden focus:border-war-gold">
-                  <option>BCA - 0881928312 (PT Promotor Sukses Mandiri)</option>
-                  <option>Mandiri - 1370019283491 (PT Promotor Sukses Mandiri)</option>
-                </select>
-              </div>
-
-              <div className="pt-2">
-                <Button type="submit" className="w-full rounded-xl bg-primary py-6 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.25)]">
-                  Konfirmasi & Kirim OTP Pencairan
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
-
