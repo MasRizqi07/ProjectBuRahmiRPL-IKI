@@ -10,31 +10,32 @@ import {
 import { ConcertGrid } from '@/components/concert-grid'
 import { ConcertTicker } from '@/components/concert-ticker'
 import { HeroContent } from '@/components/hero-content'
+import { StatsBar } from '@/components/stats-bar'
 import { DesignBackdrop } from '@/components/ui/design-backdrop'
 import { getFeaturedConcerts } from '@/lib/queries/concerts'
 
 const statsData = [
-  { value: '47,821+', label: 'Tiket Terjual', sublabel: 'Dalam 30 Hari Terakhir' },
-  { value: '230+', label: 'Konser & Festival', sublabel: 'Terverifikasi Resmi' },
-  { value: '50.000', label: 'TPS Peak Capacity', sublabel: 'Anti Crash & Zero Lag' },
-  { value: '99.99%', label: 'Sistem Uptime', sublabel: 'Monitoring 24/7' },
+  { value: 'GA + Seat', label: 'Model Tiket', sublabel: 'General admission dan kursi bernomor' },
+  { value: 'FIFO', label: 'Antrean Adil', sublabel: 'Randomisasi pre-queue lalu first-in-first-out' },
+  { value: '15 Menit', label: 'Stock Hold', sublabel: 'Reservasi sementara selama checkout' },
+  { value: 'QR Dinamis', label: 'Validasi Tiket', sublabel: 'Token singkat dengan proteksi replay' },
 ]
 
 const features = [
   {
     icon: Gauge,
-    title: 'Adaptive High-Speed Queue',
-    description: 'Sistem antrean cerdas terdesentralisasi yang mengalokasikan slot secara instan dan adil tanpa crash.',
+    title: 'Antrean Per Sesi Penjualan',
+    description: 'Pre-queue diacak sekali, lalu peserta diproses FIFO dengan admission token yang dibatasi waktu.',
   },
   {
     icon: ShieldCheck,
-    title: 'Military Anti-Bot Shield',
-    description: 'Proteksi Cloudflare Turnstile & browser fingerprinting tingkat militer untuk membasmi bot dan calo.',
+    title: 'Kontrol Akses Berlapis',
+    description: 'Rate limit, idempotency key, otorisasi berbasis peran, dan audit trail melindungi operasi sensitif.',
   },
   {
     icon: LockKeyhole,
     title: 'Real-time Stock Hold',
-    description: 'Stok tiket di-hold 15:00 menit secara server-side begitu Anda memilih kursi, anti rebutan saat bayar.',
+    description: 'Stok tiket di-hold secara server-side selama 15 menit ketika reservasi berhasil dibuat.',
   },
 ]
 
@@ -42,7 +43,7 @@ export default async function Home() {
   const featuredConcerts = await getFeaturedConcerts()
 
   return (
-    <main id="main-content" className="flex-1 overflow-x-hidden">
+    <main id="main-content" tabIndex={-1} className="flex-1 overflow-x-hidden">
       {/* Hero Section with Glowing Atmosphere */}
       <section className="hero-bg relative grid min-h-[calc(100svh-var(--header-height))] place-items-center overflow-hidden px-4 py-20 sm:px-6">
         <DesignBackdrop group="war_ticket_landing_page" index={0} priority imageClassName="opacity-55" overlayClassName="bg-linear-to-b from-black/55 via-black/70 to-background" />
@@ -53,6 +54,9 @@ export default async function Home() {
 
       {/* Live Concerts Marquee Ticker */}
       {featuredConcerts.length > 0 && <ConcertTicker concerts={featuredConcerts} />}
+
+      {/* Real-time Platform Statistics */}
+      <StatsBar />
 
       {/* Key Stats Bar */}
       <section className="border-y border-white/8 bg-[#111110]/60 py-10 backdrop-blur-xl">
@@ -88,14 +92,14 @@ export default async function Home() {
               KONSER PILIHAN & WAR AKTIF
             </h2>
             <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-xl">
-              Pilih konser idamanmu, pantau indikator demand secara real-time, dan amankan kursi sebelum kuota sold out.
+              Pilih konser idamanmu, pantau indikator ketersediaan, dan amankan kursi sebelum kuota habis.
             </p>
           </div>
           <Link
             href="/concerts"
             className="flex items-center gap-2 rounded-xl border border-war-gold/30 bg-war-gold/10 px-5 py-2.5 text-xs font-bold text-war-gold-bright hover:bg-war-gold/20 transition"
           >
-            Lihat Semua 230+ Konser <ArrowRight className="size-4" />
+            Lihat Semua Konser <ArrowRight className="size-4" />
           </Link>
         </div>
 
@@ -112,7 +116,7 @@ export default async function Home() {
               Kenapa Memilih War Ticket?
             </h2>
             <p className="mt-3 text-xs sm:text-sm text-muted-foreground">
-              Didesain khusus untuk menangani jutaan fans yang mengakses website di detik yang sama.
+              Didesain untuk menjaga fairness antrean dan konsistensi stok saat trafik penjualan meningkat.
             </p>
           </div>
 
@@ -156,10 +160,10 @@ export default async function Home() {
                 </span>
               </div>
               <h3 className="mt-3 font-display text-3xl sm:text-5xl tracking-wide text-foreground">
-                Bebas Antrean War Tiket dengan Akses VIP Prioritas
+                Akses Presale Elite dengan Kuota Terpisah
               </h3>
               <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                Nikmati fitur Zero-Wait Queue Bypass, kuota presale eksklusif, private concierge 24/7, dan lounge pribadi saat konser berlangsung.
+                Dapatkan akses ke sesi presale berkuota terpisah, concierge khusus, dan Vanguard Lounge tanpa memotong antrean penjualan reguler.
               </p>
             </div>
 

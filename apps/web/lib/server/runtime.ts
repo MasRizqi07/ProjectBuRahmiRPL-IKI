@@ -2,17 +2,20 @@ import { parseWebConfig, type WebConfig } from '@war-ticket/config'
 import {
   CheckoutRepository,
   CatalogRepository,
+  BuyerRepository,
   createDatabaseClient,
   EdgeCheckoutRepository,
   EnvelopeCipher,
   InventoryRepository,
   PaymentRepository,
+  TenantMembershipRepository,
   type DatabaseClient,
 } from '@war-ticket/database'
 import { createLogger } from '@war-ticket/observability'
 import { createRedisClient, QueueService, type RedisClient } from '@war-ticket/redis'
 import { ServerlessCheckoutService } from '@/lib/serverless-ticketing/service'
 import { edgeRedis } from '@/lib/serverless-ticketing/redis'
+import { CanonicalCheckoutGateway, type CheckoutGateway } from '@/lib/checkout/gateway'
 
 interface RuntimeState {
   config?: WebConfig
@@ -73,6 +76,10 @@ export function catalogRepository(): CatalogRepository {
   return new CatalogRepository(database())
 }
 
+export function buyerRepository(): BuyerRepository {
+  return new BuyerRepository(database())
+}
+
 export function checkoutRepository(): CheckoutRepository {
   return new CheckoutRepository(database(), cipher())
 }
@@ -88,3 +95,18 @@ export function edgeCheckoutRepository(): EdgeCheckoutRepository {
 export function serverlessCheckoutService(): ServerlessCheckoutService {
   return new ServerlessCheckoutService(edgeRedis(), edgeCheckoutRepository())
 }
+
+export function checkoutGateway(): CheckoutGateway {
+  return new CanonicalCheckoutGateway(
+    catalogRepository(),
+    inventoryRepository(),
+    checkoutRepository(),
+    paymentRepository(),
+    queueService(),
+  )
+}
+
+export function tenantMembershipRepository(): TenantMembershipRepository {
+  return new TenantMembershipRepository(database())
+}
+

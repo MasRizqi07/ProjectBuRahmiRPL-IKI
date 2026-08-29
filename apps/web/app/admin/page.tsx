@@ -1,184 +1,256 @@
 'use client'
 
+import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
+  Activity,
   Check,
-  History,
+  Cpu,
+  FileClock,
+  Radio,
   ShieldAlert,
-  ShieldCheck,
+  Ticket,
+  Users,
   X,
 } from 'lucide-react'
-import { CapabilityNotice } from '@/components/feedback/capability-notice'
 import { Button } from '@/components/ui/button'
+import { InlineAlert } from '@/components/feedback/inline-alert'
+import { LoadingState } from '@/components/feedback/loading-state'
 import { DesignBackdrop } from '@/components/ui/design-backdrop'
+import { apiJson } from '@/lib/client/api'
+import { formatIDR } from '@/lib/utils/format'
 
-export default function PlatformAdminDashboardPage() {
-  const approvals = [
-    { id: 'EVT-091', title: 'Bruno Mars 24K Magic World Tour Jakarta', organizer: 'Live Nation Indonesia', date: '20 Okt 2026', venue: 'GBK Stadium', capacity: '75.000 Tiket', gmv: 'Rp 65.000.000.000' },
-    { id: 'EVT-092', title: 'Dua Lipa Radical Optimism Tour', organizer: 'PK Entertainment', date: '05 Nov 2026', venue: 'Indonesia Arena', capacity: '16.000 Tiket', gmv: 'Rp 22.000.000.000' },
-  ]
+interface Metrics {
+  readonly users: number
+  readonly events: number
+  readonly paid_orders: number
+  readonly gross_volume: number
+  readonly open_disputes: number
+}
+
+interface AdminEvent {
+  readonly id: string
+  readonly title: string
+  readonly starts_at: string
+  readonly approval_status: string
+}
+
+export default function AdminDashboardPage() {
+  const [metrics, setMetrics] = useState<Metrics | null>(null)
+  const [events, setEvents] = useState<readonly AdminEvent[] | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async (): Promise<void> => {
+    try {
+      const [nextMetrics, nextEvents] = await Promise.all([
+        apiJson('/api/admin/metrics'),
+        apiJson('/api/admin/events'),
+      ])
+      setMetrics(nextMetrics as Metrics)
+      setEvents((nextEvents as { events: AdminEvent[] }).events)
+      setError(null)
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Admin data gagal dimuat.')
+    }
+  }, [])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const transition = async (
+    eventId: string,
+    action: 'APPROVE' | 'REJECT' | 'PUBLISH' | 'CANCEL',
+  ): Promise<void> => {
+    try {
+      await apiJson('/api/admin/events', {
+        method: 'PATCH',
+        body: JSON.stringify({
+          eventId,
+          action,
+          ...(action === 'REJECT'
+            ? {
+                reason:
+                  window.prompt('Alasan penolakan') ?? 'Ditolak oleh admin',
+              }
+            : {}),
+        }),
+      })
+      await load()
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Transisi event gagal.')
+    }
+  }
 
   return (
-    <div className="space-y-8 max-w-7xl">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="section-label">GLOBAL ECOSYSTEM OVERSIGHT</span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-purple-500/30 bg-purple-500/10 px-2.5 py-0.5 text-[10px] font-bold text-purple-400">
-              <ShieldCheck className="size-3" /> SUPER ADMIN CLEARANCE
-            </span>
-          </div>
-          <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-foreground">
-            PLATFORM MASTER CONTROL
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Telemetri global, verifikasi persetujuan konser baru, pemantauan server cluster, dan keamanan transaksi.
+    <main id="main-content" className="container-shell space-y-8 py-8 sm:py-10">
+      <section className="relative overflow-hidden rounded-3xl border border-white/10 p-8 sm:p-10">
+        <DesignBackdrop
+          group="war_ticket_platform_admin_dashboard"
+          index={0}
+          imageClassName="opacity-25"
+          overlayClassName="bg-black/85"
+        />
+        <div className="relative z-10">
+          <span className="section-label">PLATFORM ADMIN</span>
+          <h1 className="mt-2 font-display text-4xl sm:text-5xl">PLATFORM GOVERNANCE</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Pusat kendali operasional, verifikasi promotor, audit kepatuhan, dan resolusi sengketa.
           </p>
         </div>
-
-        <div className="flex items-center gap-2">
-          <Button asChild variant="outline" className="rounded-xl border-white/15 bg-white/5 text-xs font-bold hover:border-war-gold/40">
-            <Link href="/admin/security">
-              <ShieldAlert className="size-4 mr-1.5 text-urgent-red" /> Security Defense
-            </Link>
-          </Button>
-          <Button asChild className="rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_15px_rgba(240,180,41,0.2)]">
-            <Link href="/admin/audit-logs">
-              <History className="size-4 mr-1.5" /> Audit Trail Logs
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <CapabilityNotice capability="adminEventModeration" />
-
-      {/* Global Ecosystem Metrics */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl">
-          <DesignBackdrop group="war_ticket_platform_admin_dashboard" index={0} variant="card" imageClassName="opacity-20" overlayClassName="bg-black/75" sizes="(max-width: 1024px) 100vw, 25vw" />
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Total GMV Ekosistem</span>
-          <p className="mt-2 font-display text-3xl sm:text-4xl text-war-gold-bright">Rp 142.850.000.000</p>
-          <p className="mt-1 text-xs text-status-success font-semibold">● 28 Event Aktif Terdaftar</p>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Concurrent Fans Online</span>
-          <p className="mt-2 font-display text-3xl sm:text-4xl text-foreground">245.890</p>
-          <p className="mt-1 text-xs text-cyan-400">Peak War Room Traffic</p>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Cluster Redis / DB Load</span>
-          <p className="mt-2 font-display text-3xl sm:text-4xl text-status-success">34.2% Load</p>
-          <p className="mt-1 text-xs text-muted-foreground">Kapasitas Maks: 50.000 TPS</p>
-        </div>
-
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 shadow-xl">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Anti-Bot Shield Status</span>
-          <p className="mt-2 font-display text-3xl sm:text-4xl text-foreground">DEFCON 4</p>
-          <p className="mt-1 text-xs text-status-success">Semua Filter Cloudflare Normal</p>
-        </div>
       </section>
 
-      {/* Pending Event Approvals Queue */}
-      <section className="rounded-3xl border border-white/10 bg-[#141413] p-6 sm:p-8 space-y-6 shadow-xl">
-        <div className="flex items-center justify-between border-b border-white/8 pb-4">
-          <div>
-            <h2 className="font-display text-3xl text-foreground">Antrean Persetujuan Event Promotor</h2>
-            <p className="text-xs text-muted-foreground">Verifikasi keaslian lisensi promotor sebelum tiket dibuka untuk publik.</p>
-          </div>
-          <span className="rounded-full bg-war-gold/10 border border-war-gold/30 px-3 py-1 text-xs font-bold text-war-gold">
-            {approvals.length} Menunggu Approval
-          </span>
-        </div>
+      {error && <InlineAlert variant="error">{error}</InlineAlert>}
 
-        {approvals.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-white/10 p-8 text-center text-muted-foreground text-xs">
-            Tidak ada event baru yang menunggu verifikasi.
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {approvals.map((evt) => (
-              <div
-                key={evt.id}
-                className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 rounded-2xl border border-white/8 bg-black/40 p-5 hover:border-war-gold/30 transition"
-              >
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-war-gold">{evt.id}</span>
-                    <span className="text-xs font-semibold text-muted-foreground">Promotor: {evt.organizer}</span>
-                  </div>
-                  <h3 className="font-display text-2xl text-foreground">{evt.title}</h3>
-                  <p className="text-xs text-muted-foreground">
-                    {evt.date} • {evt.venue} • Kapasitas: <strong className="text-foreground">{evt.capacity}</strong> • Proyeksi GMV: <strong className="text-war-gold-bright">{evt.gmv}</strong>
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2 w-full lg:w-auto shrink-0 justify-end border-t lg:border-t-0 border-white/8 pt-4 lg:pt-0">
-                  <Button
-                    disabled
-                    title="Moderasi event belum tersedia"
-                    className="flex-1 lg:flex-initial rounded-xl bg-status-success text-black font-bold hover:bg-emerald-400 text-xs"
-                  >
-                    <Check className="size-4 mr-1.5" /> Setujui & Rilis Event
-                  </Button>
-                  <Button
-                    disabled
-                    title="Moderasi event belum tersedia"
-                    variant="outline"
-                    className="rounded-xl border-urgent-red/40 text-urgent-red hover:bg-urgent-red/10 text-xs"
-                  >
-                    <X className="size-4 mr-1.5" /> Tolak
-                  </Button>
-                </div>
+      {!metrics || !events ? (
+        <LoadingState label="Memuat metrik platform global…" />
+      ) : (
+        <>
+          {/* Global Platform Telemetry */}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <div className="glass-panel rounded-2xl p-5">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wider">Total Event</span>
+                <Radio className="size-4 text-war-gold" />
               </div>
-            ))}
-          </div>
-        )}
-      </section>
+              <p className="mt-3 font-display text-3xl text-foreground">{metrics.events}</p>
+              <p className="mt-1 text-[11px] text-status-success">Event terdaftar di platform</p>
+            </div>
 
-      {/* Global Server Cluster Health Telemetry */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 space-y-3">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-bold uppercase">Node Cluster JKT-01</span>
-            <span className="text-status-success font-bold">● Healthy</span>
-          </div>
-          <p className="font-display text-2xl text-foreground">Stadion GBK Gateway</p>
-          <div className="space-y-1 text-[11px] text-muted-foreground">
-            <div className="flex justify-between"><span>CPU Core Load:</span> <span className="font-mono text-foreground">28%</span></div>
-            <div className="flex justify-between"><span>Memory Allocation:</span> <span className="font-mono text-foreground">16.4 GB / 64 GB</span></div>
-            <div className="flex justify-between"><span>Ping Latency:</span> <span className="font-mono text-status-success font-bold">8ms</span></div>
-          </div>
-        </div>
+            <div className="glass-panel rounded-2xl p-5">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wider">Tiket Terbayar</span>
+                <Ticket className="size-4 text-war-gold" />
+              </div>
+              <p className="mt-3 font-display text-3xl text-foreground">
+                {metrics.paid_orders.toLocaleString('id-ID')}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Transaksi tervalidasi</p>
+            </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 space-y-3">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-bold uppercase">Node Cluster SGP-02</span>
-            <span className="text-status-success font-bold">● Healthy</span>
-          </div>
-          <p className="font-display text-2xl text-foreground">Singapore Regional Edge</p>
-          <div className="space-y-1 text-[11px] text-muted-foreground">
-            <div className="flex justify-between"><span>CPU Core Load:</span> <span className="font-mono text-foreground">41%</span></div>
-            <div className="flex justify-between"><span>Memory Allocation:</span> <span className="font-mono text-foreground">24.1 GB / 64 GB</span></div>
-            <div className="flex justify-between"><span>Ping Latency:</span> <span className="font-mono text-status-success font-bold">14ms</span></div>
-          </div>
-        </div>
+            <div className="glass-panel rounded-2xl p-5">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wider">Gross Volume (GMV)</span>
+                <Activity className="size-4 text-status-success" />
+              </div>
+              <p className="mt-3 font-mono text-xl font-bold text-war-gold-bright sm:text-2xl">
+                {formatIDR(metrics.gross_volume)}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Volume transaksi total</p>
+            </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#141413] p-6 space-y-3">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span className="font-bold uppercase">Redis Lock Engine</span>
-            <span className="text-status-success font-bold">● Zero Collisions</span>
+            <div className="glass-panel rounded-2xl p-5">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wider">Pengguna Terdaftar</span>
+                <Users className="size-4 text-tertiary-container" />
+              </div>
+              <p className="mt-3 font-display text-3xl text-foreground">
+                {metrics.users.toLocaleString('id-ID')}
+              </p>
+              <p className="mt-1 text-[11px] text-muted-foreground">Akun aktif</p>
+            </div>
+
+            <div className="glass-panel rounded-2xl p-5">
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span className="text-[10px] font-bold uppercase tracking-wider">Infrastruktur Load</span>
+                <Cpu className="size-4 text-muted-foreground" />
+              </div>
+              <p className="mt-3 font-mono text-sm font-semibold text-muted-foreground">
+                Observability Pending
+              </p>
+              <p className="mt-1 text-[10px] text-muted-foreground">Integrasi pipeline sistem</p>
+            </div>
           </div>
-          <p className="font-display text-2xl text-foreground">Atomic Seat Locks</p>
-          <div className="space-y-1 text-[11px] text-muted-foreground">
-            <div className="flex justify-between"><span>Active Reservation Holds:</span> <span className="font-mono text-war-gold font-bold">1.482 Holds</span></div>
-            <div className="flex justify-between"><span>Eviction Rate:</span> <span className="font-mono text-foreground">0.00%</span></div>
-            <div className="flex justify-between"><span>Throughput:</span> <span className="font-mono text-foreground">48.9k ops/sec</span></div>
+
+          {/* Quick Actions & Navigation */}
+          <div className="flex flex-wrap gap-3">
+            <Button asChild variant="outline" className="rounded-xl border-white/10">
+              <Link href="/admin/disputes" className="flex items-center gap-2">
+                <ShieldAlert className="size-4 text-destructive" />
+                Sengketa & Refund ({metrics.open_disputes})
+              </Link>
+            </Button>
+            <Button asChild variant="outline" className="rounded-xl border-white/10">
+              <Link href="/admin/audit-logs" className="flex items-center gap-2">
+                <FileClock className="size-4 text-war-gold" />
+                Audit Trail Log
+              </Link>
+            </Button>
           </div>
-        </div>
-      </section>
-    </div>
+
+          {/* Event Approval Workflow */}
+          <section className="space-y-4">
+            <h2 className="font-display text-3xl">Persetujuan & Moderasi Event</h2>
+            {events.length === 0 ? (
+              <div className="glass-panel rounded-2xl p-8 text-center text-sm text-muted-foreground">
+                Tidak ada antrean event yang memerlukan peninjauan saat ini.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {events.map((event) => (
+                  <article
+                    key={event.id}
+                    className="glass-panel flex flex-col justify-between gap-4 rounded-2xl p-5 sm:flex-row sm:items-center"
+                  >
+                    <div>
+                      <span className="rounded-full border border-war-gold/30 bg-war-gold/10 px-2.5 py-0.5 text-[10px] font-black text-war-gold-bright uppercase">
+                        {event.approval_status}
+                      </span>
+                      <h3 className="mt-2 font-display text-2xl text-foreground">{event.title}</h3>
+                      <p className="text-xs text-muted-foreground">
+                        Jadwal: {new Date(event.starts_at).toLocaleString('id-ID')}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {event.approval_status === 'SUBMITTED' && (
+                        <>
+                          <Button
+                            onClick={() => void transition(event.id, 'APPROVE')}
+                            size="sm"
+                            className="gap-1.5 rounded-xl font-bold"
+                          >
+                            <Check className="size-4" />
+                            Setujui
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => void transition(event.id, 'REJECT')}
+                            className="gap-1.5 rounded-xl font-bold"
+                          >
+                            <X className="size-4" />
+                            Tolak
+                          </Button>
+                        </>
+                      )}
+                      {event.approval_status === 'APPROVED' && (
+                        <Button
+                          onClick={() => void transition(event.id, 'PUBLISH')}
+                          size="sm"
+                          className="rounded-xl font-bold"
+                        >
+                          Publikasikan
+                        </Button>
+                      )}
+                      {event.approval_status === 'PUBLISHED' && (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => void transition(event.id, 'CANCEL')}
+                          className="rounded-xl font-bold"
+                        >
+                          Batalkan Event
+                        </Button>
+                      )}
+                    </div>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        </>
+      )}
+    </main>
   )
 }

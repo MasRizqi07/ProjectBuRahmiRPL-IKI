@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowDown } from 'lucide-react'
 import { ConcertHero } from '@/components/concerts/concert-hero'
+import { SubscribeButton } from '@/components/concerts/subscribe-button'
 import { EventInfoCard } from '@/components/concerts/event-info-card'
 import { EmptyState } from '@/components/feedback/empty-state'
 import { TicketTierCard } from '@/components/ticket-tier-card'
@@ -39,6 +40,7 @@ export default async function ConcertDetailPage({ params }: Props) {
           <p className="section-label mb-4">Inventori aktual</p>
           <h2 className="font-display text-4xl tracking-wide sm:text-5xl">Pilih kategori tiket</h2>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Setiap pembelian akan melalui antrean dan reservasi server-side sebelum pembayaran.</p>
+          <div className="mt-5"><SubscribeButton eventId={concert.id} /></div>
           <div className="mt-8">{tiers.length ? <div className="grid gap-5 sm:grid-cols-2">{tiers.map((tier) => <TicketTierCard key={tier.id} tier={tier} concertId={concert.id} />)}</div> : <EmptyState title="Tiket belum tersedia" description="Organizer belum membuka inventori tiket untuk event ini." />}</div>
         </div>
         <EventInfoCard date={concert.date} venue={concert.venue} city={concert.city} sold={sold} capacity={capacity} description={concert.description} />

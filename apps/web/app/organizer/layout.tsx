@@ -1,15 +1,14 @@
-import { PortalSidebar } from '@/components/layout/portal-sidebar'
+import { redirect } from 'next/navigation'
+import { requireAnyTenantRole } from '@/lib/auth/authorization'
+import { isSupabaseConfigured } from '@/lib/supabase/config'
 
-export default function OrganizerLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <div className="flex min-h-[calc(100vh-var(--header-height))] bg-[#090909]">
-      <PortalSidebar portalType="organizer" />
-      <div className="flex-1 overflow-x-hidden p-4 sm:p-8 md:p-10">{children}</div>
-    </div>
-  )
+export default async function OrganizerLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  if (isSupabaseConfigured()) {
+    try {
+      await requireAnyTenantRole()
+    } catch {
+      redirect('/forbidden')
+    }
+  }
+  return children
 }
-

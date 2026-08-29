@@ -10,11 +10,9 @@ import { PageShell } from '@/components/layout/page-shell'
 import { QueueStatusCard } from '@/components/queue/queue-status-card'
 import { Button } from '@/components/ui/button'
 import { ApiClientError, apiJson } from '@/lib/client/api'
-import { queueResponseSchema } from '@/lib/serverless-ticketing/contracts'
 
 interface WaitingRoomProps {
   readonly searchParams: Promise<{
-    salesSessionId?: string
     eventId?: string
     tierId?: string
     title?: string
@@ -23,6 +21,7 @@ interface WaitingRoomProps {
 
 interface QueueView {
   readonly entryId: string
+  readonly salesSessionId: string
   readonly state: string
   readonly position: number | null
   readonly estimatedWaitSeconds: number | null
@@ -36,11 +35,10 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
   const [queue, setQueue] = useState<QueueView | null>(null)
   const [error, setError] = useState<string | null>(null)
   const eventId = params.eventId
-  const salesSessionId = params.salesSessionId
 
   useEffect(() => {
-    if (!eventId && !salesSessionId) {
-      setError('Event atau sales session tidak ditemukan.')
+    if (!eventId) {
+      setError('Event tidak ditemukan.')
       return
     }
     let cancelled = false
@@ -49,9 +47,7 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
     const handleError = (cause: unknown): boolean => {
       if (cancelled) return false
       if (cause instanceof ApiClientError && cause.status === 401) {
-        const callback = eventId
-          ? `/waiting-room?eventId=${eventId}${params.tierId ? `&tierId=${params.tierId}` : ''}`
-          : `/waiting-room?salesSessionId=${salesSessionId}`
+        const callback = `/waiting-room?eventId=${eventId}${params.tierId ? `&tierId=${params.tierId}` : ''}`
         router.replace(`/login?callbackUrl=${encodeURIComponent(callback)}`)
         return false
       }
@@ -60,21 +56,12 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
     }
 
     const parseQueue = (body: unknown, initial: boolean): QueueView => {
-      if (eventId) {
-        const result = queueResponseSchema.parse(body)
-        return {
-          entryId: eventId,
-          state: result.state,
-          position: result.position,
-          estimatedWaitSeconds: null,
-          pollAfterMs: result.pollAfterMs,
-        }
-      }
       const result = initial
         ? queueJoinResponseSchema.parse(body)
         : queueStatusResponseSchema.parse(body)
       return {
         entryId: result.entryId,
+        salesSessionId: result.salesSessionId,
         state: result.state,
         position: result.position,
         estimatedWaitSeconds: result.estimatedWaitSeconds,
@@ -85,25 +72,19 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
       }
     }
 
-    const route = eventId
-      ? `/api/events/${eventId}`
-      : `/api/v1/sales-sessions/${salesSessionId}/queue`
+    const route = `/api/events/${eventId}`
 
     const poll = async (): Promise<void> => {
       try {
-        const body = await apiJson(eventId ? `${route}/queue-status` : route)
+        const body = await apiJson(`${route}/queue-status`)
         const next = parseQueue(body, false)
         if (cancelled) return
         setQueue(next)
         setError(null)
         if (next.state === 'ADMITTED') {
-          if (eventId) {
-            router.replace(
-              `/checkout/edge?eventId=${eventId}${params.tierId ? `&tierId=${params.tierId}` : ''}`,
-            )
-          } else if (next.admissionToken && salesSessionId) {
-            sessionStorage.setItem(`admission:${salesSessionId}`, next.admissionToken)
-            router.replace(`/checkout/select?salesSessionId=${salesSessionId}`)
+          if (next.admissionToken) {
+            sessionStorage.setItem(`admission:${next.salesSessionId}`, next.admissionToken)
+            router.replace(`/checkout/select?eventId=${eventId}&salesSessionId=${next.salesSessionId}`)
           }
           return
         }
@@ -115,7 +96,7 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
 
     const join = async (): Promise<void> => {
       try {
-        const body = await apiJson(eventId ? `${route}/join-queue` : route, { method: 'POST' })
+        const body = await apiJson(`${route}/join-queue`, { method: 'POST' })
         const joined = parseQueue(body, true)
         if (cancelled) return
         setQueue(joined)
@@ -130,7 +111,7 @@ export default function WaitingRoom({ searchParams }: WaitingRoomProps) {
       cancelled = true
       if (timer) clearTimeout(timer)
     }
-  }, [eventId, params.tierId, router, salesSessionId])
+  }, [eventId, params.tierId, router])
 
   return (
     <PageShell

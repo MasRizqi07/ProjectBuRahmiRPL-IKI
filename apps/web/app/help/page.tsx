@@ -175,11 +175,11 @@ export default function HelpCenterPage() {
             Masih Mengalami Kendala Tiket?
           </h3>
           <p className="text-xs text-muted-foreground mt-1">
-            Tim Response Team War Ticket standby 24/7 untuk membantu masalah transaksi dan sengketa order.
+            Kirim laporan transaksi atau sengketa order; setiap kasus dicatat dan dapat ditindaklanjuti oleh tim support.
           </p>
         </div>
         <Button asChild className="rounded-xl bg-primary px-7 py-5 font-bold text-primary-foreground hover:bg-war-gold-bright shrink-0 shadow-[0_0_20px_rgba(240,180,41,0.25)]">
-          <Link href="/admin/disputes">
+          <Link href="/support/new">
             <MessageCircle className="size-4 mr-2" /> Ajukan Laporan / Tiket Bantuan
           </Link>
         </Button>

@@ -1,8 +1,6 @@
-import { idempotencyKeySchema, uuidSchema } from '@war-ticket/contracts'
-import { DomainError } from '@war-ticket/domain'
+import { createReservationRequestSchema, uuidSchema } from '@war-ticket/contracts'
 import { apiError, assertSameOrigin, parseJson, requireUser } from '@/lib/server/api'
-import { serverlessCheckoutService } from '@/lib/server/runtime'
-import { reserveRequestSchema } from '@/lib/serverless-ticketing/contracts'
+import { checkoutGateway } from '@/lib/server/runtime'
 import { enforceRateLimit } from '@/lib/serverless-ticketing/rate-limit'
 
 export const runtime = 'nodejs'
@@ -17,20 +15,10 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     const user = await requireUser()
     const eventId = uuidSchema.parse((await context.params).eventId)
     await enforceRateLimit({ operation: 'reserve', eventId, userId: user.id, request })
-    const idempotencyHeader = request.headers.get('idempotency-key')
-    if (idempotencyHeader === null) {
-      throw new DomainError('VALIDATION_ERROR', 'Idempotency-Key header is required')
-    }
-    const idempotencyKey = idempotencyKeySchema.parse(idempotencyHeader)
-    const input = await parseJson(request, reserveRequestSchema)
-    const result = await serverlessCheckoutService().reserve({
-      eventId,
-      userId: user.id,
-      idempotencyKey,
-      request: input,
-    })
+    const input = await parseJson(request, createReservationRequestSchema)
+    const result = await checkoutGateway().reserve(eventId, user.id, input)
     return Response.json(result, {
-      status: result.status === 'HOLD_CREATED' ? 201 : 409,
+      status: 201,
       headers: { 'cache-control': 'no-store' },
     })
   } catch (error) {

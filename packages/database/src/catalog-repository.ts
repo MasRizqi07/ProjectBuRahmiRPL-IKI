@@ -116,6 +116,22 @@ export class CatalogRepository {
     return row
   }
 
+  async assertSalesSessionEligible(salesSessionId: string, userId: string): Promise<void> {
+    const rows = await this.sql<Array<{ required_tier: 'ELITE' | 'VANGUARD' | null; member_tier: 'ELITE' | 'VANGUARD' | null }>>`
+      select presale.required_tier, membership.tier as member_tier
+      from ticketing.sales_sessions session
+      left join ticketing.elite_presales presale on presale.sales_session_id = session.id
+      left join public.elite_memberships membership
+        on membership.user_id = ${userId} and membership.status = 'ACTIVE'
+       and membership.starts_at <= now() and membership.ends_at > now()
+      where session.id = ${salesSessionId}
+    `
+    const row = rows[0]
+    if (!row) throw new DomainError('NOT_FOUND', 'Sales session was not found')
+    if (row.required_tier && !row.member_tier) throw new DomainError('FORBIDDEN', 'An active Elite membership is required for this presale')
+    if (row.required_tier === 'VANGUARD' && row.member_tier !== 'VANGUARD') throw new DomainError('FORBIDDEN', 'Vanguard membership is required for this presale')
+  }
+
   async getReservation(
     reservationId: string,
     userId: string,

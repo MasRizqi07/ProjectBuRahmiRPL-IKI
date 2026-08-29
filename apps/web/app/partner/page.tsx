@@ -9,9 +9,10 @@ import {
   Wallet,
   Zap,
 } from 'lucide-react'
-import { CapabilityNotice } from '@/components/feedback/capability-notice'
+import { InlineAlert } from '@/components/feedback/inline-alert'
 import { Button } from '@/components/ui/button'
 import { DesignBackdrop } from '@/components/ui/design-backdrop'
+import { apiJson } from '@/lib/client/api'
 
 export default function PartnerOnboardingPage() {
   const [formData, setFormData] = useState({
@@ -22,6 +23,18 @@ export default function PartnerOnboardingPage() {
     estimatedAttendees: '10000',
     eventGenre: 'Festival Musik Internasional',
   })
+  const [submitting, setSubmitting] = useState(false)
+  const [result, setResult] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  const submit = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault(); setSubmitting(true); setError(null); setResult(null)
+    try {
+      const response = await apiJson('/api/partner/applications', { method: 'POST', body: JSON.stringify(formData) }) as { id: string }
+      setResult(response.id)
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Pengajuan gagal dikirim.') }
+    finally { setSubmitting(false) }
+  }
 
   return (
     <main className="container-shell py-8 sm:py-16 space-y-16 max-w-6xl">
@@ -40,7 +53,7 @@ export default function PartnerOnboardingPage() {
           </span>
         </h1>
         <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
-          Gelar penjualan tiket konser tanpa takut server crash di tengah traffic jutaan fans. Dilengkapi sistem antrean terdesentralisasi, perlindungan calo militer, dan settlement dana cepat.
+          Kelola penjualan tiket dengan antrean per sesi, stok transaksional, pembatasan akses berbasis peran, dan settlement yang dapat diaudit.
         </p>
 
         <div className="flex justify-center gap-4 pt-2">
@@ -61,10 +74,10 @@ export default function PartnerOnboardingPage() {
             <Cpu className="size-6" />
           </div>
           <h3 className="font-display text-2xl tracking-wide text-foreground">
-            Zero Server Crash (50.000 TPS)
+            Konsistensi Stok Transaksional
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Arsitektur serverless autoscaling yang mampu menahan lonjakan jutaan checkout per detik tanpa kehilangan sinkronisasi stok tiket.
+            PostgreSQL menjadi sumber kebenaran stok, sementara Redis mengatur antrean dan admission tanpa menggandakan inventori.
           </p>
         </div>
 
@@ -73,10 +86,10 @@ export default function PartnerOnboardingPage() {
             <ShieldCheck className="size-6" />
           </div>
           <h3 className="font-display text-2xl tracking-wide text-foreground">
-            Basmi Calo & Scalper Bot
+            Kontrol Operasi Sensitif
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Dilindungi Cloudflare Turnstile, validasi 1 NIK = 1 Transaksi, dan algoritma AI pendeteksi bot otomatis.
+            Rate limit, idempotency key, RBAC tenant, dan audit trail melindungi mutasi event, checkout, scanner, dan settlement.
           </p>
         </div>
 
@@ -85,10 +98,10 @@ export default function PartnerOnboardingPage() {
             <Wallet className="size-6" />
           </div>
           <h3 className="font-display text-2xl tracking-wide text-foreground">
-            Pencairan Dana Real-Time
+            Settlement Terverifikasi
           </h3>
           <p className="text-xs text-muted-foreground leading-relaxed">
-            Pantau arus kas pendapatan secara live dan tarik dana hasil penjualan tiket ke rekening perusahaan kapan saja dengan aman.
+            Pantau laporan penjualan dan ajukan payout hanya setelah akun merchant penyelenggara dikonfigurasi serta diverifikasi.
           </p>
         </div>
       </section>
@@ -107,9 +120,10 @@ export default function PartnerOnboardingPage() {
           </p>
         </div>
 
-        <CapabilityNotice capability="partnerApplication" />
+        {result && <InlineAlert variant="success">Pengajuan tersimpan dengan ID {result}. Tim verifikasi akan meninjaunya.</InlineAlert>}
+        {error && <InlineAlert variant="error">{error}</InlineAlert>}
 
-          <form onSubmit={(event) => event.preventDefault()} className="space-y-6">
+          <form onSubmit={(event) => void submit(event)} className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Nama Perusahaan / Promotor</label>
@@ -186,8 +200,8 @@ export default function PartnerOnboardingPage() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button disabled type="submit" size="lg" title="Pengajuan partner belum tersedia" className="rounded-xl bg-primary px-8 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.2)]">
-                <Send className="size-4 mr-2" /> Pengajuan Belum Tersedia
+              <Button disabled={submitting} type="submit" size="lg" className="rounded-xl bg-primary px-8 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_20px_rgba(240,180,41,0.2)]">
+                <Send className="size-4 mr-2" /> {submitting ? 'Mengirim…' : 'Kirim Pengajuan'}
               </Button>
             </div>
           </form>

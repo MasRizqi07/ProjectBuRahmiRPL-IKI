@@ -16,7 +16,12 @@ services:
       - ../supabase/migrations/002_ticketing_engine.sql:/docker-entrypoint-initdb.d/002_ticketing_engine.sql:ro
       - ../supabase/migrations/003_serverless_checkout.sql:/docker-entrypoint-initdb.d/003_serverless_checkout.sql:ro
       - ../supabase/migrations/004_legacy_order_hardening.sql:/docker-entrypoint-initdb.d/004_legacy_order_hardening.sql:ro
-      - ../supabase/seed.sql:/docker-entrypoint-initdb.d/005_seed.sql:ro
+      - ../supabase/migrations/005_auth_rbac_hardening.sql:/docker-entrypoint-initdb.d/005_auth_rbac_hardening.sql:ro
+      - ../supabase/migrations/006_buyer_experience.sql:/docker-entrypoint-initdb.d/006_buyer_experience.sql:ro
+      - ../supabase/migrations/007_organizer_operations.sql:/docker-entrypoint-initdb.d/007_organizer_operations.sql:ro
+      - ../supabase/migrations/008_admin_governance.sql:/docker-entrypoint-initdb.d/008_admin_governance.sql:ro
+      - ../supabase/migrations/009_engagement_elite.sql:/docker-entrypoint-initdb.d/009_engagement_elite.sql:ro
+      - ../supabase/seed.sql:/docker-entrypoint-initdb.d/010_seed.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d war_ticket"]
       interval: 2s

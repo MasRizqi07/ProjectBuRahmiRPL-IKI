@@ -55,6 +55,11 @@ export type Database = {
           role: 'buyer' | 'support' | 'platform_admin'
           created_at: string
           updated_at: string
+          email_notifications: boolean
+          whatsapp_notifications: boolean
+          marketing_consent_at: string | null
+          terms_version: string | null
+          terms_accepted_at: string | null
         }
         Insert: Omit<Database['public']['Tables']['profiles']['Row'], 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['profiles']['Insert']>

@@ -36,19 +36,6 @@ export async function proxy(request: NextRequest) {
       return Response.redirect(url)
     }
 
-    if (user) {
-      const platformRole = user.app_metadata.platform_role
-      const organizerTenants = user.app_metadata.organizer_tenants
-      const hasOrganizerAccess = platformRole === 'PLATFORM_ADMIN'
-        || (Array.isArray(organizerTenants) && organizerTenants.length > 0)
-
-      if (pathname.startsWith('/admin') && platformRole !== 'PLATFORM_ADMIN') {
-        return Response.redirect(new URL('/forbidden', request.url))
-      }
-      if ((pathname.startsWith('/organizer') || pathname.startsWith('/scanner')) && !hasOrganizerAccess) {
-        return Response.redirect(new URL('/forbidden', request.url))
-      }
-    }
   }
 
   return response

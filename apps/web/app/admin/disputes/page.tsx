@@ -1,193 +1,145 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import {
-  Check,
-  X,
-} from 'lucide-react'
-import { CapabilityNotice } from '@/components/feedback/capability-notice'
-import { Button } from '@/components/ui/button'
+import { useCallback, useEffect, useState } from "react";
+import { RotateCcw, ShieldAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { InlineAlert } from "@/components/feedback/inline-alert";
+import { LoadingState } from "@/components/feedback/loading-state";
+import { apiJson } from "@/lib/client/api";
+import { formatIDR } from "@/lib/utils/format";
 
 interface Dispute {
-  id: string
-  orderId: string
-  userName: string
-  userEmail: string
-  concert: string
-  amount: number
-  reason: string
-  date: string
-  status: 'pending' | 'resolved' | 'rejected'
+  readonly id: string;
+  readonly order_id: string;
+  readonly reason: string;
+  readonly status: string;
+  readonly resolution: string | null;
+  readonly created_at: string;
+  readonly full_name: string | null;
+  readonly total: number;
 }
-
-type DisputeFilter = 'all' | Dispute['status']
-
-const disputeFilters: ReadonlyArray<{ key: DisputeFilter; label: string }> = [
-  { key: 'all', label: 'Semua Laporan' },
-  { key: 'pending', label: 'Menunggu Review (Pending)' },
-  { key: 'resolved', label: 'Selesai (Refund Sukses)' },
-  { key: 'rejected', label: 'Ditolak' },
-]
-
-const initialDisputes: Dispute[] = [
-  {
-    id: 'DSP-8821',
-    orderId: 'WT-2026-X8910',
-    userName: 'Budi Santoso',
-    userEmail: 'budi.s@gmail.com',
-    concert: 'Coldplay Live Jakarta 2026',
-    amount: 3700000,
-    reason: 'Terjadi double debit pada virtual account BCA saat proses hold checkout.',
-    date: '28 Agu 2026, 14:20',
-    status: 'pending',
-  },
-  {
-    id: 'DSP-8819',
-    orderId: 'WT-2026-X7712',
-    userName: 'Anindya Putri',
-    userEmail: 'anindya@yahoo.com',
-    concert: 'BLACKPINK World Tour',
-    amount: 1850000,
-    reason: 'Pembayaran QRIS sukses tetapi status tiket di dashboard sempat pending lebih dari 15 menit.',
-    date: '27 Agu 2026, 19:10',
-    status: 'pending',
-  },
-  {
-    id: 'DSP-8802',
-    orderId: 'WT-2026-X6610',
-    userName: 'Dimas Wicaksono',
-    userEmail: 'dimas.w@gmail.com',
-    concert: 'Dewa 19 Reunion Tour',
-    amount: 750000,
-    reason: 'Permintaan refund karena jadwal konser diundur oleh pihak promotor.',
-    date: '25 Agu 2026, 11:00',
-    status: 'resolved',
-  },
-]
-
 export default function AdminDisputesPage() {
-  const disputes = initialDisputes
-  const [filter, setFilter] = useState<DisputeFilter>('all')
-
-  const formatRupiah = (val: number) =>
-    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
-
-  const filtered = disputes.filter((d) => (filter === 'all' ? true : d.status === filter))
-
+  const [items, setItems] = useState<readonly Dispute[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const load = useCallback(async (): Promise<void> => {
+    try {
+      setItems(
+        ((await apiJson("/api/admin/disputes")) as { disputes: Dispute[] })
+          .disputes,
+      );
+      setError(null);
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Disputes gagal dimuat.",
+      );
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+  const update = async (
+    disputeId: string,
+    status: "INVESTIGATING" | "REJECTED" | "RESOLVED",
+  ): Promise<void> => {
+    const resolution = window.prompt("Catatan resolusi");
+    if (!resolution) return;
+    try {
+      await apiJson("/api/admin/disputes", {
+        method: "PATCH",
+        body: JSON.stringify({ disputeId, status, resolution }),
+      });
+      await load();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Update gagal.");
+    }
+  };
+  const refund = async (item: Dispute): Promise<void> => {
+    const reason = window.prompt("Alasan refund provider");
+    if (!reason) return;
+    try {
+      await apiJson(`/api/admin/disputes/${item.id}/refund`, {
+        method: "POST",
+        headers: { "idempotency-key": crypto.randomUUID() },
+        body: JSON.stringify({ amount: Number(item.total), reason }),
+      });
+      await load();
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "Refund belum diterima provider.",
+      );
+    }
+  };
   return (
-    <div className="space-y-8 max-w-7xl">
-      {/* Header */}
-      <div className="border-b border-white/10 pb-6">
-        <span className="section-label">CUSTOMER SUPPORT & RESOLUTION</span>
-        <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-foreground">
-          SISTEM SENGKETA & KLAIM REFUND
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          Kelola laporan kendala pembayaran pengguna, klaim pembatalan event resmi, dan adjudikasi transaksi.
+    <main id="main-content" className="container-shell space-y-8 py-10">
+      <header>
+        <span className="section-label">SUPPORT OPERATIONS</span>
+        <h1 className="mt-2 font-display text-5xl">DISPUTES & REFUNDS</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Refund hanya mengubah status lokal setelah pembayaran settlement dan
+          respons Midtrans terverifikasi.
         </p>
-      </div>
-
-      <CapabilityNotice capability="adminDisputeResolution" />
-
-      {/* Filter Chips */}
-      <div className="flex flex-wrap gap-2">
-        {disputeFilters.map((tab) => (
-          <button
-            key={tab.key}
-            onClick={() => setFilter(tab.key)}
-            className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
-              filter === tab.key
-                ? 'bg-war-gold text-black shadow-[0_0_15px_rgba(240,180,41,0.25)]'
-                : 'border border-white/10 bg-white/4 text-muted-foreground hover:border-white/20 hover:text-foreground'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Disputes Cards List */}
-      <div className="space-y-4">
-        {filtered.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-white/10 p-12 text-center text-xs text-muted-foreground">
-            Tidak ada tiket sengketa dalam filter ini.
-          </div>
-        ) : (
-          filtered.map((item) => (
-            <div
-              key={item.id}
-              className={`rounded-3xl border p-6 transition-all space-y-4 ${
-                item.status === 'pending'
-                  ? 'border-war-gold/40 bg-[#161514] shadow-xl'
-                  : 'border-white/8 bg-[#141413]'
-              }`}
-            >
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/8 pb-4">
-                <div className="flex items-center gap-3">
-                  <span className="font-mono text-sm font-bold text-war-gold">{item.id}</span>
-                  <span className="rounded-md bg-white/10 px-2 py-0.5 font-mono text-[11px] text-muted-foreground">
-                    Order Ref: {item.orderId}
-                  </span>
+      </header>
+      {error && <InlineAlert variant="error">{error}</InlineAlert>}
+      {!items ? (
+        <LoadingState label="Memuat dispute queue…" />
+      ) : (
+        <div className="space-y-3">
+          {items.length === 0 ? (
+            <p className="rounded-2xl border border-dashed border-white/10 p-8">
+              Tidak ada dispute.
+            </p>
+          ) : (
+            items.map((item) => (
+              <article
+                key={item.id}
+                className="rounded-2xl border border-white/10 bg-[#141413] p-5"
+              >
+                <div className="flex flex-col justify-between gap-4 sm:flex-row">
+                  <div>
+                    <ShieldAlert className="text-war-gold" />
+                    <span className="mt-2 block text-[10px] font-black text-war-gold">
+                      {item.status}
+                    </span>
+                    <h2 className="font-display text-2xl">
+                      Order {item.order_id}
+                    </h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {item.reason}
+                    </p>
+                    <p className="mt-2 text-xs">
+                      {item.full_name ?? "Buyer"} ·{" "}
+                      {formatIDR(Number(item.total))}
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => void update(item.id, "INVESTIGATING")}
+                    >
+                      Investigate
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => void update(item.id, "REJECTED")}
+                    >
+                      Reject
+                    </Button>
+                    <Button
+                      onClick={() => void refund(item)}
+                      disabled={item.status === "RESOLVED"}
+                    >
+                      <RotateCcw />
+                      Full refund
+                    </Button>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`rounded-full px-3 py-1 text-[10px] font-black uppercase ${
-                      item.status === 'pending'
-                        ? 'bg-war-gold/20 text-war-gold border border-war-gold/40'
-                        : item.status === 'resolved'
-                        ? 'bg-status-success/20 text-status-success'
-                        : 'bg-urgent-red/20 text-urgent-red'
-                    }`}
-                  >
-                    {item.status === 'pending' ? 'MENUNGGU ADJUDIKASI' : item.status === 'resolved' ? 'REFUND DISETUJUI' : 'DITOLAK'}
-                  </span>
-                  <span className="text-[11px] font-mono text-muted-foreground">{item.date}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <span className="text-[10px] font-bold uppercase text-muted-foreground">Pelapor</span>
-                  <p className="text-xs font-bold text-foreground mt-0.5">{item.userName}</p>
-                  <p className="text-[11px] text-muted-foreground">{item.userEmail}</p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-bold uppercase text-muted-foreground">Event & Nominal Klaim</span>
-                  <p className="text-xs font-bold text-foreground mt-0.5">{item.concert}</p>
-                  <p className="text-xs font-mono font-bold text-war-gold-bright">{formatRupiah(item.amount)}</p>
-                </div>
-
-                <div>
-                  <span className="text-[10px] font-bold uppercase text-muted-foreground">Alasan Sengketa</span>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{item.reason}</p>
-                </div>
-              </div>
-
-              {item.status === 'pending' && (
-                <div className="flex items-center justify-end gap-2 border-t border-white/8 pt-4">
-                  <Button
-                    disabled
-                    title="Resolusi sengketa belum tersedia"
-                    variant="outline"
-                    className="rounded-xl border-white/15 text-xs text-muted-foreground hover:border-urgent-red/40 hover:text-urgent-red"
-                  >
-                    <X className="size-3.5 mr-1" /> Tolak Klaim
-                  </Button>
-                  <Button
-                    disabled
-                    title="Resolusi sengketa belum tersedia"
-                    className="rounded-xl bg-status-success font-bold text-xs text-black hover:bg-emerald-400"
-                  >
-                    <Check className="size-3.5 mr-1" /> Setujui Refund Dana
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  )
+              </article>
+            ))
+          )}
+        </div>
+      )}
+    </main>
+  );
 }

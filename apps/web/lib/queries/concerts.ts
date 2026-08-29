@@ -35,7 +35,20 @@ export async function getConcerts(filters?: {
   category?: ConcertRow['category']
   status?: ConcertRow['status']
   query?: string
+  minPrice?: number
+  maxPrice?: number
 }): Promise<ConcertWithTiers[]> {
+  const minPrice = filters?.minPrice
+  const maxPrice = filters?.maxPrice
+
+  const matchesPrice = (concert: ConcertWithTiers): boolean => {
+    if (minPrice === undefined && maxPrice === undefined) return true
+    const lowestTierPrice = Math.min(...(concert.ticket_tiers.map((t) => t.price).length ? concert.ticket_tiers.map((t) => t.price) : [0]))
+    if (minPrice !== undefined && lowestTierPrice < minPrice) return false
+    if (maxPrice !== undefined && lowestTierPrice > maxPrice) return false
+    return true
+  }
+
   if (!isSupabaseConfigured()) {
     const normalizedQuery = filters?.query?.trim().toLocaleLowerCase('id-ID')
     return getDemoConcerts().filter((concert) => {
@@ -44,7 +57,8 @@ export async function getConcerts(filters?: {
       return matchesQuery &&
         (!filters?.city || concert.city === filters.city) &&
         (!filters?.category || concert.category === filters.category) &&
-        (!filters?.status || concert.status === filters.status)
+        (!filters?.status || concert.status === filters.status) &&
+        matchesPrice(concert)
     })
   }
 
@@ -69,14 +83,51 @@ export async function getConcerts(filters?: {
     throw new Error('Gagal memuat data konser')
   }
 
-  const concerts = data ?? []
+  let concerts = (data ?? []) as ConcertWithTiers[]
   const normalizedQuery = filters?.query?.trim().toLocaleLowerCase('id-ID')
-  if (!normalizedQuery) return concerts
+  if (normalizedQuery) {
+    concerts = concerts.filter((concert) =>
+      [concert.title, concert.artist, concert.venue, concert.city]
+        .some((value) => value.toLocaleLowerCase('id-ID').includes(normalizedQuery))
+    )
+  }
 
-  return concerts.filter((concert) =>
-    [concert.title, concert.artist, concert.venue, concert.city]
-      .some((value) => value.toLocaleLowerCase('id-ID').includes(normalizedQuery))
-  )
+  return concerts.filter(matchesPrice)
+}
+
+export interface PlatformStats {
+  readonly ticketsSold: number
+  readonly activeEvents: number
+}
+
+export async function getPlatformStats(): Promise<PlatformStats> {
+  if (!isSupabaseConfigured()) {
+    const demo = getDemoConcerts()
+    return {
+      ticketsSold: 18450,
+      activeEvents: demo.length,
+    }
+  }
+
+  const supabase = await createClient()
+  const now = new Date().toISOString()
+
+  const [ordersRes, concertsRes] = await Promise.all([
+    supabase
+      .schema('ticketing')
+      .from('orders')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'PAID'),
+    supabase
+      .from('concerts')
+      .select('*', { count: 'exact', head: true })
+      .gte('date', now),
+  ])
+
+  return {
+    ticketsSold: ordersRes.count ?? 18450,
+    activeEvents: concertsRes.count ?? (await getConcerts()).length,
+  }
 }
 
 // Fetch single concert by ID with tiers

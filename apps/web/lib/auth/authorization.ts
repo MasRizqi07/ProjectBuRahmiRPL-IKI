@@ -1,20 +1,12 @@
 import type { User } from '@supabase/supabase-js'
 import { DomainError } from '@war-ticket/domain'
 import { createClient } from '@/lib/supabase/server'
+import { isSupabaseConfigured } from '@/lib/supabase/config'
+import { hasTenantPermission, isPlatformRole, platformRoles } from './roles'
+import type { PlatformRole, TenantPermission, TenantRole } from './roles'
 
-export const tenantRoles = ['OWNER', 'ADMIN', 'OPERATOR', 'FINANCE', 'VIEWER'] as const
-export type TenantRole = (typeof tenantRoles)[number]
-
-export const platformRoles = ['BUYER', 'SUPPORT', 'PLATFORM_ADMIN'] as const
-export type PlatformRole = (typeof platformRoles)[number]
-
-const tenantRoleRank: Readonly<Record<TenantRole, number>> = {
-  VIEWER: 0,
-  FINANCE: 1,
-  OPERATOR: 2,
-  ADMIN: 3,
-  OWNER: 4,
-}
+export { hasTenantPermission, platformRoles, tenantRoles } from './roles'
+export type { PlatformRole, TenantPermission, TenantRole } from './roles'
 
 export interface Viewer {
   readonly id: string
@@ -23,13 +15,9 @@ export interface Viewer {
   readonly platformRole: PlatformRole
 }
 
-function isPlatformRole(value: unknown): value is PlatformRole {
-  return typeof value === 'string' && platformRoles.includes(value as PlatformRole)
-}
-
 export function viewerFromUser(user: User): Viewer {
-  const role = user.app_metadata.platform_role
-  const name = user.user_metadata.full_name
+  const role: unknown = user.app_metadata.platform_role
+  const name: unknown = user.user_metadata.full_name
   return {
     id: user.id,
     email: user.email ?? null,
@@ -38,11 +26,10 @@ export function viewerFromUser(user: User): Viewer {
   }
 }
 
-export function hasMinimumTenantRole(actual: TenantRole, minimum: TenantRole): boolean {
-  return tenantRoleRank[actual] >= tenantRoleRank[minimum]
-}
-
 export async function requirePlatformRole(allowed: readonly PlatformRole[]): Promise<Viewer> {
+  if (!isSupabaseConfigured()) {
+    throw new DomainError('SERVICE_UNAVAILABLE', 'Authentication service is not configured')
+  }
   const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
   if (error || !user) throw new DomainError('UNAUTHORIZED', 'Authentication is required')
@@ -59,8 +46,9 @@ export async function requirePlatformRole(allowed: readonly PlatformRole[]): Pro
   return viewer
 }
 
-export async function requireTenantRole(tenantId: string, minimum: TenantRole): Promise<Viewer & { readonly tenantRole: TenantRole }> {
+export async function requireTenantPermission(tenantId: string, permission: TenantPermission): Promise<Viewer & { readonly tenantRole: TenantRole }> {
   const viewer = await requirePlatformRole(platformRoles)
+  if (viewer.platformRole === 'PLATFORM_ADMIN') return { ...viewer, tenantRole: 'OWNER' }
   const supabase = await createClient()
   const { data, error } = await supabase
     .schema('ticketing')
@@ -71,8 +59,26 @@ export async function requireTenantRole(tenantId: string, minimum: TenantRole): 
     .maybeSingle()
 
   if (error) throw new DomainError('INTERNAL_ERROR', 'Unable to verify organizer membership', { cause: error })
-  if (!data || !hasMinimumTenantRole(data.role, minimum)) {
+  if (!data || !hasTenantPermission(data.role, permission)) {
     throw new DomainError('FORBIDDEN', 'Insufficient organizer permissions')
   }
   return { ...viewer, tenantRole: data.role }
+}
+
+export async function requireAnyTenantRole(): Promise<Viewer & { readonly tenantId: string; readonly tenantRole: TenantRole }> {
+  const viewer = await requirePlatformRole(platformRoles)
+  if (viewer.platformRole === 'PLATFORM_ADMIN') {
+    return { ...viewer, tenantId: '*', tenantRole: 'OWNER' }
+  }
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .schema('ticketing')
+    .from('tenant_memberships')
+    .select('tenant_id, role')
+    .eq('user_id', viewer.id)
+    .limit(1)
+    .maybeSingle()
+  if (error) throw new DomainError('INTERNAL_ERROR', 'Unable to verify organizer membership', { cause: error })
+  if (!data) throw new DomainError('FORBIDDEN', 'Organizer membership is required')
+  return { ...viewer, tenantId: data.tenant_id, tenantRole: data.role }
 }

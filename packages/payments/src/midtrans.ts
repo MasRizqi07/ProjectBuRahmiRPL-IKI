@@ -18,6 +18,16 @@ const transactionStatusSchema = z.object({
   signature_key: z.string().optional(),
 })
 
+const refundResponseSchema = z.object({
+  status_code: z.string(),
+  status_message: z.string(),
+  transaction_id: z.string(),
+  order_id: z.string(),
+  transaction_status: z.enum(['refund', 'partial_refund']),
+  refund_key: z.string(),
+  refund_amount: z.string(),
+})
+
 export type MidtransTransactionStatus = z.infer<typeof transactionStatusSchema>
 
 export interface MidtransStatusClient {
@@ -196,6 +206,23 @@ export class MidtransClient {
         details: { status: response.status },
       })
     }
+  }
+
+  async refundPayment(input: { referenceId: string; refundKey: string; amount: number; reason: string }): Promise<z.infer<typeof refundResponseSchema>> {
+    let response: Response
+    try {
+      response = await fetch(`${apiBaseUrl(this.production)}/v2/${encodeURIComponent(input.referenceId)}/refund`, {
+        method: 'POST',
+        headers: { accept: 'application/json', authorization: authorization(this.serverKey), 'content-type': 'application/json' },
+        body: JSON.stringify({ refund_key: input.refundKey, amount: input.amount, reason: input.reason }),
+        signal: AbortSignal.timeout(8_000),
+      })
+    } catch (error) {
+      throw new DomainError('PAYMENT_PROVIDER_UNAVAILABLE', 'Midtrans refund request failed', { retryable: true, cause: error })
+    }
+    const body = await responseJson(response)
+    if (!response.ok) throw new DomainError('PAYMENT_PROVIDER_UNAVAILABLE', 'Midtrans rejected the refund', { retryable: response.status >= 500, details: { status: response.status } })
+    return refundResponseSchema.parse(body)
   }
 }
 

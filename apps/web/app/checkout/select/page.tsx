@@ -13,11 +13,11 @@ import { PageShell } from '@/components/layout/page-shell'
 import { ApiClientError, apiJson } from '@/lib/client/api'
 
 interface SelectionPageProps {
-  readonly searchParams: Promise<{ salesSessionId?: string }>
+  readonly searchParams: Promise<{ eventId?: string; salesSessionId?: string }>
 }
 
 export default function TicketSelectionPage({ searchParams }: SelectionPageProps) {
-  const { salesSessionId } = use(searchParams)
+  const { eventId, salesSessionId } = use(searchParams)
   const router = useRouter()
   const [inventory, setInventory] = useState<SalesInventoryResponse | null>(null)
   const [quantities, setQuantities] = useState<Record<string, number>>({})
@@ -26,13 +26,13 @@ export default function TicketSelectionPage({ searchParams }: SelectionPageProps
   const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
-    if (!salesSessionId) { setError('Sales session tidak ditemukan.'); return }
+    if (!eventId || !salesSessionId) { setError('Event atau sales session tidak ditemukan.'); return }
     let cancelled = false
-    void apiJson(`/api/v1/sales-sessions/${salesSessionId}/inventory`)
+    void apiJson(`/api/events/${eventId}/inventory`)
       .then((body) => { if (!cancelled) setInventory(salesInventoryResponseSchema.parse(body)) })
       .catch((cause: unknown) => { if (!cancelled) setError(cause instanceof Error ? cause.message : 'Inventori gagal dimuat.') })
     return () => { cancelled = true }
-  }, [salesSessionId])
+  }, [eventId, salesSessionId])
 
   const selectedCount = useMemo(() => Object.values(quantities).reduce((sum, quantity) => sum + quantity, 0) + selectedSeats.size, [quantities, selectedSeats])
   const subtotal = useMemo(() => {
@@ -58,9 +58,9 @@ export default function TicketSelectionPage({ searchParams }: SelectionPageProps
   }
 
   const reserve = async (): Promise<void> => {
-    if (!salesSessionId || !inventory || selectedCount === 0) return
+    if (!eventId || !salesSessionId || !inventory || selectedCount === 0) return
     const admissionToken = sessionStorage.getItem(`admission:${salesSessionId}`)
-    if (!admissionToken) { router.replace(`/waiting-room?salesSessionId=${salesSessionId}`); return }
+    if (!admissionToken) { router.replace(`/waiting-room?eventId=${eventId}`); return }
     const generalAdmissionItems = inventory.ticketTypes
       .filter((type) => type.mode === 'GENERAL_ADMISSION' && (quantities[type.id] ?? 0) > 0)
       .map((type) => ({ kind: 'GENERAL_ADMISSION' as const, ticketTypeId: type.id, quantity: quantities[type.id] ?? 0 }))
@@ -69,14 +69,14 @@ export default function TicketSelectionPage({ searchParams }: SelectionPageProps
     setSubmitting(true)
     setError(null)
     try {
-      const body = await apiJson('/api/v1/reservations', { method: 'POST', body: JSON.stringify({ salesSessionId, admissionToken, items: [...generalAdmissionItems, ...assignedSeatItems] }) })
+      const body = await apiJson(`/api/events/${eventId}/reserve`, { method: 'POST', body: JSON.stringify({ salesSessionId, admissionToken, items: [...generalAdmissionItems, ...assignedSeatItems] }) })
       const reservation = reservationResponseSchema.parse(body)
       sessionStorage.removeItem(`admission:${salesSessionId}`)
       router.push(`/payment?reservationId=${reservation.id}`)
     } catch (cause) {
       if (cause instanceof ApiClientError && cause.code === 'ADMISSION_EXPIRED') {
         sessionStorage.removeItem(`admission:${salesSessionId}`)
-        router.replace(`/waiting-room?salesSessionId=${salesSessionId}`)
+        router.replace(`/waiting-room?eventId=${eventId}`)
         return
       }
       setError(cause instanceof Error ? cause.message : 'Tiket gagal diamankan.')

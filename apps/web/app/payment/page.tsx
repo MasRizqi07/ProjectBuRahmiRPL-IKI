@@ -30,7 +30,7 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
   useEffect(() => {
     if (!reservationId) { setError('Reservation tidak ditemukan.'); return }
     let cancelled = false
-    void apiJson(`/api/v1/reservations/${reservationId}`)
+    void apiJson(`/api/reservations/${reservationId}`)
       .then((body) => {
         const parsed = reservationDetailResponseSchema.parse(body)
         if (!cancelled) { setReservation(parsed); setSeconds(remainingSeconds(parsed.expiresAt)) }
@@ -59,7 +59,7 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
     if (checkout.redirectUrl) { window.location.assign(checkout.redirectUrl); return }
     if (checkout.retryAfterMs === null) { handlePaymentError(new Error('Sesi pembayaran belum tersedia. Silakan coba kembali.')); return }
     paymentTimer.current = setTimeout(() => {
-      void apiJson(`/api/v1/orders/${checkout.orderId}/payment`)
+      void apiJson(`/api/orders/${checkout.orderId}`)
         .then((body) => continuePayment(checkoutResponseSchema.parse(body)))
         .catch(handlePaymentError)
     }, checkout.retryAfterMs)
@@ -78,7 +78,7 @@ export default function PaymentPage({ searchParams }: PaymentPageProps) {
     setSubmitting(true)
     setError(null)
     try {
-      const body = await apiJson('/api/v1/checkouts', { method: 'POST', headers: { 'idempotency-key': idempotencyKey }, body: JSON.stringify(validated.data) })
+      const body = await apiJson('/api/orders', { method: 'POST', headers: { 'idempotency-key': idempotencyKey }, body: JSON.stringify(validated.data) })
       continuePayment(checkoutResponseSchema.parse(body))
     } catch (cause) { handlePaymentError(cause) }
   }

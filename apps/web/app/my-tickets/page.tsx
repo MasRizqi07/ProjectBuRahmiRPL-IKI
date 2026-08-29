@@ -1,307 +1,338 @@
 'use client'
 
-import { useState } from 'react'
+import Image from 'next/image'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowRight,
   Calendar,
   Download,
-  MapPin,
   QrCode,
   Search,
+  Share2,
   Ticket,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { MetallicTicketCard, type TicketDetails } from '@/components/ui/metallic-ticket-card'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { InlineAlert } from '@/components/feedback/inline-alert'
+import { LoadingState } from '@/components/feedback/loading-state'
+import { apiJson } from '@/lib/client/api'
 import { formatIDR } from '@/lib/utils/format'
 
-interface OrderItem {
-  id: string
-  orderNumber: string
-  concertTitle: string
-  artist: string
-  date: string
-  time: string
-  venue: string
-  city: string
-  tierName: string
-  quantity: number
-  totalPrice: number
-  status: 'upcoming' | 'completed' | 'cancelled'
-  ticketDetails: TicketDetails
+interface BuyerTicket {
+  readonly id: string
+  readonly orderId: string
+  readonly ticketCode: string
+  readonly status: 'ACTIVE' | 'REDEEMED' | 'VOID' | 'REFUNDED'
+  readonly eventTitle: string
+  readonly startsAt: string
+  readonly label: string
+  readonly price: number
 }
 
-type TicketTab = OrderItem['status']
+interface QrView {
+  readonly imageDataUrl: string
+  readonly expiresAt: string
+}
+type TicketTab = 'upcoming' | 'completed' | 'cancelled'
 
-const ticketTabs: ReadonlyArray<{ key: TicketTab; label: string; count: number }> = [
-  { key: 'upcoming', label: 'Tiket Mendatang', count: 2 },
-  { key: 'completed', label: 'Selesai', count: 1 },
-  { key: 'cancelled', label: 'Dibatalkan', count: 0 },
-]
-
-const mockOrders: OrderItem[] = [
-  {
-    id: 'ord-1',
-    orderNumber: 'WT-2026-X8910',
-    concertTitle: 'Coldplay Live Jakarta 2026',
-    artist: 'Coldplay',
-    date: '20 Mei 2026',
-    time: '19:00 WIB',
-    venue: 'Stadion Utama Gelora Bung Karno',
-    city: 'Jakarta',
-    tierName: 'VIP STANDING',
-    quantity: 2,
-    totalPrice: 7000000,
-    status: 'upcoming',
-    ticketDetails: {
-      orderId: 'WT-2026-X8910',
-      ticketCode: 'WT-QR-8910-VIPA',
-      concertTitle: 'Coldplay Live Jakarta 2026',
-      artist: 'Coldplay',
-      venue: 'Stadion Utama Gelora Bung Karno',
-      city: 'Jakarta',
-      eventDate: '20 Mei 2026',
-      eventTime: '19:00',
-      gateOpen: '16:30',
-      tierName: 'VIP STANDING',
-      section: 'Zone VIP-A',
-      seatNumber: 'A-142',
-      holderName: 'Rizqi Pratama',
-      nik: '317101******0004',
-      price: 3500000,
-      status: 'valid',
-    },
-  },
-  {
-    id: 'ord-2',
-    orderNumber: 'WT-2026-B1029',
-    concertTitle: 'Dewa 19 All Stars Reunion',
-    artist: 'Dewa 19',
-    date: '03 Juni 2026',
-    time: '18:30 WIB',
-    venue: 'Allianz Stadium',
-    city: 'Jakarta',
-    tierName: 'CAT 1 CENTER',
-    quantity: 1,
-    totalPrice: 850000,
-    status: 'upcoming',
-    ticketDetails: {
-      orderId: 'WT-2026-B1029',
-      ticketCode: 'WT-QR-1029-CAT1',
-      concertTitle: 'Dewa 19 All Stars Reunion',
-      artist: 'Dewa 19',
-      venue: 'Allianz Stadium',
-      city: 'Jakarta',
-      eventDate: '03 Juni 2026',
-      eventTime: '18:30',
-      gateOpen: '16:00',
-      tierName: 'CAT 1 CENTER',
-      section: 'Tribun Timur',
-      seatNumber: 'Row C - 12',
-      holderName: 'Rizqi Pratama',
-      nik: '317101******0004',
-      price: 850000,
-      status: 'valid',
-    },
-  },
-  {
-    id: 'ord-3',
-    orderNumber: 'WT-2025-P9012',
-    concertTitle: 'Pamungkas Acoustic Night',
-    artist: 'Pamungkas',
-    date: '15 Desember 2025',
-    time: '20:00 WIB',
-    venue: 'Mainstage Festival',
-    city: 'Bandung',
-    tierName: 'FESTIVAL',
-    quantity: 2,
-    totalPrice: 500000,
-    status: 'completed',
-    ticketDetails: {
-      orderId: 'WT-2025-P9012',
-      ticketCode: 'WT-QR-9012-FEST',
-      concertTitle: 'Pamungkas Acoustic Night',
-      artist: 'Pamungkas',
-      venue: 'Mainstage Festival',
-      city: 'Bandung',
-      eventDate: '15 Desember 2025',
-      eventTime: '20:00',
-      gateOpen: '18:00',
-      tierName: 'FESTIVAL',
-      section: 'General Area',
-      seatNumber: 'Standing',
-      holderName: 'Rizqi Pratama',
-      nik: '317101******0004',
-      price: 250000,
-      status: 'used',
-    },
-  },
-]
+function ticketTab(ticket: BuyerTicket): TicketTab {
+  if (ticket.status === 'VOID' || ticket.status === 'REFUNDED') return 'cancelled'
+  return ticket.status === 'REDEEMED' || new Date(ticket.startsAt).getTime() < Date.now()
+    ? 'completed'
+    : 'upcoming'
+}
 
 export default function MyTicketsPage() {
+  const [tickets, setTickets] = useState<readonly BuyerTicket[] | null>(null)
   const [activeTab, setActiveTab] = useState<TicketTab>('upcoming')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTicket, setSelectedTicket] = useState<TicketDetails | null>(null)
+  const [search, setSearch] = useState('')
+  const [selected, setSelected] = useState<BuyerTicket | null>(null)
+  const [qr, setQr] = useState<QrView | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const filteredOrders = mockOrders.filter(
-    (order) =>
-      order.status === activeTab &&
-      (order.concertTitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        order.artist.toLowerCase().includes(searchQuery.toLowerCase()))
+  useEffect(() => {
+    let cancelled = false
+    void apiJson('/api/me/tickets')
+      .then((body) => {
+        if (!cancelled) setTickets((body as { tickets: BuyerTicket[] }).tickets)
+      })
+      .catch((cause: unknown) => {
+        if (!cancelled) {
+          setError(cause instanceof Error ? cause.message : 'Tiket gagal dimuat.')
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!selected || selected.status !== 'ACTIVE') {
+      setQr(null)
+      return
+    }
+    let cancelled = false
+    let timer: ReturnType<typeof setTimeout> | undefined
+    const refresh = async (): Promise<void> => {
+      try {
+        const next = (await apiJson(`/api/tickets/${selected.id}/qr`, {
+          method: 'POST',
+        })) as QrView
+        if (!cancelled) {
+          setQr(next)
+          setError(null)
+          timer = setTimeout(() => void refresh(), 30_000)
+        }
+      } catch (cause) {
+        if (!cancelled) {
+          setError(cause instanceof Error ? cause.message : 'QR dinamis belum tersedia.')
+        }
+      }
+    }
+    void refresh()
+    return () => {
+      cancelled = true
+      if (timer) clearTimeout(timer)
+    }
+  }, [selected])
+
+  const counts = useMemo(
+    () => ({
+      upcoming: tickets?.filter((ticket) => ticketTab(ticket) === 'upcoming').length ?? 0,
+      completed: tickets?.filter((ticket) => ticketTab(ticket) === 'completed').length ?? 0,
+      cancelled: tickets?.filter((ticket) => ticketTab(ticket) === 'cancelled').length ?? 0,
+    }),
+    [tickets],
   )
 
+  const getFilteredTickets = (tab: TicketTab) =>
+    (tickets ?? []).filter(
+      (ticket) =>
+        ticketTab(ticket) === tab &&
+        `${ticket.eventTitle} ${ticket.ticketCode} ${ticket.orderId}`
+          .toLowerCase()
+          .includes(search.toLowerCase()),
+    )
+
+  const share = async (ticket: BuyerTicket): Promise<void> => {
+    const url = `${window.location.origin}/my-tickets?ticket=${ticket.id}`
+    if (navigator.share) {
+      await navigator.share({
+        title: ticket.eventTitle,
+        text: `E-ticket ${ticket.ticketCode}`,
+        url,
+      })
+    } else {
+      await navigator.clipboard.writeText(url)
+    }
+  }
+
+  const emptyMessages = {
+    upcoming: {
+      title: 'Belum ada tiket mendatang',
+      description: 'Siap ikutan war tiket konser berikutnya? Cek panggung terbaru sekarang.',
+      cta: 'Cari Konser',
+      href: '/concerts',
+    },
+    completed: {
+      title: 'Belum ada riwayat konser',
+      description: 'Konser yang sudah kamu hadiri akan tercatat rapi di sini.',
+      cta: 'Temukan Event',
+      href: '/concerts',
+    },
+    cancelled: {
+      title: 'Tidak ada tiket dibatalkan',
+      description: 'Semua tiket yang dibatalkan atau direfund akan tampil di sini.',
+      cta: 'Pusat Bantuan',
+      href: '/help',
+    },
+  }
+
   return (
-    <main className="container-shell py-8 sm:py-12 space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+    <main id="main-content" className="container-shell space-y-8 py-8 sm:py-12">
+      <header className="flex flex-col justify-between gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end">
         <div>
           <span className="section-label">USER PORTAL</span>
-          <h1 className="mt-2 font-display text-4xl sm:text-5xl tracking-wide text-foreground">
-            TIKET & RIWAYAT PESANAN
-          </h1>
-          <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
-            Akses e-ticket digital kamu, cek instruksi gate, dan kelola invoice konser.
+          <h1 className="mt-2 font-display text-4xl sm:text-5xl">TIKET & RIWAYAT</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Data langsung dari order terverifikasi; QR masuk dinamis dengan validasi anti-replay.
           </p>
         </div>
-        <Link
-          href="/concerts"
-          className="rounded-xl border border-war-gold/30 bg-war-gold/10 px-5 py-2.5 text-xs font-bold text-war-gold-bright hover:bg-war-gold/20 transition"
-        >
-          Cari Konser Lainnya <ArrowRight className="inline size-4 ml-1" />
-        </Link>
-      </div>
+        <Button asChild variant="outline">
+          <Link href="/concerts">
+            Cari konser <ArrowRight className="size-4" />
+          </Link>
+        </Button>
+      </header>
 
-      {/* Tabs & Search Filter */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-        {/* Tabs */}
-        <div className="flex rounded-2xl border border-white/10 bg-black/40 p-1.5 backdrop-blur-xl">
-          {ticketTabs.map((tab) => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold transition-all ${
-                activeTab === tab.key
-                  ? 'bg-war-gold text-black shadow-[0_0_15px_rgba(240,180,41,0.3)]'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <span>{tab.label}</span>
-              <span
-                className={`rounded-full px-1.5 py-0.2 text-[10px] font-bold ${
-                  activeTab === tab.key ? 'bg-black text-war-gold' : 'bg-white/10 text-muted-foreground'
-                }`}
-              >
-                {tab.count}
-              </span>
-            </button>
-          ))}
-        </div>
+      {error && <InlineAlert variant="error">{error}</InlineAlert>}
 
-        {/* Search */}
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Cari nomor order atau event..."
-            className="w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-war-gold"
-          />
-        </div>
-      </div>
-
-      {/* Orders List */}
-      {filteredOrders.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/10 p-12 text-center">
-          <Ticket className="size-12 mx-auto text-muted-foreground/50 mb-3" />
-          <h3 className="font-display text-2xl text-foreground">Tidak Ada Pesanan</h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            Belum ada data tiket untuk kategori ini.
-          </p>
-        </div>
+      {!tickets ? (
+        <LoadingState label="Memuat tiket resmi…" />
       ) : (
-        <div className="space-y-4">
-          {filteredOrders.map((order) => (
-            <div
-              key={order.id}
-              className="rounded-2xl border border-white/10 bg-[#141413] p-6 hover:border-war-gold/30 transition-all flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 shadow-lg"
-            >
-              {/* Order Info */}
-              <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-mono text-xs font-bold text-war-gold">
-                    {order.orderNumber}
-                  </span>
-                  <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground">
-                    {order.tierName} • {order.quantity} Tiket
-                  </span>
-                  {order.status === 'upcoming' && (
-                    <span className="rounded-full border border-status-success/30 bg-status-success/10 px-2 py-0.5 text-[10px] font-bold text-status-success">
-                      AKTIF & TERVERIFIKASI
-                    </span>
-                  )}
-                </div>
+        <Tabs
+          value={activeTab}
+          onValueChange={(val) => setActiveTab(val as TicketTab)}
+          className="space-y-6"
+        >
+          <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+            <TabsList>
+              <TabsTrigger value="upcoming">
+                Tiket Mendatang ({counts.upcoming})
+              </TabsTrigger>
+              <TabsTrigger value="completed">
+                Riwayat Konser ({counts.completed})
+              </TabsTrigger>
+              <TabsTrigger value="cancelled">
+                Dibatalkan ({counts.cancelled})
+              </TabsTrigger>
+            </TabsList>
 
-                <h3 className="font-display text-2xl sm:text-3xl text-foreground">
-                  {order.concertTitle}
-                </h3>
+            <label className="relative">
+              <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder="Cari artis atau kode tiket…"
+                className="rounded-xl border border-white/10 bg-white/5 py-2 pl-9 pr-4 text-xs focus:border-war-gold/50 focus:outline-none"
+              />
+            </label>
+          </div>
 
-                <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5">
-                    <Calendar className="size-3.5 text-war-gold" /> {order.date} ({order.time})
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <MapPin className="size-3.5 text-war-gold" /> {order.venue}, {order.city}
-                  </span>
-                </div>
-              </div>
+          {(['upcoming', 'completed', 'cancelled'] as const).map((tab) => {
+            const list = getFilteredTickets(tab)
+            const empty = emptyMessages[tab]
 
-              {/* Price & Actions */}
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full lg:w-auto shrink-0 justify-between lg:justify-end border-t lg:border-t-0 border-white/8 pt-4 lg:pt-0">
-                <div className="text-left lg:text-right">
-                  <p className="text-[10px] uppercase font-bold text-muted-foreground">Total Bayar</p>
-                  <p className="font-display text-2xl font-bold text-war-gold-bright">
-                    {formatIDR(order.totalPrice)}
-                  </p>
-                </div>
+            return (
+              <TabsContent key={tab} value={tab} className="mt-4">
+                {list.length === 0 ? (
+                  <div className="glass-panel flex flex-col items-center justify-center rounded-3xl p-12 text-center">
+                    <div className="flex size-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5 text-war-gold">
+                      <Ticket className="size-7" />
+                    </div>
+                    <h3 className="mt-4 font-display text-2xl text-foreground">
+                      {empty.title}
+                    </h3>
+                    <p className="mt-1 max-w-sm text-xs text-muted-foreground">
+                      {empty.description}
+                    </p>
+                    <Button asChild variant="outline" size="sm" className="mt-5 rounded-xl">
+                      <Link href={empty.href}>{empty.cta}</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid gap-5 md:grid-cols-2">
+                    {list.map((ticket) => (
+                      <article
+                        key={ticket.id}
+                        className="interactive-lift glass-panel overflow-hidden rounded-2xl p-6"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-mono text-xs font-bold text-war-gold">
+                            {ticket.ticketCode}
+                          </span>
+                          <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold text-muted-foreground uppercase">
+                            {ticket.status}
+                          </span>
+                        </div>
 
-                <div className="flex items-center gap-2 w-full sm:w-auto">
-                  <Button
-                    onClick={() => setSelectedTicket(order.ticketDetails)}
-                    className="flex-1 sm:flex-initial rounded-xl bg-primary px-5 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_15px_rgba(240,180,41,0.2)]"
-                  >
-                    <QrCode className="size-4 mr-2" /> Buka E-Ticket
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="rounded-xl border-white/10 bg-white/5 hover:border-war-gold/40 hover:bg-white/10"
-                    title="Unduh Invoice"
-                  >
-                    <Download className="size-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                        <h2 className="mt-3 font-display text-2xl tracking-wide text-foreground">
+                          {ticket.eventTitle}
+                        </h2>
+
+                        <div className="mt-3 space-y-1.5 text-xs text-muted-foreground">
+                          <p className="flex items-center gap-2">
+                            <Calendar className="size-3.5 text-war-gold" />
+                            {new Date(ticket.startsAt).toLocaleString('id-ID', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                          <p className="font-medium text-foreground/80">{ticket.label}</p>
+                        </div>
+
+                        <div className="mt-4 flex items-end justify-between border-t border-white/8 pt-4">
+                          <div>
+                            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                              Harga Tiket
+                            </p>
+                            <p className="font-mono text-base font-bold text-war-gold">
+                              {formatIDR(ticket.price)}
+                            </p>
+                          </div>
+
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => setSelected(ticket)}
+                              disabled={ticket.status !== 'ACTIVE'}
+                              size="sm"
+                              className="h-9 gap-1.5 rounded-xl font-bold"
+                            >
+                              <QrCode className="size-4" />
+                              Buka QR
+                            </Button>
+                            <Button asChild variant="outline" size="sm" className="h-9 w-9 p-0 rounded-xl" title="Unduh Tiket">
+                              <a href={`/api/tickets/${ticket.id}/document`}>
+                                <Download className="size-4" />
+                              </a>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="h-9 w-9 p-0 rounded-xl"
+                              onClick={() => void share(ticket)}
+                              title="Bagikan"
+                            >
+                              <Share2 className="size-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+            )
+          })}
+        </Tabs>
       )}
 
-      {/* Ticket Modal Preview */}
-      {selectedTicket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-xl animate-fade-up">
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl border border-white/15 bg-[#121211] p-6 shadow-2xl">
+      {selected && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-xl">
+          <section className="w-full max-w-md rounded-3xl border border-war-gold/30 bg-[#121211] p-6 text-center shadow-2xl">
             <button
-              onClick={() => setSelectedTicket(null)}
-              className="absolute top-4 right-4 z-20 rounded-full bg-white/10 p-2 text-muted-foreground hover:text-foreground"
+              onClick={() => setSelected(null)}
+              className="float-right text-muted-foreground hover:text-foreground"
+              aria-label="Tutup"
             >
               ✕
             </button>
-            <h3 className="mb-4 font-display text-2xl text-foreground text-center">
-              E-TICKET RESMI
-            </h3>
-            <MetallicTicketCard ticket={selectedTicket} />
-          </div>
+            <h2 className="font-display text-3xl">QR MASUK DINAMIS</h2>
+            <p className="mt-1 font-mono text-xs text-war-gold">{selected.ticketCode}</p>
+            {qr ? (
+              <>
+                <Image
+                  src={qr.imageDataUrl}
+                  alt={`QR masuk ${selected.eventTitle}`}
+                  width={280}
+                  height={280}
+                  unoptimized
+                  className="mx-auto mt-5 rounded-2xl bg-white p-3 shadow-inner"
+                />
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Berlaku sampai {new Date(qr.expiresAt).toLocaleTimeString('id-ID')}
+                </p>
+              </>
+            ) : (
+              <div className="my-12">
+                <LoadingState label="Menerbitkan QR dinamis aman…" />
+              </div>
+            )}
+          </section>
         </div>
       )}
     </main>

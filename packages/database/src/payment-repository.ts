@@ -78,6 +78,14 @@ export interface PaymentManagementContext {
   readonly production: boolean
 }
 
+export interface RefundContext extends PaymentManagementContext {
+  readonly orderId: string
+  readonly paymentAttemptId: string
+  readonly providerTransactionId: string | null
+  readonly amount: number
+  readonly orderStatus: string
+}
+
 export class PaymentRepository {
   constructor(
     private readonly sql: DatabaseClient,
@@ -193,6 +201,45 @@ export class PaymentRepository {
     if (row === undefined) throw new DomainError('NOT_FOUND', 'Payment attempt was not found')
     return {
       providerOrderId: row.provider_order_id,
+      serverKey: this.cipher.decrypt(row.encrypted_server_key),
+      production: row.environment === 'PRODUCTION',
+    }
+  }
+
+  async getRefundContext(orderId: string): Promise<RefundContext> {
+    const rows = await this.sql<Array<{
+      order_id: string
+      payment_attempt_id: string
+      provider_order_id: string
+      provider_transaction_id: string | null
+      amount: number
+      order_status: string
+      environment: 'SANDBOX' | 'PRODUCTION'
+      encrypted_server_key: Uint8Array
+    }>>`
+      select orders.id as order_id, payment.id as payment_attempt_id,
+             payment.provider_order_id, payment.provider_transaction_id,
+             payment.amount, orders.status as order_status,
+             merchant.environment, merchant.encrypted_server_key
+      from ticketing.orders orders
+      join lateral (
+        select * from ticketing.payment_attempts
+        where tenant_id = orders.tenant_id and order_id = orders.id
+        order by created_at desc limit 1
+      ) payment on true
+      join ticketing.merchant_configs merchant
+        on merchant.tenant_id = payment.tenant_id and merchant.provider = payment.provider and merchant.enabled = true
+      where orders.id = ${orderId}
+    `
+    const row = rows[0]
+    if (!row) throw new DomainError('NOT_FOUND', 'Refundable payment was not found or merchant is disabled')
+    return {
+      orderId: row.order_id,
+      paymentAttemptId: row.payment_attempt_id,
+      providerOrderId: row.provider_order_id,
+      providerTransactionId: row.provider_transaction_id,
+      amount: row.amount,
+      orderStatus: row.order_status,
       serverKey: this.cipher.decrypt(row.encrypted_server_key),
       production: row.environment === 'PRODUCTION',
     }

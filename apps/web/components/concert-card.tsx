@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import { ArrowUpRight, CalendarDays, MapPin, Zap } from 'lucide-react'
 import { DemandMeter, type DemandLevel } from '@/components/ui/demand-meter'
 import { designAssetByPath } from '@/lib/assets/design-assets'
@@ -12,8 +11,8 @@ import { cn } from '@/lib/utils'
 
 const statusConfig = {
   available: { label: 'Tersedia', badgeBg: 'border-status-success/35 bg-status-success/12 text-emerald-300', demand: 'low' as DemandLevel },
-  limited: { label: 'WAR ACTIVE 🔥', badgeBg: 'border-orange-500/40 bg-orange-500/15 text-orange-400', demand: 'high' as DemandLevel },
-  soldout: { label: 'Habis Terjual', badgeBg: 'border-destructive/35 bg-destructive/12 text-red-300', demand: 'extreme' as DemandLevel },
+  limited: { label: 'WAR ACTIVE 🔥', badgeBg: 'border-orange-500/40 bg-orange-500/15 text-orange-400', demand: 'medium' as DemandLevel },
+  soldout: { label: 'Habis Terjual', badgeBg: 'border-destructive/35 bg-destructive/12 text-red-300', demand: 'high' as DemandLevel },
 } as const
 
 export function ConcertCard({ concert, index = 0 }: { readonly concert: Concert; readonly index?: number }) {
@@ -24,13 +23,7 @@ export function ConcertCard({ concert, index = 0 }: { readonly concert: Concert;
   const designAsset = designAssetByPath[imageUrl]
 
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.45, delay: Math.min(index * 0.06, 0.18) }}
-      className="interactive-lift group h-full overflow-hidden rounded-2xl border border-white/8 bg-[#141413]/90 hover:border-war-gold/50 transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.4)] hover:shadow-[0_15px_35px_rgba(240,180,41,0.15)] flex flex-col"
-    >
+    <article className="interactive-lift group flex h-full flex-col overflow-hidden rounded-2xl border border-white/8 bg-[#141413]/90 shadow-[0_10px_30px_rgba(0,0,0,0.4)] transition-all duration-300 hover:border-war-gold/50 hover:shadow-[0_15px_35px_rgba(240,180,41,0.15)]">
       <Link href={`/concerts/${concert.id}`} aria-label={`Lihat ${concert.title} oleh ${concert.artist}`} className="flex h-full flex-col">
         {/* Poster Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-black/40">
@@ -101,6 +94,6 @@ export function ConcertCard({ concert, index = 0 }: { readonly concert: Concert;
           </div>
         </div>
       </Link>
-    </motion.article>
+    </article>
   )
 }

@@ -33,13 +33,13 @@ const plans = [
     name: 'GOLD VANGUARD',
     price: 'Rp 249.000',
     period: '/bulan',
-    description: 'Pilihan terfavorit! Bypass antrean reguler dan amankan tiket konser incaranmu.',
+    description: 'Pilihan untuk akses sesi presale berkuota terpisah dan dukungan prioritas.',
     badge: 'PALING POPULER 🔥',
     color: '#F0B429',
     features: [
-      'Priority Queue Pass (Bypass 50% Antrean War)',
+      'Akses Sesi Presale Gold dengan Antrean FIFO',
       'Akses Tiket Presale Eksklusif Artis Global',
-      'Sinyal WhatsApp Bot Otomatis 1-Click Link',
+      'Notifikasi Presale melalui Kanal Terdaftar',
       'Cashback 10% War Loyalty Points',
       'Support Prioritas Penanganan Sengketa',
     ],
@@ -51,13 +51,13 @@ const plans = [
     name: 'PLATINUM OVERLORD',
     price: 'Rp 599.000',
     period: '/bulan',
-    description: 'Akses tanpa kompromi. Zero-wait checkout dan dedicated ticketing concierge 24/7.',
+    description: 'Akses presale Platinum, Vanguard Lounge, dan kanal concierge khusus.',
     badge: 'ULTIMATE VIP',
     color: '#ffd481',
     features: [
-      'Zero-Wait Instant Checkout (Bypass 100% Antrean)',
+      'Akses Sesi Presale Platinum dengan Kuota Khusus',
       'Akses Eksklusif ke Vanguard Lounge & Secret Drops',
-      'Dedicated 24/7 VIP Concierge Personal',
+      'Kanal VIP Concierge dengan Riwayat Kasus',
       'Reservasi Meja VIP & Akses Jalur Khusus Gate Venue',
       'Box Official Merchandise Eksklusif Gratis',
     ],
@@ -78,13 +78,13 @@ export default function EliteMembershipPage() {
           <span>WAR TICKET ELITE MEMBERSHIP PROGRAM</span>
         </div>
         <h1 className="font-display text-5xl sm:text-7xl tracking-wide text-foreground">
-          BYPASS ANTREAN WAR DENGAN <br />
+          AKSES PRESALE KHUSUS DENGAN <br />
           <span className="text-transparent bg-clip-text bg-linear-to-r from-war-gold via-war-gold-bright to-amber-100">
             AKSES VIP PRIORITAS
           </span>
         </h1>
         <p className="text-xs sm:text-base text-muted-foreground leading-relaxed">
-          Jangan biarkan kuota tiket konser impianmu habis karena antrean traffic. Bergabunglah dengan klub elit dan nikmati kecepatan akses prioritas tanpa batas.
+          Presale Elite berjalan pada sesi dan kuota terpisah. Setiap sesi tetap memakai randomisasi pre-queue lalu FIFO agar akses tidak merusak fairness penjualan reguler.
         </p>
 
         <div className="pt-2">
@@ -187,10 +187,10 @@ export default function EliteMembershipPage() {
             </thead>
             <tbody className="divide-y divide-white/5 text-foreground">
               <tr>
-                <td className="py-4">Kecepatan Antrean War</td>
+                <td className="py-4">Mekanisme Antrean</td>
                 <td className="py-4 text-center text-muted-foreground">Normal</td>
-                <td className="py-4 text-center text-war-gold font-bold">Priority (50% Lebih Cepat)</td>
-                <td className="py-4 text-center text-amber-300 font-bold">Zero-Wait (Instan)</td>
+                <td className="py-4 text-center text-war-gold font-bold">FIFO di Sesi Gold</td>
+                <td className="py-4 text-center text-amber-300 font-bold">FIFO di Sesi Platinum</td>
               </tr>
               <tr>
                 <td className="py-4">Akses Presale Artis Internasional</td>
@@ -199,10 +199,10 @@ export default function EliteMembershipPage() {
                 <td className="py-4 text-center text-status-success font-bold">Ya (Akses Pertama)</td>
               </tr>
               <tr>
-                <td className="py-4">Dedicated 24/7 Ticketing Concierge</td>
+                <td className="py-4">Ticketing Concierge</td>
                 <td className="py-4 text-center text-muted-foreground">Standar Support</td>
-                <td className="py-4 text-center text-muted-foreground">WhatsApp Bot</td>
-                <td className="py-4 text-center text-status-success font-bold">Personal Human Concierge</td>
+                <td className="py-4 text-center text-muted-foreground">Support Prioritas</td>
+                <td className="py-4 text-center text-status-success font-bold">Kanal Concierge Khusus</td>
               </tr>
               <tr>
                 <td className="py-4">Vanguard VIP Lounge Access</td>

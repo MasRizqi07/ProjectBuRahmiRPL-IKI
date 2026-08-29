@@ -1,170 +1,183 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import {
-  ArrowLeft,
-  Crown,
-  Headphones,
-  Send,
-} from 'lucide-react'
-import { CapabilityNotice } from '@/components/feedback/capability-notice'
-import { Button } from '@/components/ui/button'
-import { DesignBackdrop } from '@/components/ui/design-backdrop'
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { Crown, Send, Ticket } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { InlineAlert } from "@/components/feedback/inline-alert";
+import { LoadingState } from "@/components/feedback/loading-state";
+import { DesignBackdrop } from "@/components/ui/design-backdrop";
+import { apiJson } from "@/lib/client/api";
 
-const conciergeChat = [
-  { sender: 'concierge', text: 'Selamat datang di preview Vanguard Lounge. Layanan concierge realtime belum aktif.' },
-]
-
-export default function VanguardLoungePage() {
+interface Presale {
+  readonly event_id: string;
+  readonly title: string;
+  readonly starts_at: string;
+  readonly sales_open_at: string;
+  readonly required_tier: string;
+  readonly allocation: number;
+}
+interface ConciergeCase {
+  readonly id: string;
+  readonly subject: string;
+  readonly status: string;
+  readonly created_at: string;
+}
+interface EliteData {
+  readonly membership: { tier: string; endsAt: string } | null;
+  readonly presales: Presale[];
+}
+export default function EliteLoungePage() {
+  const [elite, setElite] = useState<EliteData | null>(null);
+  const [cases, setCases] = useState<readonly ConciergeCase[]>([]);
+  const [subject, setSubject] = useState("");
+  const [description, setDescription] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const load = useCallback(async (): Promise<void> => {
+    try {
+      const [presales, concierge] = await Promise.all([
+        apiJson("/api/elite/presales"),
+        apiJson("/api/elite/concierge"),
+      ]);
+      setElite(presales as EliteData);
+      setCases((concierge as { cases: ConciergeCase[] }).cases);
+      setError(null);
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Elite lounge gagal dimuat.",
+      );
+    }
+  }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+  const submit = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault();
+    try {
+      await apiJson("/api/elite/concierge", {
+        method: "POST",
+        body: JSON.stringify({ subject, description }),
+      });
+      setSubject("");
+      setDescription("");
+      await load();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "Concierge request gagal.",
+      );
+    }
+  };
   return (
-    <main className="container-shell py-8 sm:py-12 space-y-12 max-w-6xl">
-      {/* Lounge Header */}
-      <div className="relative overflow-hidden rounded-3xl border border-war-gold/40 bg-linear-to-r from-[#2a220d] via-[#161514] to-[#0a0a09] p-8 sm:p-12 shadow-[0_20px_60px_rgba(240,180,41,0.2)]">
-        <DesignBackdrop group="war_ticket_elite_vanguard_lounge" index={0} priority imageClassName="opacity-35" overlayClassName="bg-linear-to-r from-black/95 via-black/85 to-black/60" />
-        <div className="absolute -right-20 -top-20 size-80 rounded-full bg-war-gold/15 blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-war-gold bg-war-gold/20 px-3.5 py-1 text-xs font-black text-war-gold-bright tracking-widest uppercase">
-                <Crown className="size-4 text-war-gold" /> VANGUARD PLATINUM LOUNGE
-              </span>
-              <span className="text-xs font-bold text-war-gold">DESIGN PREVIEW</span>
-            </div>
-            <h1 className="mt-3 font-display text-4xl sm:text-6xl tracking-wide text-foreground">
-              RUANG EKSKLUSIF <span className="text-war-gold">VIP COMMANDER</span>
-            </h1>
-            <p className="mt-1 text-xs sm:text-sm text-muted-foreground max-w-xl leading-relaxed">
-              Akses khusus untuk anggota Platinum. Dapatkan tiket konser rahasia (Secret Drop), reservasi sofa VIP, dan layanan concierge 24/7.
-            </p>
-          </div>
-
-          <Link
-            href="/elite"
-            className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition"
-          >
-            <ArrowLeft className="size-3.5" /> Info Membership
-          </Link>
-        </div>
-      </div>
-
-      <CapabilityNotice capability="communityMessaging" />
-
-      {/* Secret War Drops Section */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-war-gold">
-              UNANNOUNCED SECRET DROPS
-            </span>
-            <h2 className="mt-1 font-display text-3xl text-foreground">
-              Konser Rahasia & Alokasi VVIP Khusus
-            </h2>
-          </div>
-          <span className="rounded-full bg-urgent-red/20 border border-urgent-red/40 px-3 py-1 text-xs font-bold text-urgent-red">
-            HANYA MEMBER PLATINUM
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="rounded-3xl border border-war-gold/30 bg-[#161514] p-6 hover:border-war-gold transition-all shadow-xl space-y-4">
-            <div className="flex items-start justify-between">
-              <span className="rounded-full bg-war-gold px-3 py-1 text-[10px] font-black text-black uppercase">
-                PRIVATE INTIMATE GIG
-              </span>
-              <span className="font-mono text-xs font-bold text-war-gold">SISA 8 SEAT</span>
-            </div>
-            <h3 className="font-display text-3xl text-foreground">
-              BRUNO MARS EXCLUSIVE ACOUSTIC SESSION
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Venue: The Grand Ballroom Jakarta • 50 Tamu VIP Terpilih • Full Fine Dining & Open Bar.
-            </p>
-            <div className="flex items-center justify-between pt-4 border-t border-white/8">
-              <div>
-                <span className="text-[10px] uppercase text-muted-foreground">Harga Khusus Member</span>
-                <p className="font-display text-2xl text-war-gold-bright">Rp 8.500.000</p>
-              </div>
-              <Button asChild className="rounded-xl bg-primary font-bold text-primary-foreground hover:bg-war-gold-bright">
-                <Link href="/payment">Klaim Seat VIP</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-[#161514] p-6 hover:border-war-gold/30 transition-all shadow-xl space-y-4">
-            <div className="flex items-start justify-between">
-              <span className="rounded-full bg-blue-500/20 border border-blue-500/40 px-3 py-1 text-[10px] font-bold text-blue-400 uppercase">
-                BACKSTAGE PASS DROP
-              </span>
-              <span className="font-mono text-xs font-bold text-status-success">TERSEDIA</span>
-            </div>
-            <h3 className="font-display text-3xl text-foreground">
-              DWP 2026 — ULTRA VIP ROYAL LOUNGE BOX
-            </h3>
-            <p className="text-xs text-muted-foreground">
-              Venue: JIEXPO Kemayoran • Private Suite Box (Kapasitas 10 Orang) • Meet & Greet Headliner.
-            </p>
-            <div className="flex items-center justify-between pt-4 border-t border-white/8">
-              <div>
-                <span className="text-[10px] uppercase text-muted-foreground">Harga Suite Box</span>
-                <p className="font-display text-2xl text-war-gold-bright">Rp 45.000.000</p>
-              </div>
-              <Button asChild className="rounded-xl bg-primary font-bold text-primary-foreground hover:bg-war-gold-bright">
-                <Link href="/payment">Reservasi Box</Link>
-              </Button>
-            </div>
-          </div>
+    <main id="main-content" className="container-shell space-y-8 py-10">
+      <section className="relative overflow-hidden rounded-3xl border border-war-gold/30 p-8">
+        <DesignBackdrop
+          group="war_ticket_elite_vanguard_lounge"
+          index={0}
+          imageClassName="opacity-30"
+          overlayClassName="bg-black/80"
+        />
+        <div className="relative z-10">
+          <Crown className="text-war-gold" />
+          <h1 className="mt-3 font-display text-5xl">VANGUARD LOUNGE</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Presale menggunakan sales session dan queue terpisah; membership
+            hanya memberi eligibility, bukan melewati fairness.
+          </p>
         </div>
       </section>
-
-      {/* 24/7 Dedicated VIP Concierge Live Chat */}
-      <section className="rounded-3xl border border-white/10 bg-[#141413] p-6 sm:p-8 space-y-6">
-        <div className="flex items-center justify-between border-b border-white/8 pb-4">
-          <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-2xl bg-war-gold/10 text-war-gold border border-war-gold/30">
-              <Headphones className="size-6" />
-            </div>
-            <div>
-              <h3 className="font-display text-2xl text-foreground">
-                24/7 Dedicated VIP Concierge
-              </h3>
-              <p className="text-xs text-status-success">● Concierge Senior Online (Elena V.)</p>
-            </div>
-          </div>
-          <span className="text-xs font-mono text-muted-foreground hidden sm:block">Response Time: &lt; 30s</span>
-        </div>
-
-        <div className="space-y-3 max-h-72 overflow-y-auto pr-2">
-          {conciergeChat.map((chat, idx) => (
-            <div
-              key={idx}
-              className={`flex ${chat.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+      {error && <InlineAlert variant="error">{error}</InlineAlert>}
+      {!elite ? (
+        <LoadingState label="Memverifikasi membership…" />
+      ) : !elite.membership ? (
+        <InlineAlert>
+          Membership aktif tidak ditemukan. Pembelian tetap dinonaktifkan sampai
+          billing provider dikonfigurasi.
+        </InlineAlert>
+      ) : (
+        <>
+          <InlineAlert variant="success">
+            {elite.membership.tier} aktif hingga{" "}
+            {new Date(elite.membership.endsAt).toLocaleDateString("id-ID")}.
+          </InlineAlert>
+          <section className="space-y-3">
+            <h2 className="font-display text-3xl">Presale eligible</h2>
+            {elite.presales.length === 0 ? (
+              <p className="rounded-2xl border border-dashed border-white/10 p-8">
+                Belum ada presale.
+              </p>
+            ) : (
+              elite.presales.map((presale) => (
+                <article
+                  key={presale.event_id}
+                  className="flex items-center justify-between rounded-2xl border border-white/10 bg-[#141413] p-5"
+                >
+                  <div>
+                    <span className="text-[10px] font-black text-war-gold">
+                      {presale.required_tier} · alokasi {presale.allocation}
+                    </span>
+                    <h3 className="font-display text-2xl">{presale.title}</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Sales{" "}
+                      {new Date(presale.sales_open_at).toLocaleString("id-ID")}
+                    </p>
+                  </div>
+                  <Button asChild>
+                    <Link href={`/waiting-room?eventId=${presale.event_id}`}>
+                      <Ticket />
+                      Masuk queue
+                    </Link>
+                  </Button>
+                </article>
+              ))
+            )}
+          </section>
+          <section className="grid gap-6 lg:grid-cols-2">
+            <form
+              onSubmit={(event) => void submit(event)}
+              className="space-y-4 rounded-2xl border border-white/10 bg-[#141413] p-6"
             >
-              <div
-                className={`max-w-lg rounded-2xl p-4 text-xs leading-relaxed ${
-                  chat.sender === 'user'
-                    ? 'bg-war-gold text-black font-semibold'
-                    : 'bg-white/5 border border-white/10 text-foreground'
-                }`}
-              >
-                {chat.text}
-              </div>
+              <h2 className="font-display text-2xl">Concierge request</h2>
+              <input
+                value={subject}
+                onChange={(event) => setSubject(event.target.value)}
+                placeholder="Subjek"
+                required
+                minLength={3}
+                className="w-full rounded-xl border border-white/10 bg-black p-3"
+              />
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                placeholder="Kebutuhan Anda"
+                required
+                minLength={10}
+                rows={5}
+                className="w-full rounded-xl border border-white/10 bg-black p-3"
+              />
+              <Button>
+                <Send />
+                Kirim
+              </Button>
+            </form>
+            <div className="space-y-3">
+              {cases.map((item) => (
+                <article
+                  key={item.id}
+                  className="rounded-2xl border border-white/10 bg-[#141413] p-5"
+                >
+                  <span className="text-[10px] text-war-gold">
+                    {item.status}
+                  </span>
+                  <h3 className="font-display text-xl">{item.subject}</h3>
+                  <time className="text-xs text-muted-foreground">
+                    {new Date(item.created_at).toLocaleString("id-ID")}
+                  </time>
+                </article>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <form onSubmit={(event) => event.preventDefault()} className="flex items-center gap-2 pt-2 border-t border-white/8">
-          <input
-            disabled
-            type="text"
-            placeholder="Concierge realtime belum tersedia"
-            className="flex-1 rounded-xl border border-white/10 bg-black/60 px-4 py-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:border-war-gold"
-          />
-          <Button disabled type="submit" title="Concierge realtime belum tersedia" className="rounded-xl bg-primary px-6 font-bold text-primary-foreground hover:bg-war-gold-bright">
-            <Send className="size-4 mr-1.5" /> Kirim
-          </Button>
-        </form>
-      </section>
+          </section>
+        </>
+      )}
     </main>
-  )
+  );
 }

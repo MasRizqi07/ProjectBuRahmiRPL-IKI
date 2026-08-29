@@ -30,7 +30,7 @@ export default function OrderConfirmationPage({ searchParams }: ConfirmationProp
     let timer: ReturnType<typeof setTimeout> | undefined
     const verify = async (): Promise<void> => {
       try {
-        const next = checkoutResponseSchema.parse(await apiJson(`/api/v1/orders/${orderId}/payment`))
+        const next = checkoutResponseSchema.parse(await apiJson(`/api/orders/${orderId}`))
         if (cancelled) return
         setCheckout(next)
         setError(null)

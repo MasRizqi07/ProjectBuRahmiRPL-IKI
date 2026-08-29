@@ -1,9 +1,9 @@
 import Link from 'next/link'
 import {
-  ArrowRight,
   Flame,
   ShieldCheck,
 } from 'lucide-react'
+import { NewsletterForm } from '@/components/forms/newsletter-form'
 
 export function SiteFooter() {
   return (
@@ -23,19 +23,7 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <div className="flex w-full max-w-md items-center gap-2 rounded-2xl border border-white/10 bg-white/5 p-1.5 backdrop-blur-xl">
-            <input
-              disabled
-              type="email"
-              placeholder="Notifikasi segera tersedia"
-              title="Pendaftaran notifikasi belum tersedia"
-              className="flex-1 bg-transparent px-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden"
-            />
-            <button disabled title="Pendaftaran notifikasi belum tersedia" className="flex cursor-not-allowed items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground opacity-60">
-              <span>Segera hadir</span>
-              <ArrowRight className="size-3.5" />
-            </button>
-          </div>
+          <NewsletterForm />
         </div>
       </div>
 
@@ -50,15 +38,15 @@ export function SiteFooter() {
             <span className="font-display text-2xl tracking-wide text-war-gold">WAR TICKET</span>
           </Link>
           <p className="max-w-sm text-xs leading-relaxed text-muted-foreground">
-            Platform ticketing berkecepatan tinggi dengan sistem antrean terdesentralisasi, perlindungan anti-bot militer, dan konfirmasi reservasi real-time.
+            Platform ticketing dengan antrean per sesi penjualan, reservasi idempotent, kursi teralokasi, dan konfirmasi pembayaran terverifikasi.
           </p>
 
           <div className="flex items-center gap-3 pt-2">
             <div className="flex items-center gap-2 rounded-full border border-status-success/30 bg-status-success/10 px-3 py-1 text-[11px] font-bold text-status-success">
-              <span className="pulse-dot size-1.5 rounded-full bg-status-success" /> Server Uptime: 99.99%
+              <span className="pulse-dot size-1.5 rounded-full bg-status-success" /> Checkout Fail-Closed
             </div>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-              <ShieldCheck className="size-4 text-war-gold" /> Anti-Bot Verified
+              <ShieldCheck className="size-4 text-war-gold" /> Audit Trail Aktif
             </div>
           </div>
         </div>
@@ -105,9 +93,9 @@ export function SiteFooter() {
         <div className="container-shell flex flex-col items-center justify-between gap-4 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} WAR TICKET. Dikembangkan untuk Performa Tanpa Kompromi.</p>
           <div className="flex items-center gap-6">
-            <span className="hover:text-foreground cursor-pointer">Syarat & Ketentuan</span>
-            <span className="hover:text-foreground cursor-pointer">Kebijakan Privasi</span>
-            <span className="hover:text-foreground cursor-pointer">Anti-Scalper Policy</span>
+            <Link href="/legal/terms" className="hover:text-foreground">Syarat & Ketentuan</Link>
+            <Link href="/legal/privacy" className="hover:text-foreground">Kebijakan Privasi</Link>
+            <Link href="/legal/refund" className="hover:text-foreground">Kebijakan Refund</Link>
           </div>
         </div>
       </div>

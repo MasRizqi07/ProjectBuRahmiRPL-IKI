@@ -19,6 +19,7 @@ const webSchema = baseSchema.extend({
   REDIS_URL: z.string().url().optional(),
   QUEUE_SIGNING_SECRET: z.string().min(32).optional(),
   CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
+  TICKET_QR_SIGNING_SECRET: z.string().min(32).optional(),
 })
 
 const workerSchema = sharedSchema.extend({

@@ -74,7 +74,7 @@ export function SiteHeader({ viewer }: { readonly viewer: Viewer | null }) {
                 {Icon && <Icon className="size-3.5 text-war-gold" />}
                 {item.label}
                 {'badge' in item && item.badge && (
-                  <span className="rounded-full bg-status-danger px-1.5 py-0.2 text-[9px] font-black text-white">
+                  <span className="rounded-full bg-red-700 px-1.5 py-0.2 text-[9px] font-black text-white">
                     {item.badge}
                   </span>
                 )}
@@ -202,7 +202,7 @@ export function SiteHeader({ viewer }: { readonly viewer: Viewer | null }) {
                     >
                       <span>{item.label}</span>
                       {'badge' in item && (
-                        <span className="rounded-full bg-status-danger px-2 py-0.5 text-[10px] font-black text-white">
+                        <span className="rounded-full bg-red-700 px-2 py-0.5 text-[10px] font-black text-white">
                           {item.badge}
                         </span>
                       )}

@@ -2,7 +2,8 @@ import { ZodError, type ZodType } from 'zod'
 import { DomainError } from '@war-ticket/domain'
 import { requestId as createRequestId } from '@war-ticket/observability'
 import { createClient } from '@/lib/supabase/server'
-export { requirePlatformRole, requireTenantRole } from '@/lib/auth/authorization'
+import { isSupabaseConfigured } from '@/lib/supabase/config'
+export { requirePlatformRole, requireTenantPermission } from '@/lib/auth/authorization'
 import { config, logger } from './runtime'
 
 export interface AuthenticatedUser {
@@ -10,6 +11,9 @@ export interface AuthenticatedUser {
 }
 
 export async function requireUser(): Promise<AuthenticatedUser> {
+  if (!isSupabaseConfigured()) {
+    throw new DomainError('SERVICE_UNAVAILABLE', 'Authentication service is not configured')
+  }
   const supabase = await createClient()
   const { data, error } = await supabase.auth.getClaims()
   const subject = data?.claims.sub

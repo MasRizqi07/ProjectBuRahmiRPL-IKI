@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
   ArrowLeft,
@@ -10,8 +10,9 @@ import {
   Sparkles,
   Trash2,
 } from 'lucide-react'
-import { CapabilityNotice } from '@/components/feedback/capability-notice'
+import { InlineAlert } from '@/components/feedback/inline-alert'
 import { Button } from '@/components/ui/button'
+import { apiJson } from '@/lib/client/api'
 
 interface TicketTierConfig {
   name: string
@@ -42,6 +43,26 @@ export default function NewEventSetupPage() {
     { name: 'CAT 1 CENTER', price: 1850000, capacity: 1200, perks: 'Kursi tribun tengah panggung' },
     { name: 'FESTIVAL', price: 750000, capacity: 3000, perks: 'General admission area berdiri' },
   ])
+  const [draft, setDraft] = useState<{ id: string; version: number } | null>(null)
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'submitted' | 'error'>('idle')
+
+  const saveDraft = async (submit = false): Promise<void> => {
+    setSaveState('saving')
+    try {
+      const response = await apiJson('/api/organizer/drafts', {
+        method: 'POST',
+        body: JSON.stringify({ ...(draft ? { id: draft.id, expectedVersion: draft.version } : {}), submit, payload: { ...eventData, tiers } }),
+      }) as { id: string; version: number }
+      setDraft(response)
+      setSaveState(submit ? 'submitted' : 'saved')
+    } catch { setSaveState('error') }
+  }
+
+  useEffect(() => {
+    const timer = setTimeout(() => void saveDraft(false), 1_500)
+    return () => clearTimeout(timer)
+    // Autosave intentionally follows every form change and the latest optimistic version.
+  }, [eventData, tiers])
 
   const updateTier = (index: number, field: keyof TicketTierConfig, value: string | number) => {
     setTiers((prev) => prev.map((item, i) => (i === index ? { ...item, [field]: value } : item)))
@@ -293,7 +314,9 @@ export default function NewEventSetupPage() {
         <section className="rounded-3xl border border-white/10 bg-[#141413] p-8 space-y-6">
           <h2 className="font-display text-2xl text-foreground">3. Aturan Queue War & Proteksi Anti-Bot</h2>
 
-          <CapabilityNotice capability="organizerEventPublishing" />
+          {saveState === 'error' && <InlineAlert variant="error">Autosave gagal atau draft berubah di sesi lain. Muat ulang sebelum melanjutkan.</InlineAlert>}
+          {saveState === 'submitted' && <InlineAlert variant="success">Draft berhasil dikirim ke alur approval admin.</InlineAlert>}
+          <p className="text-xs text-muted-foreground">Status draft: {saveState === 'saving' ? 'menyimpan…' : saveState}</p>
 
           <div className="space-y-4">
             <div className="rounded-2xl border border-white/8 bg-black/40 p-5 space-y-4">
@@ -340,11 +363,11 @@ export default function NewEventSetupPage() {
             </Button>
             <Button
               type="button"
-              disabled
-              title="Publikasi event belum tersedia"
+              disabled={saveState === 'saving' || saveState === 'submitted'}
+              onClick={() => void saveDraft(true)}
               className="rounded-xl bg-primary px-8 py-6 font-bold text-primary-foreground hover:bg-war-gold-bright shadow-[0_0_25px_rgba(240,180,41,0.3)]"
             >
-              <Sparkles className="size-4 mr-2" /> Publikasi Belum Tersedia
+              <Sparkles className="size-4 mr-2" /> Kirim untuk Approval
             </Button>
           </div>
         </section>

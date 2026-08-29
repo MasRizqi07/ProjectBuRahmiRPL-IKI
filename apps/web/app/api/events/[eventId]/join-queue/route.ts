@@ -1,6 +1,6 @@
 import { uuidSchema } from '@war-ticket/contracts'
 import { apiError, assertSameOrigin, requireUser } from '@/lib/server/api'
-import { serverlessCheckoutService } from '@/lib/server/runtime'
+import { checkoutGateway } from '@/lib/server/runtime'
 import { enforceRateLimit } from '@/lib/serverless-ticketing/rate-limit'
 
 export const runtime = 'nodejs'
@@ -15,10 +15,9 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     const user = await requireUser()
     const eventId = uuidSchema.parse((await context.params).eventId)
     await enforceRateLimit({ operation: 'join', eventId, userId: user.id, request })
-    const result = await serverlessCheckoutService().joinQueue(eventId, user.id)
-    const { created, ...response } = result
-    return Response.json(response, {
-      status: created ? 201 : 200,
+    const result = await checkoutGateway().joinQueue(eventId, user.id)
+    return Response.json(result, {
+      status: 201,
       headers: { 'cache-control': 'no-store' },
     })
   } catch (error) {

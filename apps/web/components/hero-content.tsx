@@ -47,7 +47,7 @@ export function HeroContent() {
       >
         <span className="inline-flex items-center gap-2 rounded-full border border-war-gold/30 bg-war-gold/10 px-4 py-1.5 text-xs font-bold text-war-gold-bright backdrop-blur-2xl shadow-[0_0_20px_rgba(240,180,41,0.2)]">
           <span className="pulse-dot size-2 rounded-full bg-war-gold" />
-          <span>230+ KONSER AKTIF • 50.000 TPS CAPACITY ENGINE</span>
+          <span>GA + ASSIGNED SEATING • ANTREAN PER SESI</span>
         </span>
       </motion.div>
 
@@ -70,7 +70,7 @@ export function HeroContent() {
         transition={{ duration: 0.6, delay: 0.2 }}
         className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-lg"
       >
-        Platform tiket konser Indonesia paling kompetitif. Masuk antrean berkecepatan tinggi, amankan stok resmi, dan menangkan war tiket tanpa kendala server down.
+        Temukan konser, masuk antrean penjualan yang adil, lalu amankan tiket melalui reservasi server-side yang dibatasi waktu.
       </motion.p>
 
       {/* Live Search Bar */}
@@ -130,7 +130,7 @@ export function HeroContent() {
           href="/concerts"
           className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-primary px-8 font-bold text-primary-foreground transition hover:bg-war-gold-bright active:scale-95 shadow-[0_0_25px_rgba(240,180,41,0.25)]"
         >
-          <Zap className="size-4" /> Jelajahi 230+ Konser <ArrowRight className="size-4" />
+          <Zap className="size-4" /> Jelajahi Konser <ArrowRight className="size-4" />
         </Link>
         <Link
           href="/elite"
