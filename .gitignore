@@ -21,3 +21,7 @@ package-lock.json
 
 .vercel
 .env*
+
+# Load test session artifacts
+scripts/load-test/cookies*.json
+tests/load/cookies*.json

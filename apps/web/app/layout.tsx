@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Bebas_Neue, Plus_Jakarta_Sans, Space_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import { Analytics } from '@vercel/analytics/next'
 import { AppProviders } from '@/components/app-providers'
 import { SiteFooter } from '@/components/layout/site-footer'
@@ -7,22 +7,34 @@ import { SiteHeader } from '@/components/layout/site-header'
 import { getViewer } from '@/lib/auth/viewer'
 import './globals.css'
 
-const bebasNeue = Bebas_Neue({
-  subsets: ['latin'],
+const bebasNeue = localFont({
+  src: './fonts/BebasNeue-Regular.woff2',
   variable: '--font-bebas',
   weight: '400',
+  display: 'swap',
 })
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
+const plusJakartaSans = localFont({
+  src: './fonts/PlusJakartaSans-VariableFont_wght.woff2',
   variable: '--font-plus-jakarta',
-  weight: ['400', '500', '600', '700', '800'],
+  display: 'swap',
 })
 
-const spaceMono = Space_Mono({
-  subsets: ['latin'],
+const spaceMono = localFont({
+  src: [
+    {
+      path: './fonts/SpaceMono-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: './fonts/SpaceMono-Bold.woff2',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
   variable: '--font-space-mono',
-  weight: ['400', '700'],
+  display: 'swap',
 })
 
 export const metadata: Metadata = {

@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "assets:sync": "tsx scripts/sync-design-assets.ts",
+    "loadtest:provision": "tsx ../../scripts/load-test/provision-test-buyers.ts",
+    "loadtest:teardown": "tsx ../../scripts/load-test/teardown-test-buyers.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
