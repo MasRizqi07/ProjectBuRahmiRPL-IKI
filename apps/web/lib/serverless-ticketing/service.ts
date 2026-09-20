@@ -209,7 +209,9 @@ export class ServerlessCheckoutService {
         retryable: true,
       })
     }
-    const parsed = reserveResponseSchema.parse(JSON.parse(String(result[1])) as unknown)
+    const rawPayload = result[1]
+    const payload = typeof rawPayload === 'string' ? JSON.parse(rawPayload) : rawPayload
+    const parsed = reserveResponseSchema.parse(payload)
     if (parsed.status === 'SOLD_OUT') return parsed
     await this.orders.upsertHoldOrder(this.toHoldOrder(parsed, input, requestHash))
     return parsed
