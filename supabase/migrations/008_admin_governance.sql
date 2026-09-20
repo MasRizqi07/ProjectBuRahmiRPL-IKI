@@ -41,7 +41,7 @@ create policy dispute_owner_read on public.disputes for select using (user_id = 
 drop policy if exists dispute_owner_insert on public.disputes;
 create policy dispute_owner_insert on public.disputes for insert with check (user_id = auth.uid());
 
-drop policy if exists refund_staff_read on ticketing.refund_requests for select using (public.is_platform_staff(array['support','platform_admin']));
+drop policy if exists refund_staff_read on ticketing.refund_requests;
 create policy refund_staff_read on ticketing.refund_requests for select using (public.is_platform_staff(array['support','platform_admin']));
 
 grant select, insert on public.disputes to authenticated;
