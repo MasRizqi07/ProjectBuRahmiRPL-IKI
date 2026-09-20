@@ -249,6 +249,9 @@ importers:
       '@war-ticket/domain':
         specifier: workspace:*
         version: link:../domain
+      '@war-ticket/observability':
+        specifier: workspace:*
+        version: link:../observability
       '@war-ticket/payments':
         specifier: workspace:*
         version: link:../payments

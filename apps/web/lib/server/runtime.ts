@@ -10,6 +10,7 @@ import {
   PaymentRepository,
   TenantMembershipRepository,
   type DatabaseClient,
+  type EdgeSupabaseClient,
 } from '@war-ticket/database'
 import { createLogger } from '@war-ticket/observability'
 import { createRedisClient, QueueService, type RedisClient } from '@war-ticket/redis'
@@ -99,7 +100,9 @@ export function paymentRepository(): PaymentRepository {
 export function edgeCheckoutRepository(): EdgeCheckoutRepository {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  const fallback = url && key ? createSupabaseClient(url, key) : undefined
+  const fallback = url && key
+    ? createSupabaseClient(url, key) as unknown as EdgeSupabaseClient
+    : undefined
   const dbClient = config().DATABASE_URL ? database() : undefined
   return new EdgeCheckoutRepository(dbClient, fallback, edgeRedis())
 }
@@ -121,4 +124,3 @@ export function checkoutGateway(): CheckoutGateway {
 export function tenantMembershipRepository(): TenantMembershipRepository {
   return new TenantMembershipRepository(database())
 }
-

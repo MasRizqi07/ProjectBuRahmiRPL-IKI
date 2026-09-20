@@ -13,6 +13,7 @@
   "dependencies": {
     "@war-ticket/contracts": "workspace:*",
     "@war-ticket/domain": "workspace:*",
+    "@war-ticket/observability": "workspace:*",
     "@war-ticket/payments": "workspace:*",
     "postgres": "^3.4.7"
   },
