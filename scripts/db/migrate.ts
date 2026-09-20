@@ -59,7 +59,31 @@ async function main() {
   ]
 
   console.log('📦 Bundling migrations 001 through 009...')
-  let combinedSchema = '-- AUTO-GENERATED COMBINED SCHEMA (001 - 009)\n-- Run in Supabase SQL Editor\n\n'
+  let combinedSchema = `-- ====================================================================
+-- WAR TICKET PLATFORM: COMPLETE CONSOLIDATED MIGRATION
+-- Automatically cleans existing relations to prevent 42P07 conflicts
+-- ====================================================================
+
+-- 1. CLEAN TEARDOWN (Ensures script can run repeatedly without "relation already exists" errors)
+drop table if exists public.promo_redemptions cascade;
+drop table if exists public.promo_campaigns cascade;
+drop table if exists public.community_messages cascade;
+drop table if exists public.event_subscriptions cascade;
+drop table if exists public.elite_memberships cascade;
+drop table if exists public.support_cases cascade;
+drop table if exists public.disputes cascade;
+drop table if exists public.organizer_applications cascade;
+drop table if exists public.orders cascade;
+drop table if exists public.ticket_tiers cascade;
+drop table if exists public.concerts cascade;
+drop table if exists public.profiles cascade;
+drop schema if exists ticketing cascade;
+
+-- 2. ENABLE EXTENSIONS
+create extension if not exists "uuid-ossp";
+create extension if not exists pgcrypto;
+
+`
   for (const file of migrationFiles) {
     const filePath = path.resolve(migrationsDir, file)
     if (fs.existsSync(filePath)) {
@@ -174,3 +198,4 @@ main().catch((err) => {
   console.error('Fatal error running migration:', err)
   process.exit(1)
 })
+

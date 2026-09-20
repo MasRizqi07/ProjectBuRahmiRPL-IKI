@@ -4,7 +4,7 @@ create extension if not exists "uuid-ossp";
 -- ============================================
 -- CONCERTS TABLE
 -- ============================================
-create table public.concerts (
+create table if not exists public.concerts (
   id uuid primary key default uuid_generate_v4(),
   title text not null,
   artist text not null,
@@ -28,7 +28,7 @@ create table public.concerts (
 -- ============================================
 -- TICKET TIERS TABLE
 -- ============================================
-create table public.ticket_tiers (
+create table if not exists public.ticket_tiers (
   id uuid primary key default uuid_generate_v4(),
   concert_id uuid not null references public.concerts(id) on delete cascade,
   name text not null,
@@ -43,7 +43,7 @@ create table public.ticket_tiers (
 -- ============================================
 -- PROFILES TABLE (extends Supabase Auth)
 -- ============================================
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
   phone text,
@@ -53,10 +53,15 @@ create table public.profiles (
   updated_at timestamptz default now()
 );
 
+-- Backfill profiles for any already registered auth users
+insert into public.profiles (id)
+select id from auth.users
+on conflict (id) do nothing;
+
 -- ============================================
 -- ORDERS TABLE
 -- ============================================
-create table public.orders (
+create table if not exists public.orders (
   id uuid primary key default uuid_generate_v4(),
   user_id uuid not null references public.profiles(id),
   concert_id uuid not null references public.concerts(id),
@@ -80,9 +85,11 @@ create table public.orders (
 -- Concerts: public read, admin write
 alter table public.concerts enable row level security;
 
+drop policy if exists "Concerts are publicly readable" on public.concerts;
 create policy "Concerts are publicly readable"
   on public.concerts for select using (true);
 
+drop policy if exists "Admins can insert concerts" on public.concerts;
 create policy "Admins can insert concerts"
   on public.concerts for insert
   with check (
@@ -92,6 +99,7 @@ create policy "Admins can insert concerts"
     )
   );
 
+drop policy if exists "Admins can update concerts" on public.concerts;
 create policy "Admins can update concerts"
   on public.concerts for update
   using (
@@ -104,9 +112,11 @@ create policy "Admins can update concerts"
 -- Ticket tiers: public read, admin write
 alter table public.ticket_tiers enable row level security;
 
+drop policy if exists "Tiers are publicly readable" on public.ticket_tiers;
 create policy "Tiers are publicly readable"
   on public.ticket_tiers for select using (true);
 
+drop policy if exists "Admins can manage tiers" on public.ticket_tiers;
 create policy "Admins can manage tiers"
   on public.ticket_tiers for all
   using (
@@ -119,10 +129,12 @@ create policy "Admins can manage tiers"
 -- Profiles: users can read/update own profile
 alter table public.profiles enable row level security;
 
+drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -130,15 +142,18 @@ create policy "Users can update own profile"
 -- Orders: users can read own orders only
 alter table public.orders enable row level security;
 
+drop policy if exists "Users can view own orders" on public.orders;
 create policy "Users can view own orders"
   on public.orders for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can create orders" on public.orders;
 create policy "Users can create orders"
   on public.orders for insert
   with check (auth.uid() = user_id);
 
 -- Admins can view all orders
+drop policy if exists "Admins can view all orders" on public.orders;
 create policy "Admins can view all orders"
   on public.orders for select
   using (
@@ -161,11 +176,13 @@ begin
     new.id,
     new.raw_user_meta_data->>'full_name',
     new.raw_user_meta_data->>'avatar_url'
-  );
+  )
+  on conflict (id) do nothing;
   return new;
 end;
 $$ language plpgsql security definer;
 
+drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
@@ -179,10 +196,12 @@ begin
 end;
 $$ language plpgsql;
 
+drop trigger if exists concerts_updated_at on public.concerts;
 create trigger concerts_updated_at
   before update on public.concerts
   for each row execute procedure public.handle_updated_at();
 
+drop trigger if exists orders_updated_at on public.orders;
 create trigger orders_updated_at
   before update on public.orders
   for each row execute procedure public.handle_updated_at();
@@ -190,11 +209,11 @@ create trigger orders_updated_at
 -- ============================================
 -- INDEXES
 -- ============================================
-create index idx_concerts_city on public.concerts(city);
-create index idx_concerts_category on public.concerts(category);
-create index idx_concerts_status on public.concerts(status);
-create index idx_concerts_date on public.concerts(date);
-create index idx_concerts_featured on public.concerts(is_featured) where is_featured = true;
-create index idx_tiers_concert_id on public.ticket_tiers(concert_id);
-create index idx_orders_user_id on public.orders(user_id);
-create index idx_orders_concert_id on public.orders(concert_id);
+create index if not exists idx_concerts_city on public.concerts(city);
+create index if not exists idx_concerts_category on public.concerts(category);
+create index if not exists idx_concerts_status on public.concerts(status);
+create index if not exists idx_concerts_date on public.concerts(date);
+create index if not exists idx_concerts_featured on public.concerts(is_featured) where is_featured = true;
+create index if not exists idx_tiers_concert_id on public.ticket_tiers(concert_id);
+create index if not exists idx_orders_user_id on public.orders(user_id);
+create index if not exists idx_orders_concert_id on public.orders(concert_id);

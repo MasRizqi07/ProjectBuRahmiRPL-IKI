@@ -301,3 +301,4 @@ main().catch((err) => {
   console.error('Fatal error in verify-gates:', err)
   process.exit(1)
 })
+
