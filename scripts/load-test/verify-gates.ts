@@ -29,6 +29,7 @@ function loadEnv() {
         if (!trimmed || trimmed.startsWith('#')) continue
         const eqIdx = trimmed.indexOf('=')
         if (eqIdx > 0) {
+          const key = trimmed.slice(0, eqIdx).trim()
           let val = trimmed.slice(eqIdx + 1).trim()
           val = val.replace(/^["'](.*)["']$/, '$1')
           if (!process.env[key] && val) {
@@ -159,7 +160,24 @@ async function runGate3(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
     return false
   }
 
-  const buyer = buyers[0]
+  const buyer = buyers.length > 3 ? buyers[3] : buyers[0]
+  console.log(`[Gate 3] Buyer ${buyer.index} joining queue & obtaining admission...`)
+  await fetch(`${baseUrl}/api/events/${fixture.eventId}/join-queue`, {
+    method: 'POST',
+    headers: {
+      Cookie: buyer.cookieString,
+      Origin: baseUrl,
+      'Content-Type': 'application/json',
+    },
+  })
+  await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
+    method: 'GET',
+    headers: {
+      Cookie: buyer.cookieString,
+      Origin: baseUrl,
+    },
+  })
+
   const idemKey = `gate3-concurrent-idem-${Date.now()}`
   console.log(`Sending 2 simultaneous POST /reserve requests with Idempotency-Key: ${idemKey}`)
 
