@@ -1,7 +1,19 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import { Redis } from '@upstash/redis'
 import { edgeKeys } from '../../apps/web/lib/serverless-ticketing/keys'
+import { edgeRedis } from '../../apps/web/lib/serverless-ticketing/redis'
+
+export interface InventoryFixture {
+  eventId: string
+  tierId: string
+  capacity: number
+}
+
+export interface InventorySnapshot {
+  eventInventory: number | null
+  tierInventory: number | null
+  activeHolds: number
+}
 
 function findRepoRoot(): string {
   let dir = process.cwd()
@@ -41,30 +53,42 @@ function loadEnv() {
   }
 }
 
+export async function printInventoryAudit(
+  redis: ReturnType<typeof edgeRedis>,
+  fixture: InventoryFixture,
+  label?: string,
+): Promise<InventorySnapshot> {
+  const keys = edgeKeys(fixture.eventId)
+  const [eventInventory, tierInventory, activeHolds] = await Promise.all([
+    redis.get<number>(keys.inventory),
+    redis.get<number>(keys.tierInventory(fixture.tierId)),
+    redis.zcard(keys.holdExpiries),
+  ])
+
+  if (label) console.log(label)
+  console.log(`========================================`)
+  console.log(`Event ID: ${fixture.eventId}`)
+  console.log(`Event Inventory Remaining: ${eventInventory}`)
+  console.log(`Tier Inventory Remaining:  ${tierInventory}`)
+  console.log(`Active Holds in Redis:     ${activeHolds}`)
+  console.log(`Total (Remaining + Holds): ${Number(eventInventory) + activeHolds} / ${fixture.capacity}`)
+  console.log(`========================================`)
+
+  return { eventInventory, tierInventory, activeHolds }
+}
+
 async function main() {
   loadEnv()
   const root = findRepoRoot()
   const fixturePath = path.resolve(root, 'scripts/load-test/fixture-env.json')
-  const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf-8'))
-  const eventId = fixture.eventId
-
-  const url = process.env.UPSTASH_REDIS_REST_URL!
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN!
-  const redis = new Redis({ url, token })
-
-  const keys = edgeKeys(eventId)
-  const eventInv = await redis.get(keys.inventory)
-  const tierInv = await redis.get(keys.tierInventory(fixture.tierId))
-  const holdsCount = await redis.zcard(keys.holdExpiries)
-
-  console.log(`========================================`)
-  console.log(`Event ID: ${eventId}`)
-  console.log(`Event Inventory Remaining: ${eventInv}`)
-  console.log(`Tier Inventory Remaining:  ${tierInv}`)
-  console.log(`Active Holds in Redis:     ${holdsCount}`)
-  console.log(`Total (Remaining + Holds): ${Number(eventInv) + Number(holdsCount)} / ${fixture.capacity}`)
-  console.log(`========================================`)
+  const fixture = JSON.parse(fs.readFileSync(fixturePath, 'utf-8')) as InventoryFixture
+  await printInventoryAudit(edgeRedis(), fixture)
 }
 
-main().catch(console.error)
-
+const entrypoint = process.argv[1]
+if (entrypoint && path.basename(entrypoint) === 'check-inventory.ts') {
+  main().catch((error) => {
+    console.error(error)
+    process.exitCode = 1
+  })
+}

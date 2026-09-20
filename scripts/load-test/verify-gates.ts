@@ -1,6 +1,13 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 import * as crypto from 'node:crypto'
+import {
+  activeEventsCursorKey,
+  activeEventsKey,
+  edgeKeys,
+} from '../../apps/web/lib/serverless-ticketing/keys'
+import { edgeRedis } from '../../apps/web/lib/serverless-ticketing/redis'
+import { printInventoryAudit } from './check-inventory'
 
 function findRepoRoot(): string {
   let dir = process.cwd()
@@ -73,6 +80,19 @@ interface BuyerCookie {
   cookieString: string
 }
 
+interface GenuineHoldResponse extends Record<string, unknown> {
+  status: 'HOLD_CREATED'
+  orderId: string
+  providerOrderId: string
+  total: number
+  quantity: number
+}
+
+interface HoldSetup {
+  buyer: BuyerCookie
+  response: GenuineHoldResponse
+}
+
 function loadBuyerCookies(): BuyerCookie[] {
   const repoRoot = findRepoRoot()
   const simpleCookiesPath = path.resolve(repoRoot, 'scripts/load-test/cookies.json')
@@ -87,6 +107,77 @@ function loadBuyerCookies(): BuyerCookie[] {
     }))
   }
   return []
+}
+
+async function createGenuineHold(input: {
+  label: string
+  baseUrl: string
+  fixture: FixtureData
+  buyer: BuyerCookie
+}): Promise<HoldSetup | undefined> {
+  const { label, baseUrl, fixture, buyer } = input
+  const buyerHeaders = {
+    Cookie: buyer.cookieString,
+    Origin: baseUrl,
+    'Content-Type': 'application/json',
+  }
+
+  console.log(`\n--- ${label}: real admitted buyer and real hold ---`)
+  const joinRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/join-queue`, {
+    method: 'POST',
+    headers: buyerHeaders,
+  })
+  const joinBody = await joinRes.text()
+  console.log(`  Join response: ${joinRes.status} | ${joinBody}`)
+  if (joinRes.status !== 200 && joinRes.status !== 201) return undefined
+
+  let admitted = false
+  for (let attempt = 1; attempt <= 10; attempt += 1) {
+    const statusRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
+      headers: buyerHeaders,
+    })
+    const statusBody = await statusRes.text()
+    console.log(`  Queue response ${attempt}: ${statusRes.status} | ${statusBody}`)
+    let state: unknown
+    try {
+      state = (JSON.parse(statusBody) as Record<string, unknown>).state
+    } catch {
+      state = undefined
+    }
+    if (statusRes.status === 200 && state === 'ADMITTED') {
+      admitted = true
+      break
+    }
+    if (statusRes.status !== 200 || state !== 'WAITING') break
+    await new Promise((resolve) => setTimeout(resolve, 300))
+  }
+  if (!admitted) return undefined
+
+  const idempotencyKey = `${label.toLowerCase().replaceAll(' ', '-')}-${Date.now()}`
+  const reserveRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/reserve`, {
+    method: 'POST',
+    headers: { ...buyerHeaders, 'Idempotency-Key': idempotencyKey },
+    body: JSON.stringify({ tierId: fixture.tierId, qty: 1 }),
+  })
+  const reserveBody = await reserveRes.text()
+  console.log(`  Reserve response: ${reserveRes.status} | ${reserveBody}`)
+  let response: Record<string, unknown>
+  try {
+    response = JSON.parse(reserveBody) as Record<string, unknown>
+  } catch {
+    return undefined
+  }
+  if (
+    reserveRes.status !== 201 ||
+    response.status !== 'HOLD_CREATED' ||
+    typeof response.orderId !== 'string' ||
+    typeof response.providerOrderId !== 'string' ||
+    typeof response.total !== 'number' ||
+    typeof response.quantity !== 'number'
+  ) {
+    return undefined
+  }
+  return { buyer, response: response as GenuineHoldResponse }
 }
 
 async function runGate1(baseUrl: string, fixture: FixtureData, buyers: BuyerCookie[]) {
@@ -218,8 +309,8 @@ async function runGate4(baseUrl: string, fixture: FixtureData | undefined, buyer
   console.log('📌 GATE 4: Midtrans Notification Signature Proof (Forged vs Valid)')
   console.log('============================================================')
 
-  if (!fixture || buyers.length === 0) {
-    console.log('❌ Gate 4 requires a seeded fixture and at least one provisioned buyer.')
+  if (!fixture || buyers.length < 5) {
+    console.log('❌ Gate 4 requires a seeded fixture and at least five provisioned buyers.')
     return false
   }
 
@@ -233,76 +324,18 @@ async function runGate4(baseUrl: string, fixture: FixtureData | undefined, buyer
   }
 
   const statusCode = '200'
-  const buyer = buyers[0]
-  const buyerHeaders = {
-    Cookie: buyer.cookieString,
-    Origin: baseUrl,
-    'Content-Type': 'application/json',
-  }
-
-  console.log('\n--- Gate 4 setup: real admitted buyer and real hold ---')
-  const joinRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/join-queue`, {
-    method: 'POST',
-    headers: buyerHeaders,
+  const setup = await createGenuineHold({
+    label: 'Gate 4 setup',
+    baseUrl,
+    fixture,
+    buyer: buyers[4],
   })
-  const joinBody = await joinRes.text()
-  console.log(`  Join response: ${joinRes.status} | ${joinBody}`)
-  if (joinRes.status !== 200 && joinRes.status !== 201) {
-    console.log('❌ Gate 4 setup failed: buyer could not join the queue.')
-    return false
-  }
-
-  let admitted = false
-  for (let attempt = 1; attempt <= 10; attempt += 1) {
-    const statusRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
-      headers: buyerHeaders,
-    })
-    const statusBody = await statusRes.text()
-    console.log(`  Queue response ${attempt}: ${statusRes.status} | ${statusBody}`)
-    let state: unknown
-    try {
-      state = (JSON.parse(statusBody) as Record<string, unknown>).state
-    } catch {
-      state = undefined
-    }
-    if (statusRes.status === 200 && state === 'ADMITTED') {
-      admitted = true
-      break
-    }
-    if (statusRes.status !== 200 || state !== 'WAITING') break
-    await new Promise((resolve) => setTimeout(resolve, 300))
-  }
-  if (!admitted) {
-    console.log('❌ Gate 4 setup failed: buyer was not admitted.')
-    return false
-  }
-
-  const idempotencyKey = `gate4-verify-${Date.now()}`
-  const reserveRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/reserve`, {
-    method: 'POST',
-    headers: { ...buyerHeaders, 'Idempotency-Key': idempotencyKey },
-    body: JSON.stringify({ tierId: fixture.tierId, qty: 1 }),
-  })
-  const reserveBody = await reserveRes.text()
-  console.log(`  Reserve response: ${reserveRes.status} | ${reserveBody}`)
-  let reserveJson: Record<string, unknown>
-  try {
-    reserveJson = JSON.parse(reserveBody) as Record<string, unknown>
-  } catch {
-    console.log('❌ Gate 4 setup failed: reserve response was not JSON.')
-    return false
-  }
-
-  if (
-    reserveRes.status !== 201 ||
-    typeof reserveJson.orderId !== 'string' ||
-    typeof reserveJson.providerOrderId !== 'string' ||
-    typeof reserveJson.total !== 'number'
-  ) {
+  if (!setup) {
     console.log('❌ Gate 4 setup failed: expected a genuine HOLD_CREATED response.')
     return false
   }
 
+  const reserveJson = setup.response
   const realProviderOrderId = reserveJson.providerOrderId
   const realAmount = reserveJson.total.toFixed(2)
   console.log(
@@ -390,27 +423,123 @@ async function runGate4(baseUrl: string, fixture: FixtureData | undefined, buyer
   return gate4Passed
 }
 
-async function runGate5(baseUrl: string) {
+async function runGate5(
+  baseUrl: string,
+  fixture: FixtureData | undefined,
+  buyers: BuyerCookie[],
+) {
   console.log('\n============================================================')
-  console.log('📌 GATE 5: Manual Expired-Hold Sweep Proof')
+  console.log('📌 GATE 5: Expired-Hold Inventory Release Proof')
   console.log('============================================================')
 
-  const cronSecret = process.env.CRON_SECRET || 'test-cron-secret-1234567890'
-  console.log(`Triggering sweep-holds cron at ${baseUrl}/api/cron/sweep-holds...`)
+  if (!fixture || buyers.length < 6) {
+    console.log('❌ Gate 5 requires a seeded fixture and at least six provisioned buyers.')
+    return false
+  }
+  const cronSecret = process.env.CRON_SECRET
+  const redisUrl = process.env.UPSTASH_REDIS_REST_URL
+  const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN
+  if (!cronSecret || !redisUrl || !redisToken) {
+    console.log('❌ Gate 5 requires CRON_SECRET and the Upstash REST credentials.')
+    return false
+  }
 
-  // Test 1: Unauthorized without bearer
-  const unauthRes = await fetch(`${baseUrl}/api/cron/sweep-holds`)
-  console.log(`  Unauthorized probe: Status ${unauthRes.status} (Expected: 401)`)
+  const setup = await createGenuineHold({
+    label: 'Gate 5 setup',
+    baseUrl,
+    fixture,
+    buyer: buyers[5],
+  })
+  if (!setup) {
+    console.log('❌ Gate 5 setup failed: expected a genuine HOLD_CREATED response.')
+    return false
+  }
 
-  // Test 2: Authorized with secret
-  const authRes = await fetch(`${baseUrl}/api/cron/sweep-holds`, {
+  const redis = edgeRedis()
+  const keys = edgeKeys(fixture.eventId)
+  const before = await printInventoryAudit(redis, fixture, '--- Gate 5 inventory before sweep ---')
+  const rawHold = await redis.get<unknown>(keys.hold(setup.buyer.userId))
+  let hold: Record<string, unknown>
+  try {
+    hold = (typeof rawHold === 'string' ? JSON.parse(rawHold) : rawHold) as Record<string, unknown>
+  } catch {
+    console.log('❌ Gate 5 setup failed: Redis hold payload was not valid JSON.')
+    return false
+  }
+  if (
+    !hold ||
+    typeof hold !== 'object' ||
+    hold.orderId !== setup.response.orderId ||
+    hold.tierId !== fixture.tierId ||
+    hold.quantity !== setup.response.quantity
+  ) {
+    console.log('❌ Gate 5 setup failed: Redis hold payload did not match the genuine hold.')
+    return false
+  }
+
+  const expiredAt = Date.now() - 1_000
+  const expiredHold = { ...hold, expiresAtEpochMs: expiredAt }
+  await redis.set(keys.hold(setup.buyer.userId), JSON.stringify(expiredHold))
+  await redis.zadd(keys.holdExpiries, { score: expiredAt, member: setup.buyer.userId })
+  await redis.sadd(activeEventsKey, fixture.eventId)
+  await redis.set(activeEventsCursorKey, '0')
+  console.log(
+    `  Expiry mutation: userId=${setup.buyer.userId}, orderId=${setup.response.orderId}, expiresAtEpochMs=${expiredAt}`,
+  )
+
+  const sweepUrl = `${baseUrl}/api/cron/sweep-holds`
+  console.log(`Triggering sweep-holds cron at ${sweepUrl}...`)
+
+  const unauthRes = await fetch(sweepUrl)
+  const unauthBody = await unauthRes.text()
+  console.log(`  Unauthorized response: ${unauthRes.status} | ${unauthBody}`)
+  let unauthCode: unknown
+  try {
+    const parsed = JSON.parse(unauthBody) as Record<string, unknown>
+    unauthCode = (parsed.error as Record<string, unknown> | undefined)?.code
+  } catch {
+    unauthCode = undefined
+  }
+  const unauthorizedRejected = unauthRes.status === 401 && unauthCode === 'UNAUTHORIZED'
+
+  const authRes = await fetch(sweepUrl, {
     headers: { Authorization: `Bearer ${cronSecret}` },
   })
   const authBody = await authRes.text()
-  console.log(`  Authorized sweep: Status ${authRes.status} | Body: ${authBody}`)
+  console.log(`  Authorized response: ${authRes.status} | ${authBody}`)
+  let sweepResult: Record<string, unknown> | undefined
+  try {
+    const parsed = JSON.parse(authBody) as Record<string, unknown>
+    const results = Array.isArray(parsed.results) ? parsed.results : []
+    sweepResult = results.find(
+      (result): result is Record<string, unknown> =>
+        typeof result === 'object' &&
+        result !== null &&
+        (result as Record<string, unknown>).eventId === fixture.eventId,
+    )
+  } catch {
+    sweepResult = undefined
+  }
 
-  const success = unauthRes.status === 401 && (authRes.status === 200 || authRes.status === 500)
-  console.log(`\nGate 5 Result: ${authRes.status === 200 ? '✅ PASSED: Sweep executed successfully.' : 'ℹ️ Cron endpoint verified.'}`)
+  const after = await printInventoryAudit(redis, fixture, '--- Gate 5 inventory after sweep ---')
+  const holdAfter = await redis.get(keys.hold(setup.buyer.userId))
+  const releasedQuantity = setup.response.quantity
+  const inventoryReleased =
+    typeof before.eventInventory === 'number' &&
+    typeof before.tierInventory === 'number' &&
+    after.eventInventory === before.eventInventory + releasedQuantity &&
+    after.tierInventory === before.tierInventory + releasedQuantity &&
+    after.activeHolds === before.activeHolds - 1 &&
+    holdAfter === null
+  const sweepConfirmed =
+    authRes.status === 200 &&
+    typeof sweepResult?.expiredHolds === 'number' &&
+    sweepResult.expiredHolds >= 1
+
+  const success = unauthorizedRejected && sweepConfirmed && inventoryReleased
+  console.log(
+    `\nGate 5 Result: ${success ? '✅ PASSED: exact auth rejection and expired hold inventory release verified.' : '❌ FAILED'}`,
+  )
   return success
 }
 
@@ -448,7 +577,7 @@ async function main() {
   }
 
   if (gateArg === '5' || gateArg === 'all') {
-    results.push(await runGate5(baseUrl))
+    results.push(await runGate5(baseUrl, fixture, buyers))
   }
 
   console.log('\n============================================================')
