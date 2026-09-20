@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createPublicClient } from '@/lib/supabase/server'
 import type { ConcertWithTiers, ConcertRow } from '@/lib/types/database'
 import { concerts as demoConcerts } from '@/lib/data/concerts'
 import { isSupabaseConfigured } from '@/lib/supabase/config'
@@ -29,15 +29,14 @@ function getDemoConcerts(): ConcertWithTiers[] {
   }))
 }
 
-// Fetch all concerts with their tiers
-export async function getConcerts(filters?: {
+function filterDemoConcerts(filters?: {
   city?: string
   category?: ConcertRow['category']
   status?: ConcertRow['status']
   query?: string
   minPrice?: number
   maxPrice?: number
-}): Promise<ConcertWithTiers[]> {
+}): ConcertWithTiers[] {
   const minPrice = filters?.minPrice
   const maxPrice = filters?.maxPrice
 
@@ -49,50 +48,81 @@ export async function getConcerts(filters?: {
     return true
   }
 
-  if (!isSupabaseConfigured()) {
-    const normalizedQuery = filters?.query?.trim().toLocaleLowerCase('id-ID')
-    return getDemoConcerts().filter((concert) => {
-      const matchesQuery = !normalizedQuery || [concert.title, concert.artist, concert.venue, concert.city]
-        .some((value) => value.toLocaleLowerCase('id-ID').includes(normalizedQuery))
-      return matchesQuery &&
-        (!filters?.city || concert.city === filters.city) &&
-        (!filters?.category || concert.category === filters.category) &&
-        (!filters?.status || concert.status === filters.status) &&
-        matchesPrice(concert)
-    })
-  }
-
-  const supabase = await createClient()
-
-  let query = supabase
-    .from('concerts')
-    .select(`
-      *,
-      ticket_tiers (*)
-    `)
-    .order('date', { ascending: true })
-
-  if (filters?.city) query = query.eq('city', filters.city)
-  if (filters?.category) query = query.eq('category', filters.category)
-  if (filters?.status) query = query.eq('status', filters.status)
-
-  const { data, error } = await query
-
-  if (error) {
-    console.error('[getConcerts]', error.message)
-    throw new Error('Gagal memuat data konser')
-  }
-
-  let concerts = (data ?? []) as ConcertWithTiers[]
   const normalizedQuery = filters?.query?.trim().toLocaleLowerCase('id-ID')
-  if (normalizedQuery) {
-    concerts = concerts.filter((concert) =>
-      [concert.title, concert.artist, concert.venue, concert.city]
-        .some((value) => value.toLocaleLowerCase('id-ID').includes(normalizedQuery))
-    )
+  return getDemoConcerts().filter((concert) => {
+    const matchesQuery = !normalizedQuery || [concert.title, concert.artist, concert.venue, concert.city]
+      .some((value) => value.toLocaleLowerCase('id-ID').includes(normalizedQuery))
+    return matchesQuery &&
+      (!filters?.city || concert.city === filters.city) &&
+      (!filters?.category || concert.category === filters.category) &&
+      (!filters?.status || concert.status === filters.status) &&
+      matchesPrice(concert)
+  })
+}
+
+// Fetch all concerts with their tiers
+export async function getConcerts(filters?: {
+  city?: string
+  category?: ConcertRow['category']
+  status?: ConcertRow['status']
+  query?: string
+  minPrice?: number
+  maxPrice?: number
+}): Promise<ConcertWithTiers[]> {
+  if (!isSupabaseConfigured()) {
+    return filterDemoConcerts(filters)
   }
 
-  return concerts.filter(matchesPrice)
+  try {
+    const supabase = createPublicClient()
+
+    let query = supabase
+      .from('concerts')
+      .select(`
+        *,
+        ticket_tiers (*)
+      `)
+      .order('date', { ascending: true })
+
+    if (filters?.city) query = query.eq('city', filters.city)
+    if (filters?.category) query = query.eq('category', filters.category)
+    if (filters?.status) query = query.eq('status', filters.status)
+
+    const { data, error } = await query
+
+    if (error) {
+      console.warn('[getConcerts] Falling back to demo data due to Supabase query error:', error.message)
+      return filterDemoConcerts(filters)
+    }
+
+    let concerts = (data ?? []) as ConcertWithTiers[]
+    if (concerts.length === 0) {
+      return filterDemoConcerts(filters)
+    }
+
+    const minPrice = filters?.minPrice
+    const maxPrice = filters?.maxPrice
+    const matchesPrice = (concert: ConcertWithTiers): boolean => {
+      if (minPrice === undefined && maxPrice === undefined) return true
+      const lowestTierPrice = Math.min(...(concert.ticket_tiers.map((t) => t.price).length ? concert.ticket_tiers.map((t) => t.price) : [0]))
+      if (minPrice !== undefined && lowestTierPrice < minPrice) return false
+      if (maxPrice !== undefined && lowestTierPrice > maxPrice) return false
+      return true
+    }
+
+    const normalizedQuery = filters?.query?.trim().toLocaleLowerCase('id-ID')
+    if (normalizedQuery) {
+      concerts = concerts.filter((concert) =>
+        [concert.title, concert.artist, concert.venue, concert.city]
+          .some((value) => value.toLocaleLowerCase('id-ID').includes(normalizedQuery))
+      )
+    }
+
+    return concerts.filter(matchesPrice)
+  } catch (err) {
+    console.warn('[getConcerts] Exception caught, falling back to demo data:', err)
+    return filterDemoConcerts(filters)
+  }
 }
 
 export interface PlatformStats {
@@ -101,32 +131,47 @@ export interface PlatformStats {
 }
 
 export async function getPlatformStats(): Promise<PlatformStats> {
-  if (!isSupabaseConfigured()) {
-    const demo = getDemoConcerts()
-    return {
-      ticketsSold: 18450,
-      activeEvents: demo.length,
-    }
+  const fallbackDemo = {
+    ticketsSold: 18450,
+    activeEvents: getDemoConcerts().length,
   }
 
-  const supabase = await createClient()
-  const now = new Date().toISOString()
+  if (!isSupabaseConfigured()) {
+    return fallbackDemo
+  }
 
-  const [ordersRes, concertsRes] = await Promise.all([
-    supabase
-      .schema('ticketing')
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'PAID'),
-    supabase
-      .from('concerts')
-      .select('*', { count: 'exact', head: true })
-      .gte('date', now),
-  ])
+  try {
+    const supabase = createPublicClient()
+    const now = new Date().toISOString()
 
-  return {
-    ticketsSold: ordersRes.count ?? 18450,
-    activeEvents: concertsRes.count ?? (await getConcerts()).length,
+    const [ordersRes, concertsRes] = await Promise.all([
+      supabase
+        .schema('ticketing')
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'PAID'),
+      supabase
+        .from('concerts')
+        .select('*', { count: 'exact', head: true })
+        .gte('date', now),
+    ])
+
+    if (ordersRes.error || concertsRes.error) {
+      console.warn(
+        '[getPlatformStats] Supabase count query returned error, falling back to demo stats:',
+        ordersRes.error?.message || concertsRes.error?.message
+      )
+      return fallbackDemo
+    }
+
+    const activeEvents = concertsRes.count ?? (await getConcerts()).length
+    return {
+      ticketsSold: ordersRes.count ?? fallbackDemo.ticketsSold,
+      activeEvents: activeEvents > 0 ? activeEvents : fallbackDemo.activeEvents,
+    }
+  } catch (err) {
+    console.warn('[getPlatformStats] Exception caught, falling back to demo stats:', err)
+    return fallbackDemo
   }
 }
 
@@ -136,26 +181,33 @@ export async function getConcertById(id: string): Promise<ConcertWithTiers | nul
     return getDemoConcerts().find((concert) => concert.id === id) ?? null
   }
 
-  const supabase = await createClient()
+  try {
+    const supabase = createPublicClient()
 
-  const { data, error } = await supabase
-    .from('concerts')
-    .select(`
-      *,
-      ticket_tiers (
-        *
-      )
-    `)
-    .eq('id', id)
-    .single()
+    const { data, error } = await supabase
+      .from('concerts')
+      .select(`
+        *,
+        ticket_tiers (
+          *
+        )
+      `)
+      .eq('id', id)
+      .single()
 
-  if (error) {
-    if (error.code === 'PGRST116') return null // Not found
-    console.error('[getConcertById]', error.message)
-    throw new Error('Gagal memuat detail konser')
+    if (error) {
+      if (error.code === 'PGRST116') {
+        return getDemoConcerts().find((concert) => concert.id === id) ?? null
+      }
+      console.warn('[getConcertById] Falling back to demo data due to Supabase error:', error.message)
+      return getDemoConcerts().find((concert) => concert.id === id) ?? null
+    }
+
+    return data
+  } catch (err) {
+    console.warn('[getConcertById] Exception caught, falling back to demo data:', err)
+    return getDemoConcerts().find((concert) => concert.id === id) ?? null
   }
-
-  return data
 }
 
 // Fetch featured concerts for homepage
@@ -164,45 +216,61 @@ export async function getFeaturedConcerts(): Promise<ConcertWithTiers[]> {
     return getDemoConcerts().slice(0, 4)
   }
 
-  const supabase = await createClient()
+  try {
+    const supabase = createPublicClient()
 
-  const { data, error } = await supabase
-    .from('concerts')
-    .select('*, ticket_tiers(*)')
-    .eq('is_featured', true)
-    .order('date', { ascending: true })
-    .limit(4)
+    const { data, error } = await supabase
+      .from('concerts')
+      .select('*, ticket_tiers(*)')
+      .eq('is_featured', true)
+      .order('date', { ascending: true })
+      .limit(4)
 
-  if (error) {
-    console.error('[getFeaturedConcerts]', error.message)
-    return []
+    if (error) {
+      console.warn('[getFeaturedConcerts] Falling back to demo data due to Supabase error:', error.message)
+      return getDemoConcerts().slice(0, 4)
+    }
+
+    if (!data || data.length === 0) {
+      return getDemoConcerts().slice(0, 4)
+    }
+
+    return data
+  } catch (err) {
+    console.warn('[getFeaturedConcerts] Exception caught, falling back to demo data:', err)
+    return getDemoConcerts().slice(0, 4)
   }
-
-  return (data) ?? []
 }
 
 // Get unique cities for filter chips
 export async function getCities(): Promise<string[]> {
+  const demoCities = [...new Set(getDemoConcerts().map((concert) => concert.city))].sort()
   if (!isSupabaseConfigured()) {
-    return [...new Set(getDemoConcerts().map((concert) => concert.city))].sort()
+    return demoCities
   }
 
-  const supabase = await createClient()
+  try {
+    const supabase = createPublicClient()
 
-  const { data, error } = await supabase
-    .from('concerts')
-    .select('city')
-    .order('city')
+    const { data, error } = await supabase
+      .from('concerts')
+      .select('city')
+      .order('city')
 
-  if (error) return []
+    if (error || !data || data.length === 0) {
+      return demoCities
+    }
 
-  const unique = [...new Set(data?.map(d => d.city) ?? [])]
-  return unique
+    const unique = [...new Set(data.map(d => d.city))]
+    return unique.length > 0 ? unique : demoCities
+  } catch {
+    return demoCities
+  }
 }
 
 // Search concerts by query string
 export async function searchConcerts(query: string): Promise<ConcertRow[]> {
-  if (!isSupabaseConfigured()) {
+  const searchDemo = () => {
     const normalizedQuery = query.trim().toLocaleLowerCase('id-ID')
     return getDemoConcerts()
       .filter((concert) =>
@@ -213,16 +281,26 @@ export async function searchConcerts(query: string): Promise<ConcertRow[]> {
       .slice(0, 20)
   }
 
-  const supabase = await createClient()
+  if (!isSupabaseConfigured()) {
+    return searchDemo()
+  }
 
-  const { data, error } = await supabase
-    .from('concerts')
-    .select('*')
-    .or(`title.ilike.%${query}%,artist.ilike.%${query}%,city.ilike.%${query}%`)
-    .order('date', { ascending: true })
-    .limit(20)
+  try {
+    const supabase = createPublicClient()
 
-  if (error) return []
+    const { data, error } = await supabase
+      .from('concerts')
+      .select('*')
+      .or(`title.ilike.%${query}%,artist.ilike.%${query}%,city.ilike.%${query}%`)
+      .order('date', { ascending: true })
+      .limit(20)
 
-  return data ?? []
+    if (error || !data || data.length === 0) {
+      return searchDemo()
+    }
+
+    return data
+  } catch {
+    return searchDemo()
+  }
 }

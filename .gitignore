@@ -24,5 +24,7 @@ package-lock.json
 
 # Load test session artifacts
 scripts/load-test/cookies*.json
+scripts/load-test/fixture-env.json
 tests/load/cookies*.json
 **/cookies*.json
+supabase/.temp/
