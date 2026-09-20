@@ -16,6 +16,7 @@ import { createRedisClient, QueueService, type RedisClient } from '@war-ticket/r
 import { ServerlessCheckoutService } from '@/lib/serverless-ticketing/service'
 import { edgeRedis } from '@/lib/serverless-ticketing/redis'
 import { CanonicalCheckoutGateway, type CheckoutGateway } from '@/lib/checkout/gateway'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 
 interface RuntimeState {
   config?: WebConfig
@@ -89,7 +90,10 @@ export function paymentRepository(): PaymentRepository {
 }
 
 export function edgeCheckoutRepository(): EdgeCheckoutRepository {
-  return new EdgeCheckoutRepository(database())
+  const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const fallback = url && key ? createSupabaseClient(url, key) : undefined
+  return new EdgeCheckoutRepository(database(), fallback)
 }
 
 export function serverlessCheckoutService(): ServerlessCheckoutService {

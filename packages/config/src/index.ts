@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 const baseSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-  DATABASE_URL: z.string().url(),
+  DATABASE_URL: z.string().url().default('postgresql://postgres:postgres@127.0.0.1:54322/war_ticket'),
 })
 
 const sharedSchema = baseSchema.extend({
@@ -12,7 +12,7 @@ const sharedSchema = baseSchema.extend({
 })
 
 const webSchema = baseSchema.extend({
-  NEXT_PUBLIC_APP_URL: z.string().url(),
+  NEXT_PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
