@@ -42,9 +42,21 @@ function loadEnv() {
   }
 }
 
+function findRepoRoot(): string {
+  let dir = process.cwd()
+  while (dir !== path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, 'pnpm-workspace.yaml'))) {
+      return dir
+    }
+    dir = path.dirname(dir)
+  }
+  return process.cwd()
+}
+
 async function run() {
   loadEnv()
 
+  const repoRoot = findRepoRoot()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -55,7 +67,8 @@ async function run() {
     process.exit(1)
   }
 
-  const mapFile = path.resolve(process.cwd(), getArg('users-file', 'scripts/load-test/cookies-users.json')!)
+  const rawMap = getArg('users-file', 'scripts/load-test/cookies-users.json')!
+  const mapFile = path.isAbsolute(rawMap) ? rawMap : path.resolve(repoRoot, rawMap)
   const prefix = getArg('prefix', 'loadtest-buyer')!
   const batchSize = parseInt(getArg('batch-size', '50')!, 10)
 

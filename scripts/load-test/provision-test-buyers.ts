@@ -49,6 +49,17 @@ function loadEnv() {
   }
 }
 
+function findRepoRoot(): string {
+  let dir = process.cwd()
+  while (dir !== path.dirname(dir)) {
+    if (fs.existsSync(path.join(dir, 'pnpm-workspace.yaml'))) {
+      return dir
+    }
+    dir = path.dirname(dir)
+  }
+  return process.cwd()
+}
+
 interface ProvisionResult {
   index: number
   email: string
@@ -59,6 +70,7 @@ interface ProvisionResult {
 async function run() {
   loadEnv()
 
+  const repoRoot = findRepoRoot()
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -75,7 +87,8 @@ async function run() {
   const batchSize = parseInt(getArg('batch-size', '25')!, 10)
   const prefix = getArg('prefix', 'loadtest-buyer')!
   const password = getArg('password', 'WarTicketLoadTest!2026')!
-  const outFile = path.resolve(process.cwd(), getArg('out', 'scripts/load-test/cookies.json')!)
+  const rawOut = getArg('out', 'scripts/load-test/cookies.json')!
+  const outFile = path.isAbsolute(rawOut) ? rawOut : path.resolve(repoRoot, rawOut)
   const verifyAdmission = hasFlag('verify-admission')
   const baseUrl = getArg('base-url', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')!
   const eventId = getArg('event-id', process.env.EVENT_ID)
