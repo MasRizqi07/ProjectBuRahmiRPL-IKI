@@ -27,6 +27,9 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
 
     // Serverless checkout engine path (tests/load/serverless-reserve.js)
     if (typeof body === 'object' && body !== null && 'qty' in body) {
+      if (!process.env.UPSTASH_REDIS_REST_URL && !process.env.KV_REST_API_URL) {
+        throw new DomainError('SERVICE_UNAVAILABLE', 'Serverless checkout engine is not configured (missing Upstash Redis)')
+      }
       const idempotencyHeader = request.headers.get('idempotency-key')
       if (idempotencyHeader === null) {
         throw new DomainError('VALIDATION_ERROR', 'Idempotency-Key header is required')

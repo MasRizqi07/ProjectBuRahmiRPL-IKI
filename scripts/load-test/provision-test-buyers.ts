@@ -142,16 +142,10 @@ async function run() {
             })
 
             if (error) {
-              if (error.message.includes('already registered') || error.message.includes('already exists')) {
-                // User already exists, fetch ID
-                const { data: listData } = await adminClient.auth.admin.listUsers()
-                const existing = listData?.users.find((u) => u.email === email)
-                if (existing) {
-                  userId = existing.id
-                  // Ensure password matches
-                  await adminClient.auth.admin.updateUserById(userId, { password, email_confirm: true })
-                  break
-                }
+              const msg = error.message.toLowerCase()
+              if (msg.includes('already') || msg.includes('exists') || msg.includes('duplicate')) {
+                // User already exists, will capture userId during sign-in
+                break
               }
 
               // Rate limited (429) or transient error
@@ -172,10 +166,6 @@ async function run() {
             await sleep(waitMs)
             retries++
           }
-        }
-
-        if (!userId) {
-          throw new Error(`Failed to create or retrieve user ${email} after retries`)
         }
 
         // 2. Sign in with password and capture @supabase/ssr formatted cookies
@@ -211,6 +201,7 @@ async function run() {
             }
 
             if (data?.session) {
+              userId = data.session.user.id
               cookieString = Array.from(cookieStore.entries())
                 .map(([k, v]) => `${k}=${v}`)
                 .join('; ')
@@ -224,8 +215,8 @@ async function run() {
           }
         }
 
-        if (!cookieString) {
-          throw new Error(`Failed to capture session cookies for user ${email}`)
+        if (!cookieString || !userId) {
+          throw new Error(`Failed to capture session cookies and userId for user ${email}`)
         }
 
         return {
@@ -266,9 +257,43 @@ async function run() {
   )
   console.log(`[Output] Wrote buyer user mapping to ${mapFile}`)
 
+  // Validate cookies with server createServerClient getClaims()
+  const shouldValidate = hasFlag('validate') || !hasFlag('no-validate')
+  if (shouldValidate && buyers.length > 0) {
+    console.log(`\n--- Validating ${buyers.length} Generated Cookies via @supabase/ssr getClaims() ---`)
+    let validCount = 0
+    for (let i = 0; i < buyers.length; i++) {
+      const buyer = buyers[i]
+      const parsedCookies = buyer.cookieString.split(';').map((c) => {
+        const parts = c.trim().split('=')
+        return { name: parts[0], value: parts.slice(1).join('=') }
+      })
+
+      const server = createServerClient(supabaseUrl, supabaseAnonKey, {
+        cookies: {
+          getAll: () => parsedCookies,
+          setAll: () => {},
+        },
+      })
+
+      const { data, error } = await server.auth.getClaims()
+      if (error || data?.claims?.sub !== buyer.userId) {
+        console.error(`[Validation ERROR] Buyer ${buyer.index} claim mismatch:`, error, data?.claims?.sub, buyer.userId)
+      } else {
+        validCount++
+        if (i < 3 || i === buyers.length - 1) {
+          console.log(`[Validation Sample ${buyer.index}] Buyer: ${buyer.email} | User ID: ${buyer.userId} | Claim: ${data?.claims?.sub} | VALID`)
+        }
+      }
+    }
+    console.log(`[Validation Summary] ${validCount} / ${buyers.length} session cookies verified valid against server contract.\n`)
+  }
+
   // Dry run verification if requested
   if (verifyAdmission && eventId) {
-    console.log(`\n--- Running Dry-Run Queue Admission Smoke Test (Sample: 3 buyers) ---`)
+    const tierId = getArg('tier-id', process.env.TIER_ID)
+    console.log(`\n--- Running Dry-Run Queue Admission & Reserve Smoke Test (Sample: 3 buyers) ---`)
+    console.log(`Target: Event ${eventId}${tierId ? ` | Tier ${tierId}` : ''}`)
     const sampleBuyers = buyers.slice(0, 3)
 
     for (const buyer of sampleBuyers) {
@@ -294,6 +319,23 @@ async function run() {
         })
         const statusBody = await statusRes.text()
         console.log(`Queue status: ${statusRes.status} | Body: ${statusBody}`)
+
+        if (tierId) {
+          console.log(`[Smoke Test] Buyer ${buyer.index} attempting reservation on tier ${tierId}...`)
+          const idempotencyKey = `dry-run-reserve-${String(buyer.index).padStart(5, '0')}-${Date.now()}`
+          const reserveRes = await fetch(`${baseUrl}/api/events/${eventId}/reserve`, {
+            method: 'POST',
+            headers: {
+              Cookie: buyer.cookieString,
+              Origin: baseUrl,
+              'Content-Type': 'application/json',
+              'Idempotency-Key': idempotencyKey,
+            },
+            body: JSON.stringify({ tierId, qty: 1 }),
+          })
+          const reserveBody = await reserveRes.text()
+          console.log(`Reserve status: ${reserveRes.status} | Body: ${reserveBody}`)
+        }
       } catch (err) {
         console.error(`[Smoke Test ERROR] Failed hitting endpoints: ${(err as Error).message}`)
       }
