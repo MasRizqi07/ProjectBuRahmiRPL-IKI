@@ -204,6 +204,7 @@ async function runGate1(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
     })
     const joinData = await joinRes.text()
     console.log(`  Join status: ${joinRes.status} | Body: ${joinData}`)
+    const joined = joinRes.status === 200 || joinRes.status === 201
 
     console.log(`▶️ [Buyer ${buyer.index}] Checking queue status...`)
     const statusRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
@@ -215,6 +216,13 @@ async function runGate1(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
     })
     const statusData = await statusRes.text()
     console.log(`  Queue status: ${statusRes.status} | Body: ${statusData}`)
+    let queueState: unknown
+    try {
+      queueState = (JSON.parse(statusData) as Record<string, unknown>).state
+    } catch {
+      queueState = undefined
+    }
+    const admitted = statusRes.status === 200 && queueState === 'ADMITTED'
 
     console.log(`▶️ [Buyer ${buyer.index}] Creating reservation...`)
     const idemKey = `gate1-seq-${buyer.index}-${Date.now()}`
@@ -230,13 +238,19 @@ async function runGate1(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
     })
     const reserveData = await reserveRes.text()
     console.log(`  Reserve status: ${reserveRes.status} | Body: ${reserveData}`)
+    let reserveStatus: unknown
+    try {
+      reserveStatus = (JSON.parse(reserveData) as Record<string, unknown>).status
+    } catch {
+      reserveStatus = undefined
+    }
 
-    if (!reserveRes.ok && reserveRes.status !== 201) {
+    if (!joined || !admitted || reserveRes.status !== 201 || reserveStatus !== 'HOLD_CREATED') {
       allSuccess = false
     }
   }
 
-  console.log(`\nGate 1 Result: ${allSuccess ? '✅ PASSED' : '⚠️ COMPLETED WITH WARNINGS'}`)
+  console.log(`\nGate 1 Result: ${allSuccess ? '✅ PASSED' : '❌ FAILED'}`)
   return allSuccess
 }
 
@@ -251,7 +265,7 @@ async function runGate3(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
 
   const buyer = buyers.length > 3 ? buyers[3] : buyers[0]
   console.log(`[Gate 3] Buyer ${buyer.index} joining queue & obtaining admission...`)
-  await fetch(`${baseUrl}/api/events/${fixture.eventId}/join-queue`, {
+  const joinRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/join-queue`, {
     method: 'POST',
     headers: {
       Cookie: buyer.cookieString,
@@ -259,13 +273,34 @@ async function runGate3(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
       'Content-Type': 'application/json',
     },
   })
-  await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
+  const joinBody = await joinRes.text()
+  console.log(`  Join response: ${joinRes.status} | ${joinBody}`)
+  const statusRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
     method: 'GET',
     headers: {
       Cookie: buyer.cookieString,
       Origin: baseUrl,
     },
   })
+  const statusBody = await statusRes.text()
+  console.log(`  Queue response: ${statusRes.status} | ${statusBody}`)
+  let queueState: unknown
+  try {
+    queueState = (JSON.parse(statusBody) as Record<string, unknown>).state
+  } catch {
+    queueState = undefined
+  }
+  if (
+    (joinRes.status !== 200 && joinRes.status !== 201) ||
+    statusRes.status !== 200 ||
+    queueState !== 'ADMITTED'
+  ) {
+    console.log('❌ GATE 3 FAILED: buyer did not reach the admitted state.')
+    return false
+  }
+
+  const redis = edgeRedis()
+  const before = await printInventoryAudit(redis, fixture, '--- Gate 3 inventory before duplicate requests ---')
 
   const idemKey = `gate3-concurrent-idem-${Date.now()}`
   console.log(`Sending 2 simultaneous POST /reserve requests with Idempotency-Key: ${idemKey}`)
@@ -292,11 +327,33 @@ async function runGate3(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
   console.log(`  Request 1 (${resA.duration}ms): Status ${resA.status} | Body: ${resA.text}`)
   console.log(`  Request 2 (${resB.duration}ms): Status ${resB.status} | Body: ${resB.text}`)
 
-  const isIdentical = resA.text === resB.text
+  let bodyA: Record<string, unknown> = {}
+  let bodyB: Record<string, unknown> = {}
+  try {
+    bodyA = JSON.parse(resA.text) as Record<string, unknown>
+    bodyB = JSON.parse(resB.text) as Record<string, unknown>
+  } catch {
+    bodyA = {}
+    bodyB = {}
+  }
+  const isIdentical =
+    resA.text === resB.text &&
+    bodyA.status === 'HOLD_CREATED' &&
+    typeof bodyA.orderId === 'string' &&
+    bodyA.orderId === bodyB.orderId &&
+    typeof bodyA.remaining === 'number' &&
+    bodyA.remaining === bodyB.remaining
   const areSuccess = (resA.status === 200 || resA.status === 201) && (resB.status === 200 || resB.status === 201)
+  const after = await printInventoryAudit(redis, fixture, '--- Gate 3 inventory after duplicate requests ---')
+  const oneHoldCreated =
+    typeof before.eventInventory === 'number' &&
+    typeof before.tierInventory === 'number' &&
+    after.eventInventory === before.eventInventory - 1 &&
+    after.tierInventory === before.tierInventory - 1 &&
+    after.activeHolds === before.activeHolds + 1
 
-  if (isIdentical && areSuccess) {
-    console.log('✅ GATE 3 PASSED: Both concurrent requests returned identical response and exactly one hold created.')
+  if (isIdentical && areSuccess && oneHoldCreated) {
+    console.log('✅ GATE 3 PASSED: identical orderId/remaining and exactly one inventory hold created.')
     return true
   } else {
     console.log('❌ GATE 3 FAILED: Responses differed or did not return success.')
