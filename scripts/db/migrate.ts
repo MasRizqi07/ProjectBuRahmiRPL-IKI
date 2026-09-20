@@ -65,14 +65,19 @@ async function main() {
 -- ====================================================================
 
 -- 1. CLEAN TEARDOWN (Ensures script can run repeatedly without "relation already exists" errors)
+drop table if exists public.concierge_cases cascade;
+drop table if exists public.elite_memberships cascade;
+drop table if exists public.event_subscriptions cascade;
+drop table if exists public.community_messages cascade;
 drop table if exists public.promo_redemptions cascade;
 drop table if exists public.promo_campaigns cascade;
-drop table if exists public.community_messages cascade;
-drop table if exists public.event_subscriptions cascade;
-drop table if exists public.elite_memberships cascade;
-drop table if exists public.support_cases cascade;
 drop table if exists public.disputes cascade;
 drop table if exists public.organizer_applications cascade;
+drop table if exists public.legal_consents cascade;
+drop table if exists public.legal_documents cascade;
+drop table if exists public.newsletter_subscriptions cascade;
+drop table if exists public.support_cases cascade;
+drop table if exists public.notifications cascade;
 drop table if exists public.orders cascade;
 drop table if exists public.ticket_tiers cascade;
 drop table if exists public.concerts cascade;

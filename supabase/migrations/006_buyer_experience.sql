@@ -2,7 +2,7 @@
 
 create type ticketing.ticket_status as enum ('ACTIVE', 'REDEEMED', 'VOID', 'REFUNDED');
 
-create table ticketing.tickets (
+create table if not exists ticketing.tickets (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   order_id uuid not null,
@@ -19,7 +19,7 @@ create table ticketing.tickets (
   unique (order_item_id, sequence)
 );
 
-create table ticketing.ticket_qr_tokens (
+create table if not exists ticketing.ticket_qr_tokens (
   token_hash text primary key,
   ticket_id uuid not null references ticketing.tickets(id) on delete cascade,
   owner_user_id uuid not null references auth.users(id),
@@ -27,9 +27,9 @@ create table ticketing.ticket_qr_tokens (
   consumed_at timestamptz,
   created_at timestamptz not null default now()
 );
-create index ticket_qr_tokens_expiry_idx on ticketing.ticket_qr_tokens(expires_at) where consumed_at is null;
+create index if not exists ticket_qr_tokens_expiry_idx on ticketing.ticket_qr_tokens(expires_at) where consumed_at is null;
 
-create table public.notifications (
+create table if not exists public.notifications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   category text not null check (category in ('war','order','system','promo','support')),
@@ -39,9 +39,9 @@ create table public.notifications (
   read_at timestamptz,
   created_at timestamptz not null default now()
 );
-create index notifications_user_created_idx on public.notifications(user_id, created_at desc);
+create index if not exists notifications_user_created_idx on public.notifications(user_id, created_at desc);
 
-create table public.support_cases (
+create table if not exists public.support_cases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
   order_id uuid,
@@ -52,7 +52,7 @@ create table public.support_cases (
   updated_at timestamptz not null default now()
 );
 
-create table public.newsletter_subscriptions (
+create table if not exists public.newsletter_subscriptions (
   email text primary key check (email = lower(email)),
   user_id uuid references auth.users(id),
   status text not null default 'PENDING' check (status in ('PENDING','ACTIVE','UNSUBSCRIBED')),
@@ -61,7 +61,7 @@ create table public.newsletter_subscriptions (
   unsubscribe_token uuid not null default gen_random_uuid()
 );
 
-create table public.legal_documents (
+create table if not exists public.legal_documents (
   kind text not null check (kind in ('TERMS','PRIVACY','REFUND')),
   version text not null,
   title text not null,
@@ -71,7 +71,7 @@ create table public.legal_documents (
   primary key (kind, version)
 );
 
-create table public.legal_consents (
+create table if not exists public.legal_consents (
   user_id uuid not null references auth.users(id),
   kind text not null,
   version text not null,
@@ -84,7 +84,8 @@ create table public.legal_consents (
 insert into public.legal_documents (kind, version, title, content_markdown, effective_at, published_at) values
 ('TERMS', '2026-08-29', 'Syarat dan Ketentuan War Ticket', 'Ketentuan pembelian, antrean, pembayaran, penggunaan tiket, dan kewajiban pengguna.', '2026-08-29', now()),
 ('PRIVACY', '2026-08-29', 'Kebijakan Privasi War Ticket', 'Data diproses secara terbatas untuk autentikasi, transaksi, keamanan tiket, dan dukungan pengguna.', '2026-08-29', now()),
-('REFUND', '2026-08-29', 'Kebijakan Refund War Ticket', 'Refund hanya diproses setelah status provider dan kebijakan event terverifikasi.', '2026-08-29', now());
+('REFUND', '2026-08-29', 'Kebijakan Refund War Ticket', 'Refund hanya diproses setelah status provider dan kebijakan event terverifikasi.', '2026-08-29', now())
+on conflict (kind, version) do nothing;
 
 create or replace function ticketing.issue_paid_order_tickets()
 returns trigger
@@ -109,6 +110,7 @@ begin
 end;
 $$;
 
+drop trigger if exists orders_issue_tickets on ticketing.orders;
 create trigger orders_issue_tickets after update of status on ticketing.orders
 for each row execute function ticketing.issue_paid_order_tickets();
 
@@ -120,12 +122,25 @@ alter table public.newsletter_subscriptions enable row level security;
 alter table public.legal_documents enable row level security;
 alter table public.legal_consents enable row level security;
 
+drop policy if exists ticket_owner_read on ticketing.tickets;
 create policy ticket_owner_read on ticketing.tickets for select using (owner_user_id = auth.uid());
+
+drop policy if exists qr_owner_read on ticketing.ticket_qr_tokens;
 create policy qr_owner_read on ticketing.ticket_qr_tokens for select using (owner_user_id = auth.uid());
+
+drop policy if exists notification_owner_all on public.notifications;
 create policy notification_owner_all on public.notifications for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists support_owner_read on public.support_cases;
 create policy support_owner_read on public.support_cases for select using (user_id = auth.uid() or public.is_platform_staff(array['support','platform_admin']));
+
+drop policy if exists support_owner_insert on public.support_cases;
 create policy support_owner_insert on public.support_cases for insert with check (user_id = auth.uid());
+
+drop policy if exists legal_public_read on public.legal_documents;
 create policy legal_public_read on public.legal_documents for select using (published_at is not null and effective_at <= now());
+
+drop policy if exists consent_owner_all on public.legal_consents;
 create policy consent_owner_all on public.legal_consents for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 grant select on ticketing.tickets, ticketing.ticket_qr_tokens to authenticated;

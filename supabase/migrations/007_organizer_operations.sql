@@ -1,6 +1,6 @@
 -- Phase 5: organizer onboarding, drafts, controlled operations, and settlement records.
 
-create table public.organizer_applications (
+create table if not exists public.organizer_applications (
   id uuid primary key default gen_random_uuid(),
   applicant_user_id uuid references auth.users(id),
   company_name text not null,
@@ -15,7 +15,7 @@ create table public.organizer_applications (
   created_at timestamptz not null default now()
 );
 
-create table ticketing.event_drafts (
+create table if not exists ticketing.event_drafts (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   created_by uuid not null references auth.users(id),
@@ -34,7 +34,7 @@ alter table ticketing.events
   add column if not exists approved_by uuid references auth.users(id),
   add column if not exists approved_at timestamptz;
 
-create table ticketing.organizer_mutation_keys (
+create table if not exists ticketing.organizer_mutation_keys (
   tenant_id uuid not null references ticketing.tenants(id),
   actor_user_id uuid not null references auth.users(id),
   key text not null,
@@ -44,7 +44,7 @@ create table ticketing.organizer_mutation_keys (
   primary key (tenant_id, actor_user_id, key)
 );
 
-create table ticketing.broadcasts (
+create table if not exists ticketing.broadcasts (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   event_id uuid not null,
@@ -54,7 +54,7 @@ create table ticketing.broadcasts (
   foreign key (tenant_id, event_id) references ticketing.events(tenant_id, id)
 );
 
-create table ticketing.settlements (
+create table if not exists ticketing.settlements (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   event_id uuid not null,
@@ -74,11 +74,22 @@ alter table public.organizer_applications enable row level security;
 alter table ticketing.event_drafts enable row level security;
 alter table ticketing.broadcasts enable row level security;
 alter table ticketing.settlements enable row level security;
+
+drop policy if exists organizer_application_owner_read on public.organizer_applications;
 create policy organizer_application_owner_read on public.organizer_applications for select using (applicant_user_id = auth.uid() or public.is_platform_staff(array['platform_admin']));
+
+drop policy if exists organizer_application_insert on public.organizer_applications;
 create policy organizer_application_insert on public.organizer_applications for insert with check (applicant_user_id = auth.uid());
+
+drop policy if exists event_draft_member_all on ticketing.event_drafts;
 create policy event_draft_member_all on ticketing.event_drafts for all using (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','OPERATOR']::ticketing.membership_role[])) with check (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','OPERATOR']::ticketing.membership_role[]));
+
+drop policy if exists broadcast_member_read on ticketing.broadcasts;
 create policy broadcast_member_read on ticketing.broadcasts for select using (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','OPERATOR','FINANCE','VIEWER']::ticketing.membership_role[]));
+
+drop policy if exists settlement_finance_read on ticketing.settlements;
 create policy settlement_finance_read on ticketing.settlements for select using (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','FINANCE']::ticketing.membership_role[]));
+
 grant select, insert on public.organizer_applications to authenticated;
 grant select, insert, update on ticketing.event_drafts to authenticated;
 grant select on ticketing.broadcasts, ticketing.settlements to authenticated;

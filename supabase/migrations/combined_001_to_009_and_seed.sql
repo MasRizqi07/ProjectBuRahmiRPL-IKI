@@ -4,14 +4,19 @@
 -- ====================================================================
 
 -- 1. CLEAN TEARDOWN (Ensures script can run repeatedly without "relation already exists" errors)
+drop table if exists public.concierge_cases cascade;
+drop table if exists public.elite_memberships cascade;
+drop table if exists public.event_subscriptions cascade;
+drop table if exists public.community_messages cascade;
 drop table if exists public.promo_redemptions cascade;
 drop table if exists public.promo_campaigns cascade;
-drop table if exists public.community_messages cascade;
-drop table if exists public.event_subscriptions cascade;
-drop table if exists public.elite_memberships cascade;
-drop table if exists public.support_cases cascade;
 drop table if exists public.disputes cascade;
 drop table if exists public.organizer_applications cascade;
+drop table if exists public.legal_consents cascade;
+drop table if exists public.legal_documents cascade;
+drop table if exists public.newsletter_subscriptions cascade;
+drop table if exists public.support_cases cascade;
+drop table if exists public.notifications cascade;
 drop table if exists public.orders cascade;
 drop table if exists public.ticket_tiers cascade;
 drop table if exists public.concerts cascade;
@@ -1004,7 +1009,7 @@ grant execute on function ticketing.write_audit(uuid, text, text, uuid, jsonb) t
 
 create type ticketing.ticket_status as enum ('ACTIVE', 'REDEEMED', 'VOID', 'REFUNDED');
 
-create table ticketing.tickets (
+create table if not exists ticketing.tickets (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   order_id uuid not null,
@@ -1021,7 +1026,7 @@ create table ticketing.tickets (
   unique (order_item_id, sequence)
 );
 
-create table ticketing.ticket_qr_tokens (
+create table if not exists ticketing.ticket_qr_tokens (
   token_hash text primary key,
   ticket_id uuid not null references ticketing.tickets(id) on delete cascade,
   owner_user_id uuid not null references auth.users(id),
@@ -1029,9 +1034,9 @@ create table ticketing.ticket_qr_tokens (
   consumed_at timestamptz,
   created_at timestamptz not null default now()
 );
-create index ticket_qr_tokens_expiry_idx on ticketing.ticket_qr_tokens(expires_at) where consumed_at is null;
+create index if not exists ticket_qr_tokens_expiry_idx on ticketing.ticket_qr_tokens(expires_at) where consumed_at is null;
 
-create table public.notifications (
+create table if not exists public.notifications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   category text not null check (category in ('war','order','system','promo','support')),
@@ -1041,9 +1046,9 @@ create table public.notifications (
   read_at timestamptz,
   created_at timestamptz not null default now()
 );
-create index notifications_user_created_idx on public.notifications(user_id, created_at desc);
+create index if not exists notifications_user_created_idx on public.notifications(user_id, created_at desc);
 
-create table public.support_cases (
+create table if not exists public.support_cases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
   order_id uuid,
@@ -1054,7 +1059,7 @@ create table public.support_cases (
   updated_at timestamptz not null default now()
 );
 
-create table public.newsletter_subscriptions (
+create table if not exists public.newsletter_subscriptions (
   email text primary key check (email = lower(email)),
   user_id uuid references auth.users(id),
   status text not null default 'PENDING' check (status in ('PENDING','ACTIVE','UNSUBSCRIBED')),
@@ -1063,7 +1068,7 @@ create table public.newsletter_subscriptions (
   unsubscribe_token uuid not null default gen_random_uuid()
 );
 
-create table public.legal_documents (
+create table if not exists public.legal_documents (
   kind text not null check (kind in ('TERMS','PRIVACY','REFUND')),
   version text not null,
   title text not null,
@@ -1073,7 +1078,7 @@ create table public.legal_documents (
   primary key (kind, version)
 );
 
-create table public.legal_consents (
+create table if not exists public.legal_consents (
   user_id uuid not null references auth.users(id),
   kind text not null,
   version text not null,
@@ -1086,7 +1091,8 @@ create table public.legal_consents (
 insert into public.legal_documents (kind, version, title, content_markdown, effective_at, published_at) values
 ('TERMS', '2026-08-29', 'Syarat dan Ketentuan War Ticket', 'Ketentuan pembelian, antrean, pembayaran, penggunaan tiket, dan kewajiban pengguna.', '2026-08-29', now()),
 ('PRIVACY', '2026-08-29', 'Kebijakan Privasi War Ticket', 'Data diproses secara terbatas untuk autentikasi, transaksi, keamanan tiket, dan dukungan pengguna.', '2026-08-29', now()),
-('REFUND', '2026-08-29', 'Kebijakan Refund War Ticket', 'Refund hanya diproses setelah status provider dan kebijakan event terverifikasi.', '2026-08-29', now());
+('REFUND', '2026-08-29', 'Kebijakan Refund War Ticket', 'Refund hanya diproses setelah status provider dan kebijakan event terverifikasi.', '2026-08-29', now())
+on conflict (kind, version) do nothing;
 
 create or replace function ticketing.issue_paid_order_tickets()
 returns trigger
@@ -1111,6 +1117,7 @@ begin
 end;
 $$;
 
+drop trigger if exists orders_issue_tickets on ticketing.orders;
 create trigger orders_issue_tickets after update of status on ticketing.orders
 for each row execute function ticketing.issue_paid_order_tickets();
 
@@ -1122,12 +1129,25 @@ alter table public.newsletter_subscriptions enable row level security;
 alter table public.legal_documents enable row level security;
 alter table public.legal_consents enable row level security;
 
+drop policy if exists ticket_owner_read on ticketing.tickets;
 create policy ticket_owner_read on ticketing.tickets for select using (owner_user_id = auth.uid());
+
+drop policy if exists qr_owner_read on ticketing.ticket_qr_tokens;
 create policy qr_owner_read on ticketing.ticket_qr_tokens for select using (owner_user_id = auth.uid());
+
+drop policy if exists notification_owner_all on public.notifications;
 create policy notification_owner_all on public.notifications for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists support_owner_read on public.support_cases;
 create policy support_owner_read on public.support_cases for select using (user_id = auth.uid() or public.is_platform_staff(array['support','platform_admin']));
+
+drop policy if exists support_owner_insert on public.support_cases;
 create policy support_owner_insert on public.support_cases for insert with check (user_id = auth.uid());
+
+drop policy if exists legal_public_read on public.legal_documents;
 create policy legal_public_read on public.legal_documents for select using (published_at is not null and effective_at <= now());
+
+drop policy if exists consent_owner_all on public.legal_consents;
 create policy consent_owner_all on public.legal_consents for all using (user_id = auth.uid()) with check (user_id = auth.uid());
 
 grant select on ticketing.tickets, ticketing.ticket_qr_tokens to authenticated;
@@ -1142,7 +1162,7 @@ grant select, insert on public.legal_consents to authenticated;
 -- ==========================================
 -- Phase 5: organizer onboarding, drafts, controlled operations, and settlement records.
 
-create table public.organizer_applications (
+create table if not exists public.organizer_applications (
   id uuid primary key default gen_random_uuid(),
   applicant_user_id uuid references auth.users(id),
   company_name text not null,
@@ -1157,7 +1177,7 @@ create table public.organizer_applications (
   created_at timestamptz not null default now()
 );
 
-create table ticketing.event_drafts (
+create table if not exists ticketing.event_drafts (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   created_by uuid not null references auth.users(id),
@@ -1176,7 +1196,7 @@ alter table ticketing.events
   add column if not exists approved_by uuid references auth.users(id),
   add column if not exists approved_at timestamptz;
 
-create table ticketing.organizer_mutation_keys (
+create table if not exists ticketing.organizer_mutation_keys (
   tenant_id uuid not null references ticketing.tenants(id),
   actor_user_id uuid not null references auth.users(id),
   key text not null,
@@ -1186,7 +1206,7 @@ create table ticketing.organizer_mutation_keys (
   primary key (tenant_id, actor_user_id, key)
 );
 
-create table ticketing.broadcasts (
+create table if not exists ticketing.broadcasts (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   event_id uuid not null,
@@ -1196,7 +1216,7 @@ create table ticketing.broadcasts (
   foreign key (tenant_id, event_id) references ticketing.events(tenant_id, id)
 );
 
-create table ticketing.settlements (
+create table if not exists ticketing.settlements (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   event_id uuid not null,
@@ -1216,11 +1236,22 @@ alter table public.organizer_applications enable row level security;
 alter table ticketing.event_drafts enable row level security;
 alter table ticketing.broadcasts enable row level security;
 alter table ticketing.settlements enable row level security;
+
+drop policy if exists organizer_application_owner_read on public.organizer_applications;
 create policy organizer_application_owner_read on public.organizer_applications for select using (applicant_user_id = auth.uid() or public.is_platform_staff(array['platform_admin']));
+
+drop policy if exists organizer_application_insert on public.organizer_applications;
 create policy organizer_application_insert on public.organizer_applications for insert with check (applicant_user_id = auth.uid());
+
+drop policy if exists event_draft_member_all on ticketing.event_drafts;
 create policy event_draft_member_all on ticketing.event_drafts for all using (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','OPERATOR']::ticketing.membership_role[])) with check (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','OPERATOR']::ticketing.membership_role[]));
+
+drop policy if exists broadcast_member_read on ticketing.broadcasts;
 create policy broadcast_member_read on ticketing.broadcasts for select using (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','OPERATOR','FINANCE','VIEWER']::ticketing.membership_role[]));
+
+drop policy if exists settlement_finance_read on ticketing.settlements;
 create policy settlement_finance_read on ticketing.settlements for select using (ticketing.has_tenant_role(tenant_id, array['OWNER','ADMIN','FINANCE']::ticketing.membership_role[]));
+
 grant select, insert on public.organizer_applications to authenticated;
 grant select, insert, update on ticketing.event_drafts to authenticated;
 grant select on ticketing.broadcasts, ticketing.settlements to authenticated;
@@ -1231,7 +1262,7 @@ grant select on ticketing.broadcasts, ticketing.settlements to authenticated;
 -- ==========================================
 -- Phase 6: disputes, provider-verified refunds, and admin governance.
 
-create table public.disputes (
+create table if not exists public.disputes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
   order_id uuid not null,
@@ -1246,7 +1277,7 @@ create table public.disputes (
   unique (user_id, order_id, reason)
 );
 
-create table ticketing.refund_requests (
+create table if not exists ticketing.refund_requests (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   dispute_id uuid not null references public.disputes(id),
@@ -1265,9 +1296,16 @@ create table ticketing.refund_requests (
 
 alter table public.disputes enable row level security;
 alter table ticketing.refund_requests enable row level security;
+
+drop policy if exists dispute_owner_read on public.disputes;
 create policy dispute_owner_read on public.disputes for select using (user_id = auth.uid() or public.is_platform_staff(array['support','platform_admin']));
+
+drop policy if exists dispute_owner_insert on public.disputes;
 create policy dispute_owner_insert on public.disputes for insert with check (user_id = auth.uid());
+
+drop policy if exists refund_staff_read on ticketing.refund_requests for select using (public.is_platform_staff(array['support','platform_admin']));
 create policy refund_staff_read on ticketing.refund_requests for select using (public.is_platform_staff(array['support','platform_admin']));
+
 grant select, insert on public.disputes to authenticated;
 grant select on ticketing.refund_requests to authenticated;
 
@@ -1277,7 +1315,7 @@ grant select on ticketing.refund_requests to authenticated;
 -- ==========================================
 -- Phase 7: promotion validation, community, event subscriptions, and Elite presale separation.
 
-create table public.promo_campaigns (
+create table if not exists public.promo_campaigns (
   id uuid primary key default gen_random_uuid(),
   code text not null unique check (code = upper(code)),
   title text not null,
@@ -1294,7 +1332,7 @@ create table public.promo_campaigns (
   check (starts_at < ends_at)
 );
 
-create table public.promo_redemptions (
+create table if not exists public.promo_redemptions (
   promo_id uuid not null references public.promo_campaigns(id),
   user_id uuid not null references auth.users(id),
   order_id uuid not null,
@@ -1303,16 +1341,16 @@ create table public.promo_redemptions (
   primary key (promo_id, user_id, order_id)
 );
 
-create table public.community_messages (
+create table if not exists public.community_messages (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id),
   body text not null check (length(body) between 1 and 500),
   moderation_status text not null default 'VISIBLE' check (moderation_status in ('VISIBLE','HIDDEN','REVIEW')),
   created_at timestamptz not null default now()
 );
-create index community_messages_visible_idx on public.community_messages(created_at desc) where moderation_status = 'VISIBLE';
+create index if not exists community_messages_visible_idx on public.community_messages(created_at desc) where moderation_status = 'VISIBLE';
 
-create table public.event_subscriptions (
+create table if not exists public.event_subscriptions (
   user_id uuid not null references auth.users(id),
   event_id uuid not null references public.concerts(id) on delete cascade,
   channels text[] not null default array['EMAIL'],
@@ -1320,7 +1358,7 @@ create table public.event_subscriptions (
   primary key (user_id, event_id)
 );
 
-create table public.elite_memberships (
+create table if not exists public.elite_memberships (
   user_id uuid primary key references auth.users(id),
   tier text not null check (tier in ('ELITE','VANGUARD')),
   status text not null check (status in ('ACTIVE','PAST_DUE','CANCELLED','EXPIRED')),
@@ -1329,14 +1367,14 @@ create table public.elite_memberships (
   provider_subscription_id text unique
 );
 
-create table ticketing.elite_presales (
+create table if not exists ticketing.elite_presales (
   sales_session_id uuid primary key references ticketing.sales_sessions(id),
   required_tier text not null check (required_tier in ('ELITE','VANGUARD')),
   allocation integer not null check (allocation > 0),
   created_at timestamptz not null default now()
 );
 
-create table public.concierge_cases (
+create table if not exists public.concierge_cases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
   subject text not null,
@@ -1353,13 +1391,28 @@ alter table public.event_subscriptions enable row level security;
 alter table public.elite_memberships enable row level security;
 alter table ticketing.elite_presales enable row level security;
 alter table public.concierge_cases enable row level security;
+
+drop policy if exists promo_public_read on public.promo_campaigns;
 create policy promo_public_read on public.promo_campaigns for select using (enabled and starts_at <= now() and ends_at > now());
+
+drop policy if exists promo_redemption_owner_read on public.promo_redemptions;
 create policy promo_redemption_owner_read on public.promo_redemptions for select using (user_id = auth.uid());
+
+drop policy if exists community_visible_read on public.community_messages;
 create policy community_visible_read on public.community_messages for select using (moderation_status = 'VISIBLE' or user_id = auth.uid() or public.is_platform_staff(array['support','platform_admin']));
+
+drop policy if exists community_owner_insert on public.community_messages;
 create policy community_owner_insert on public.community_messages for insert with check (user_id = auth.uid());
+
+drop policy if exists subscription_owner_all on public.event_subscriptions;
 create policy subscription_owner_all on public.event_subscriptions for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
+drop policy if exists elite_owner_read on public.elite_memberships;
 create policy elite_owner_read on public.elite_memberships for select using (user_id = auth.uid());
+
+drop policy if exists concierge_owner_all on public.concierge_cases;
 create policy concierge_owner_all on public.concierge_cases for all using (user_id = auth.uid()) with check (user_id = auth.uid());
+
 grant select on public.promo_campaigns, public.promo_redemptions, public.community_messages, public.elite_memberships to authenticated;
 grant insert on public.community_messages to authenticated;
 grant select, insert, delete on public.event_subscriptions to authenticated;

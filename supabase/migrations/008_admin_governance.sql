@@ -1,6 +1,6 @@
 -- Phase 6: disputes, provider-verified refunds, and admin governance.
 
-create table public.disputes (
+create table if not exists public.disputes (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id),
   order_id uuid not null,
@@ -15,7 +15,7 @@ create table public.disputes (
   unique (user_id, order_id, reason)
 );
 
-create table ticketing.refund_requests (
+create table if not exists ticketing.refund_requests (
   id uuid primary key default gen_random_uuid(),
   tenant_id uuid not null references ticketing.tenants(id),
   dispute_id uuid not null references public.disputes(id),
@@ -34,8 +34,15 @@ create table ticketing.refund_requests (
 
 alter table public.disputes enable row level security;
 alter table ticketing.refund_requests enable row level security;
+
+drop policy if exists dispute_owner_read on public.disputes;
 create policy dispute_owner_read on public.disputes for select using (user_id = auth.uid() or public.is_platform_staff(array['support','platform_admin']));
+
+drop policy if exists dispute_owner_insert on public.disputes;
 create policy dispute_owner_insert on public.disputes for insert with check (user_id = auth.uid());
+
+drop policy if exists refund_staff_read on ticketing.refund_requests for select using (public.is_platform_staff(array['support','platform_admin']));
 create policy refund_staff_read on ticketing.refund_requests for select using (public.is_platform_staff(array['support','platform_admin']));
+
 grant select, insert on public.disputes to authenticated;
 grant select on ticketing.refund_requests to authenticated;
