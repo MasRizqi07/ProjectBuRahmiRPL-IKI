@@ -56,9 +56,10 @@ async function main() {
     '007_organizer_operations.sql',
     '008_admin_governance.sql',
     '009_engagement_elite.sql',
+    '010_edge_payment_context.sql',
   ]
 
-  console.log('📦 Bundling migrations 001 through 009...')
+  console.log('📦 Bundling migrations 001 through 010...')
   let combinedSchema = `-- ====================================================================
 -- WAR TICKET PLATFORM: COMPLETE CONSOLIDATED MIGRATION
 -- Automatically cleans existing relations to prevent 42P07 conflicts
@@ -101,7 +102,7 @@ create extension if not exists pgcrypto;
     }
   }
 
-  const combinedSchemaPath = path.resolve(migrationsDir, 'combined_001_to_009_schema_only.sql')
+  const combinedSchemaPath = path.resolve(migrationsDir, 'combined_001_to_010_schema_only.sql')
   fs.writeFileSync(combinedSchemaPath, combinedSchema, 'utf-8')
   console.log(`✅ Generated schema bundle: ${combinedSchemaPath}`)
 
@@ -112,7 +113,7 @@ create extension if not exists pgcrypto;
     combinedAll += `-- ==========================================\n`
     combinedAll += fs.readFileSync(seedFile, 'utf-8') + '\n\n'
   }
-  const combinedAllPath = path.resolve(migrationsDir, 'combined_001_to_009_and_seed.sql')
+  const combinedAllPath = path.resolve(migrationsDir, 'combined_001_to_010_and_seed.sql')
   fs.writeFileSync(combinedAllPath, combinedAll, 'utf-8')
   console.log(`✅ Generated full bundle (with seed): ${combinedAllPath}`)
 
@@ -203,4 +204,3 @@ main().catch((err) => {
   console.error('Fatal error running migration:', err)
   process.exit(1)
 })
-

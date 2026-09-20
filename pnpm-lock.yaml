@@ -17,15 +17,27 @@ importers:
       '@playwright/test':
         specifier: ^1.62.1
         version: 1.62.1
+      '@supabase/ssr':
+        specifier: ^0.10.3
+        version: 0.10.3(@supabase/supabase-js@2.112.3)
+      '@supabase/supabase-js':
+        specifier: ^2.106.1
+        version: 2.112.3
       '@types/node':
         specifier: ^22.19.1
         version: 22.19.11
+      '@upstash/redis':
+        specifier: ^1.38.3
+        version: 1.38.3
       eslint:
         specifier: ^9.39.1
         version: 9.39.5(jiti@2.6.1)
       globals:
         specifier: ^16.5.0
         version: 16.5.0
+      postgres:
+        specifier: ^3.4.7
+        version: 3.4.9
       prettier:
         specifier: ^3.7.4
         version: 3.9.6

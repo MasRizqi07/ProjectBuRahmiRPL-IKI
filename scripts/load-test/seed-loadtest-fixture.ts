@@ -2,6 +2,8 @@ import { createClient } from '@supabase/supabase-js'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
 
+const FIXTURE_TENANT_ID = '11111111-1111-4111-8111-111111111111'
+
 function findRepoRoot(): string {
   let dir = process.cwd()
   while (dir !== path.dirname(dir)) {
@@ -59,7 +61,7 @@ async function main() {
   const { error: testError } = await adminClient.from('concerts').select('id').limit(1)
   if (testError) {
     console.error('❌ Could not query public.concerts:', testError.message)
-    console.error('👉 Please apply migrations first via `pnpm db:migrate` or paste `combined_001_to_009_and_seed.sql` into Supabase SQL Editor.')
+    console.error('👉 Please apply migrations first via `pnpm db:migrate` or paste `combined_001_to_010_and_seed.sql` into Supabase SQL Editor.')
     process.exit(1)
   }
 
@@ -77,6 +79,11 @@ async function main() {
 
   if (existingConcerts && existingConcerts.length > 0) {
     eventId = existingConcerts[0].id
+    const { error: ownerError } = await adminClient
+      .from('concerts')
+      .update({ tenant_id: FIXTURE_TENANT_ID })
+      .eq('id', eventId)
+    if (ownerError) throw ownerError
     const existingTiers = (existingConcerts[0].ticket_tiers as Array<{ id: string; capacity: number; sold: number }>) ?? []
     if (existingTiers.length > 0) {
       tierId = existingTiers[0].id
@@ -116,6 +123,7 @@ async function main() {
         status: 'available',
         description: 'Automated 10,000-concurrent load test fixture with exactly 100 tickets.',
         is_featured: true,
+        tenant_id: FIXTURE_TENANT_ID,
       })
       .select('id')
       .single()
@@ -151,6 +159,7 @@ async function main() {
   const fixtureInfo = {
     eventId,
     tierId,
+    tenantId: FIXTURE_TENANT_ID,
     capacity: 100,
     price: 350000,
     timestamp: new Date().toISOString(),
@@ -173,4 +182,3 @@ main().catch((err) => {
   console.error('Fatal error seeding fixture:', err)
   process.exit(1)
 })
-

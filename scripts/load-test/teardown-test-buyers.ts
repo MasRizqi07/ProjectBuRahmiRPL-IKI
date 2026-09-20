@@ -113,7 +113,8 @@ async function run() {
       }
       if (!data || data.users.length === 0) break
 
-      const matching = data.users.filter((u) => u.email?.includes(prefix)).map((u) => u.id)
+      const usersList = data.users as Array<{ email?: string; id: string }>
+      const matching = usersList.filter((u) => u.email?.includes(prefix)).map((u) => u.id)
       userIdsToDelete.push(...matching)
 
       if (data.users.length < perPage) break

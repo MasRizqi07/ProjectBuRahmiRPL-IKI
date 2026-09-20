@@ -201,6 +201,10 @@ begin
   values (demo_tenant_id, 'demo-promoter', 'Demo Promoter Indonesia')
   on conflict (id) do nothing;
 
+  update public.concerts
+  set tenant_id = demo_tenant_id
+  where id = demo_concert_id;
+
   insert into ticketing.venue_layouts (id, tenant_id, name, version)
   values (demo_layout_id, demo_tenant_id, 'JIExpo Hall A', 1)
   on conflict (id) do nothing;
