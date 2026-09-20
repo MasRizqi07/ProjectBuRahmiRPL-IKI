@@ -7,6 +7,16 @@ const eventId = __ENV.EVENT_ID
 const tierId = __ENV.TIER_ID
 const appOrigin = __ENV.APP_ORIGIN ?? baseUrl
 const vercelBypassSecret = __ENV.VERCEL_BYPASS_SECRET
+let rawFixture
+try {
+  rawFixture = open('../../scripts/load-test/fixture-env.json')
+} catch {
+  try {
+    rawFixture = open('./scripts/load-test/fixture-env.json')
+  } catch {
+    rawFixture = '{}'
+  }
+}
 let rawCookies = __ENV.AUTH_COOKIES_JSON
 if (!rawCookies) {
   try {
@@ -20,18 +30,36 @@ if (!rawCookies) {
   }
 }
 
+const fixture = JSON.parse(rawFixture)
 const authCookies = JSON.parse(rawCookies)
 const targetVus = parseInt(__ENV.VUS ?? `${Math.max(authCookies.length, 1)}`, 10)
 
 if (!eventId || !tierId) fail('EVENT_ID and TIER_ID are required')
 if (authCookies.length === 0) fail('No authenticated cookies loaded')
+if (!Number.isSafeInteger(fixture.capacity) || fixture.capacity <= 0) {
+  fail('scripts/load-test/fixture-env.json must contain a positive integer capacity')
+}
+if (!Number.isSafeInteger(targetVus) || targetVus <= 0) fail('VUS must be a positive integer')
+if (authCookies.length < targetVus) {
+  fail(`VUS=${targetVus} requires at least ${targetVus} authenticated cookies; loaded ${authCookies.length}`)
+}
+
+const gate2MinimumVus = fixture.capacity * 10
+if (targetVus < gate2MinimumVus) {
+  console.warn('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+  console.warn(
+    `SMOKE TEST ONLY: VUS=${targetVus} is below the Gate 2 minimum of ${gate2MinimumVus} ` +
+      `(10x fixture capacity ${fixture.capacity}). This run MUST NOT be reported as Gate 2 PASSED.`,
+  )
+  console.warn('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+}
 
 const holdsCreated = new Counter('holds_created')
 const soldOut = new Counter('sold_out')
 const unexpected = new Counter('unexpected_responses')
 
-const expectedHolds = Math.min(targetVus, 100)
-const expectedSoldOut = Math.max(targetVus - 100, 0)
+const expectedHolds = Math.min(targetVus, fixture.capacity)
+const expectedSoldOut = Math.max(targetVus - fixture.capacity, 0)
 
 export const options = {
   scenarios: {
