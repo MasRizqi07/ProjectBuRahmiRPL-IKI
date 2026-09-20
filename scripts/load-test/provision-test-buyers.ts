@@ -24,10 +24,11 @@ async function sleep(ms: number): Promise<void> {
 
 // Load env variables if not in process.env
 function loadEnv() {
+  const root = findRepoRoot()
   const envFiles = [
-    path.resolve(process.cwd(), '.env.local'),
-    path.resolve(process.cwd(), 'apps/web/.env.local'),
-    path.resolve(process.cwd(), '.env'),
+    path.resolve(root, '.env.local'),
+    path.resolve(root, 'apps/web/.env.local'),
+    path.resolve(root, '.env'),
   ]
 
   for (const file of envFiles) {
@@ -39,7 +40,8 @@ function loadEnv() {
         const eqIdx = trimmed.indexOf('=')
         if (eqIdx > 0) {
           const key = trimmed.slice(0, eqIdx).trim()
-          const val = trimmed.slice(eqIdx + 1).trim()
+          let val = trimmed.slice(eqIdx + 1).trim()
+          val = val.replace(/^["'](.*)["']$/, '$1')
           if (!process.env[key] && val) {
             process.env[key] = val
           }
@@ -91,7 +93,9 @@ async function run() {
   const outFile = path.isAbsolute(rawOut) ? rawOut : path.resolve(repoRoot, rawOut)
   const verifyAdmission = hasFlag('verify-admission')
   const baseUrl = getArg('base-url', process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')!
-  const eventId = getArg('event-id', process.env.EVENT_ID)
+  const fixturePath = path.resolve(repoRoot, 'scripts/load-test/fixture-env.json')
+  const fixture = fs.existsSync(fixturePath) ? JSON.parse(fs.readFileSync(fixturePath, 'utf-8')) : null
+  const eventId = getArg('event-id', process.env.EVENT_ID || fixture?.eventId)
 
   console.log(`====================================================`)
   console.log(`WAR TICKET — Test Buyer Provisioning Harness`)
@@ -291,7 +295,7 @@ async function run() {
 
   // Dry run verification if requested
   if (verifyAdmission && eventId) {
-    const tierId = getArg('tier-id', process.env.TIER_ID)
+    const tierId = getArg('tier-id', process.env.TIER_ID || fixture?.tierId)
     console.log(`\n--- Running Dry-Run Queue Admission & Reserve Smoke Test (Sample: 3 buyers) ---`)
     console.log(`Target: Event ${eventId}${tierId ? ` | Tier ${tierId}` : ''}`)
     const sampleBuyers = buyers.slice(0, 3)

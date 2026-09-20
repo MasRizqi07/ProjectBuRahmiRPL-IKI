@@ -29,8 +29,8 @@ function loadEnv() {
         if (!trimmed || trimmed.startsWith('#')) continue
         const eqIdx = trimmed.indexOf('=')
         if (eqIdx > 0) {
-          const key = trimmed.slice(0, eqIdx).trim()
-          const val = trimmed.slice(eqIdx + 1).trim()
+          let val = trimmed.slice(eqIdx + 1).trim()
+          val = val.replace(/^["'](.*)["']$/, '$1')
           if (!process.env[key] && val) {
             process.env[key] = val
           }
