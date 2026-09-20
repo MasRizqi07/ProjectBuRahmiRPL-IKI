@@ -213,45 +213,139 @@ async function runGate3(baseUrl: string, fixture: FixtureData, buyers: BuyerCook
   }
 }
 
-async function runGate4(baseUrl: string) {
+async function runGate4(baseUrl: string, fixture: FixtureEnv | null, buyers: string[]) {
   console.log('\n============================================================')
   console.log('📌 GATE 4: Midtrans Notification Signature Proof (Forged vs Valid)')
   console.log('============================================================')
 
   const serverKey = process.env.MIDTRANS_SERVER_KEY || 'dummy-server-key-for-gate4-test'
   const merchantId = process.env.MIDTRANS_MERCHANT_ID || 'G123456789'
-  const testOrderId = `test-order-${Date.now()}`
+  const dummyOrderId = crypto.randomUUID()
   const grossAmount = '350000.00'
   const statusCode = '200'
 
-  // Valid SHA512 signature: SHA512(order_id + status_code + gross_amount + ServerKey)
-  const validSignature = crypto
-    .createHash('sha512')
-    .update(`${testOrderId}${statusCode}${grossAmount}${serverKey}`)
-    .digest('hex')
-
+  console.log('\n--- Test 4A: Forged Signature Rejection Proof ---')
   const forgedSignature = '0'.repeat(128)
+  const forgedPayload = {
+    order_id: 'WT-EDGE-FORGED00000000000000000000',
+    transaction_id: `tx-forged-${Date.now()}`,
+    status_code: statusCode,
+    gross_amount: grossAmount,
+    signature_key: forgedSignature,
+    transaction_status: 'settlement',
+    merchant_id: merchantId,
+  }
 
-  console.log('Submitting forged signature notification...')
-  const forgedRes = await fetch(`${baseUrl}/api/v1/payments/midtrans/webhook`, {
+  console.log(`Submitting schema-valid payload with forged signature to /api/orders/${dummyOrderId}/confirm-payment...`)
+  const forgedRes = await fetch(`${baseUrl}/api/orders/${dummyOrderId}/confirm-payment`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      order_id: testOrderId,
-      status_code: statusCode,
-      gross_amount: grossAmount,
-      signature_key: forgedSignature,
-      transaction_status: 'settlement',
-      merchant_id: merchantId,
-    }),
+    body: JSON.stringify(forgedPayload),
   })
   const forgedBody = await forgedRes.text()
-  console.log(`  Forged webhook status: ${forgedRes.status} (Expected: 401 or 403) | Body: ${forgedBody}`)
+  console.log(`  Response Status: ${forgedRes.status} (Expected: 401 UNAUTHORIZED)`)
+  console.log(`  Response Body:   ${forgedBody}`)
 
-  const forgedRejected = forgedRes.status === 401 || forgedRes.status === 403 || forgedRes.status === 400 || forgedRes.status === 404
+  const forgedRejected = forgedRes.status === 401 && forgedBody.includes('UNAUTHORIZED')
+  if (forgedRejected) {
+    console.log('  ✅ Subtest 4A PASSED: Forged signature specifically rejected with HTTP 401 UNAUTHORIZED.')
+  } else {
+    console.log('  ❌ Subtest 4A FAILED: Expected strict 401 UNAUTHORIZED.')
+  }
 
-  console.log(`\nGate 4 Result: ${forgedRejected ? '✅ PASSED: Forged signature was rejected.' : '❌ FAILED'}`)
-  return forgedRejected
+  console.log('\n--- Test 4B: Valid Signature Acceptance Proof ---')
+  if (!fixture || buyers.length === 0) {
+    console.log('  ⚠️ Cannot run 4B: Seeded fixture and provisioned buyers required.')
+    return forgedRejected
+  }
+
+  // 1. Create an active hold for buyer 0
+  const buyerCookie = buyers[0].cookieString
+  const buyerHeaders = {
+    Cookie: buyerCookie,
+    Origin: baseUrl,
+    'Content-Type': 'application/json',
+  }
+  // Join queue
+  await fetch(`${baseUrl}/api/events/${fixture.eventId}/join-queue`, {
+    method: 'POST',
+    headers: buyerHeaders,
+  })
+  // Poll queue status to trigger admission
+  await fetch(`${baseUrl}/api/events/${fixture.eventId}/queue-status`, {
+    headers: buyerHeaders,
+  })
+  // Reserve
+  const idempotencyKey = `gate4-verify-${Date.now()}`
+  const reserveRes = await fetch(`${baseUrl}/api/events/${fixture.eventId}/reserve`, {
+    method: 'POST',
+    headers: { ...buyerHeaders, 'Idempotency-Key': idempotencyKey },
+    body: JSON.stringify({ tierId: fixture.tierId, qty: 1 }),
+  })
+  const reserveBody = await reserveRes.text()
+  let reserveJson: any
+  try {
+    reserveJson = JSON.parse(reserveBody)
+  } catch {
+    console.log(`  ❌ Subtest 4B FAILED: Could not create test hold. Body: ${reserveBody}`)
+    return false
+  }
+
+  if (reserveRes.status !== 201 || !reserveJson.orderId) {
+    console.log(`  ❌ Subtest 4B FAILED: Reservation failed with status ${reserveRes.status}: ${reserveBody}`)
+    return false
+  }
+
+  const realOrderId = reserveJson.orderId
+  const realProviderOrderId = reserveJson.providerOrderId
+  const realAmount = Number(reserveJson.total).toFixed(2)
+  console.log(`  Hold created: Order ID ${realOrderId} (${realProviderOrderId}), Amount: ${realAmount}`)
+
+  // Compute exact valid SHA-512 signature: SHA512(order_id + status_code + gross_amount + server_key)
+  const validSignature = crypto
+    .createHash('sha512')
+    .update(`${realProviderOrderId}${statusCode}${realAmount}${serverKey}`)
+    .digest('hex')
+
+  const validPayload = {
+    order_id: realProviderOrderId,
+    transaction_id: `tx-valid-${Date.now()}`,
+    status_code: statusCode,
+    gross_amount: realAmount,
+    signature_key: validSignature,
+    transaction_status: 'settlement',
+    merchant_id: merchantId,
+  }
+
+  console.log(`Submitting valid signature notification to /api/orders/${realOrderId}/confirm-payment...`)
+  const validRes = await fetch(`${baseUrl}/api/orders/${realOrderId}/confirm-payment`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(validPayload),
+  })
+  const validBody = await validRes.text()
+  console.log(`  Response Status: ${validRes.status} (Expected: 200 OK)`)
+  console.log(`  Response Body:   ${validBody}`)
+
+  let validJson: any
+  try {
+    validJson = JSON.parse(validBody)
+  } catch {
+    validJson = {}
+  }
+
+  const validAccepted = validRes.status === 200 && validJson.accepted === true && validJson.orderStatus === 'PAID'
+  if (validAccepted) {
+    console.log('  ✅ Subtest 4B PASSED: Valid signature accepted with HTTP 200 and orderStatus: PAID.')
+  } else {
+    console.log('  ❌ Subtest 4B FAILED: Expected HTTP 200 and orderStatus: PAID.')
+  }
+
+  const gate4Passed = forgedRejected && validAccepted
+  console.log(`\n============================================================`)
+  console.log(`Gate 4 Result: ${gate4Passed ? '✅ PASSED: Both forged rejection (401) and valid acceptance (200) verified.' : '❌ FAILED'}`)
+  console.log(`============================================================\n`)
+  return gate4Passed
 }
 
 async function runGate5(baseUrl: string) {
@@ -301,7 +395,7 @@ async function main() {
   }
 
   if (gateArg === '4' || gateArg === 'all') {
-    await runGate4(baseUrl)
+    await runGate4(baseUrl, fixture, buyers)
   }
 
   if (gateArg === '5' || gateArg === 'all') {

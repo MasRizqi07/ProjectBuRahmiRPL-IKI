@@ -58,38 +58,47 @@ interface EdgeOrderRow {
   readonly hold_expires_at: Date
 }
 
+export interface EdgeOrderCache {
+  get(key: string): Promise<any>
+  set(key: string, value: any, options?: any): Promise<any>
+}
+
 export class EdgeCheckoutRepository {
   constructor(
-    private readonly sql: DatabaseClient,
-    private readonly supabaseFallback?: any
+    private readonly sql?: DatabaseClient,
+    private readonly supabaseFallback?: any,
+    private readonly redisCache?: EdgeOrderCache,
   ) {}
 
   async getEventAvailability(eventId: string): Promise<number> {
-    try {
-      const rows = await this.sql<{ available: number; tier_count: number }[]>`
-        select coalesce(sum(greatest(capacity - sold, 0)), 0)::integer as available,
-               count(*)::integer as tier_count
-        from public.ticket_tiers
-        where concert_id = ${eventId}
-      `
-      const row = rows[0]
-      if (row === undefined || row.tier_count === 0) {
-        throw new DomainError('NOT_FOUND', 'Event inventory was not found')
-      }
-      return row.available
-    } catch (err: any) {
-      if (err instanceof DomainError) throw err
-      if (this.supabaseFallback) {
-        const { data, error } = await this.supabaseFallback
-          .from('ticket_tiers')
-          .select('capacity, sold')
-          .eq('concert_id', eventId)
-        if (!error && data && data.length > 0) {
-          return data.reduce((acc: number, t: any) => acc + Math.max(t.capacity - t.sold, 0), 0)
+    if (this.sql) {
+      try {
+        const rows = await this.sql<{ available: number; tier_count: number }[]>`
+          select coalesce(sum(greatest(capacity - sold, 0)), 0)::integer as available,
+                 count(*)::integer as tier_count
+          from public.ticket_tiers
+          where concert_id = ${eventId}
+        `
+        const row = rows[0]
+        if (row === undefined || row.tier_count === 0) {
+          throw new DomainError('NOT_FOUND', 'Event inventory was not found')
         }
+        return row.available
+      } catch (err: any) {
+        if (err instanceof DomainError) throw err
+        if (!this.supabaseFallback) throw err
       }
-      throw err
     }
+    if (this.supabaseFallback) {
+      const { data, error } = await this.supabaseFallback
+        .from('ticket_tiers')
+        .select('capacity, sold')
+        .eq('concert_id', eventId)
+      if (!error && data && data.length > 0) {
+        return data.reduce((acc: number, t: any) => acc + Math.max(t.capacity - t.sold, 0), 0)
+      }
+    }
+    throw new DomainError('NOT_FOUND', 'Event inventory was not found')
   }
 
   async getTierQuote(input: {
@@ -97,74 +106,132 @@ export class EdgeCheckoutRepository {
     tierId?: string
     quantity: number
   }): Promise<EdgeTierQuote> {
-    try {
-      const rows = await this.sql<{
-        id: string
-        name: string
-        price: number
-        available: number
-      }[]>`
-        select id, name, price, greatest(capacity - sold, 0)::integer as available
-        from public.ticket_tiers
-        where concert_id = ${input.eventId}
-          and (${input.tierId ?? null}::uuid is null or id = ${input.tierId ?? null})
-        order by sort_order, id
-        limit 2
-      `
-      if (rows.length === 0) throw new DomainError('NOT_FOUND', 'Ticket tier was not found')
-      if (input.tierId === undefined && rows.length !== 1) {
-        throw new DomainError('VALIDATION_ERROR', 'tierId is required when an event has multiple tiers')
-      }
-      const tier = rows[0]
-      if (tier === undefined) throw new DomainError('NOT_FOUND', 'Ticket tier was not found')
-      const amount = tier.price * input.quantity
-      if (!Number.isSafeInteger(amount)) {
-        throw new DomainError('VALIDATION_ERROR', 'Order amount exceeds the safe integer range')
-      }
-      return {
-        tierId: tier.id,
-        tierName: tier.name,
-        unitPrice: tier.price,
-        quantity: input.quantity,
-        amount,
-        available: tier.available,
-      }
-    } catch (err: any) {
-      if (err instanceof DomainError) throw err
-      if (this.supabaseFallback) {
-        let query = this.supabaseFallback
-          .from('ticket_tiers')
-          .select('id, name, price, capacity, sold, sort_order')
-          .eq('concert_id', input.eventId)
-        if (input.tierId) {
-          query = query.eq('id', input.tierId)
+    if (this.sql) {
+      try {
+        const rows = await this.sql<{
+          id: string
+          name: string
+          price: number
+          available: number
+          match_count: number
+        }[]>`
+          with matched as (
+            select id, name, price, greatest(capacity - sold, 0)::integer as available
+            from public.ticket_tiers
+            where concert_id = ${input.eventId}
+              and (${input.tierId ?? null}::uuid is null or id = ${input.tierId ?? null}::uuid)
+            order by sort_order
+            limit 2
+          )
+          select id, name, price, available, (select count(*)::integer from matched) as match_count
+          from matched
+          limit 1
+        `
+        const tier = rows[0]
+        if (tier === undefined) {
+          throw new DomainError('NOT_FOUND', 'Ticket tier was not found')
         }
-        const { data, error } = await query.order('sort_order').limit(2)
-        if (!error && data && data.length > 0) {
-          if (input.tierId === undefined && data.length !== 1) {
-            throw new DomainError('VALIDATION_ERROR', 'tierId is required when an event has multiple tiers')
-          }
-          const tier = data[0]
-          const available = Math.max(tier.capacity - tier.sold, 0)
-          const amount = tier.price * input.quantity
-          if (!Number.isSafeInteger(amount)) {
-            throw new DomainError('VALIDATION_ERROR', 'Order amount exceeds the safe integer range')
-          }
-          return {
-            tierId: tier.id,
-            tierName: tier.name,
-            unitPrice: tier.price,
-            quantity: input.quantity,
-            amount,
-            available,
-          }
+        if (input.tierId === undefined && tier.match_count !== 1) {
+          throw new DomainError('VALIDATION_ERROR', 'tierId is required when an event has multiple tiers')
         }
+        const amount = tier.price * input.quantity
+        if (!Number.isSafeInteger(amount)) {
+          throw new DomainError('VALIDATION_ERROR', 'Order amount exceeds the safe integer range')
+        }
+        return {
+          tierId: tier.id,
+          tierName: tier.name,
+          unitPrice: tier.price,
+          quantity: input.quantity,
+          amount,
+          available: tier.available,
+        }
+      } catch (err: any) {
+        if (err instanceof DomainError) throw err
+        if (!this.supabaseFallback) throw err
       }
-      throw err
     }
+    if (this.supabaseFallback) {
+      let query = this.supabaseFallback
+        .from('ticket_tiers')
+        .select('id, name, price, capacity, sold, sort_order')
+        .eq('concert_id', input.eventId)
+      if (input.tierId) {
+        query = query.eq('id', input.tierId)
+      }
+      const { data, error } = await query.order('sort_order').limit(2)
+      if (!error && data && data.length > 0) {
+        if (input.tierId === undefined && data.length !== 1) {
+          throw new DomainError('VALIDATION_ERROR', 'tierId is required when an event has multiple tiers')
+        }
+        const tier = data[0]
+        const available = Math.max(tier.capacity - tier.sold, 0)
+        const amount = tier.price * input.quantity
+        if (!Number.isSafeInteger(amount)) {
+          throw new DomainError('VALIDATION_ERROR', 'Order amount exceeds the safe integer range')
+        }
+        return {
+          tierId: tier.id,
+          tierName: tier.name,
+          unitPrice: tier.price,
+          quantity: input.quantity,
+          amount,
+          available,
+        }
+      }
+    }
+    throw new DomainError('NOT_FOUND', 'Ticket tier was not found')
   }
 
   async upsertHoldOrder(order: EdgeHoldOrder): Promise<void> {
+    if (this.redisCache) {
+      await this.redisCache.set(
+        `edge:order:${order.id}`,
+        JSON.stringify({
+          orderId: order.id,
+          userId: order.userId,
+          eventId: order.eventId,
+          tierId: order.tierId,
+          providerOrderId: order.providerOrderId,
+          quantity: order.quantity,
+          unitPrice: order.unitPrice,
+          amount: order.amount,
+          status: 'HELD',
+          holdExpiresAt: order.holdExpiresAt.toISOString(),
+        }),
+        { ex: 86400 }
+      )
+    }
+
+    if (!this.sql) {
+      if (this.supabaseFallback) {
+        const { error } = await this.supabaseFallback.schema('ticketing').from('edge_orders').upsert({
+          id: order.id,
+          user_id: order.userId,
+          event_id: order.eventId,
+          tier_id: order.tierId,
+          idempotency_key: order.idempotencyKey,
+          request_hash: order.requestHash,
+          provider_order_id: order.providerOrderId,
+          quantity: order.quantity,
+          unit_price: order.unitPrice,
+          amount: order.amount,
+          hold_expires_at: order.holdExpiresAt.toISOString(),
+        })
+        if (!error) return
+        if (!this.redisCache) {
+          throw new Error(
+            `[EdgeCheckoutRepository] Edge order persistence failed: DATABASE_URL is not configured and Supabase fallback failed (${error.message})`
+          )
+        }
+      } else if (!this.redisCache) {
+        throw new Error(
+          '[EdgeCheckoutRepository] DATABASE_URL is not configured. Direct PostgreSQL connection is required for ticketing.edge_orders persistence.'
+        )
+      }
+      return
+    }
+
     try {
       await this.sql.begin(async (transaction) => {
         await transaction`
@@ -203,72 +270,122 @@ export class EdgeCheckoutRepository {
     } catch (err: any) {
       if (err instanceof DomainError) throw err
       if (this.supabaseFallback) {
-        try {
-          await this.supabaseFallback.schema('ticketing').from('edge_orders').upsert({
-            id: order.id,
-            user_id: order.userId,
-            event_id: order.eventId,
-            tier_id: order.tierId,
-            idempotency_key: order.idempotencyKey,
-            request_hash: order.requestHash,
-            provider_order_id: order.providerOrderId,
-            quantity: order.quantity,
-            unit_price: order.unitPrice,
-            amount: order.amount,
-            hold_expires_at: order.holdExpiresAt.toISOString(),
-          })
-          return
-        } catch {
-          // ignore fallback schema error
+        const { error } = await this.supabaseFallback.schema('ticketing').from('edge_orders').upsert({
+          id: order.id,
+          user_id: order.userId,
+          event_id: order.eventId,
+          tier_id: order.tierId,
+          idempotency_key: order.idempotencyKey,
+          request_hash: order.requestHash,
+          provider_order_id: order.providerOrderId,
+          quantity: order.quantity,
+          unit_price: order.unitPrice,
+          amount: order.amount,
+          hold_expires_at: order.holdExpiresAt.toISOString(),
+        })
+        if (!error) return
+        if (!this.redisCache) {
+          throw new Error(
+            `[EdgeCheckoutRepository] Edge order persistence failed on primary SQL (${err.message}) and Supabase fallback (${error.message})`
+          )
         }
+      } else if (!this.redisCache) {
+        throw new Error(`[EdgeCheckoutRepository] Failed to persist edge order to PostgreSQL: ${err.message}`)
       }
-      console.warn('[EdgeCheckoutRepository] Async SQL sync failed (Redis hold remains authoritative):', err.message)
     }
   }
 
   async getPaymentContext(orderId: string): Promise<EdgePaymentContext> {
-    const rows = await this.sql<EdgeOrderRow[]>`
-      select id, user_id, event_id, tier_id, idempotency_key, request_hash,
-             provider_order_id, quantity, unit_price, amount, status, hold_expires_at
-      from ticketing.edge_orders
-      where id = ${orderId}
-    `
-    const row = rows[0]
-    if (row === undefined) throw new DomainError('NOT_FOUND', 'Edge order was not found')
-    return {
-      orderId: row.id,
-      userId: row.user_id,
-      eventId: row.event_id,
-      tierId: row.tier_id,
-      providerOrderId: row.provider_order_id,
-      quantity: row.quantity,
-      amount: row.amount,
-      status: row.status,
+    if (this.sql) {
+      try {
+        const rows = await this.sql<EdgeOrderRow[]>`
+          select id, user_id, event_id, tier_id, idempotency_key, request_hash,
+                 provider_order_id, quantity, unit_price, amount, status, hold_expires_at
+          from ticketing.edge_orders
+          where id = ${orderId}
+        `
+        const row = rows[0]
+        if (row !== undefined) {
+          return {
+            orderId: row.id,
+            userId: row.user_id,
+            eventId: row.event_id,
+            tierId: row.tier_id,
+            providerOrderId: row.provider_order_id,
+            quantity: row.quantity,
+            amount: row.amount,
+            status: row.status,
+          }
+        }
+      } catch (err: any) {
+        if (!this.redisCache) throw err
+      }
     }
+
+    if (this.redisCache) {
+      const raw = await this.redisCache.get(`edge:order:${orderId}`)
+      if (raw) {
+        const row = typeof raw === 'string' ? JSON.parse(raw) : raw
+        return {
+          orderId: row.orderId,
+          userId: row.userId,
+          eventId: row.eventId,
+          tierId: row.tierId,
+          providerOrderId: row.providerOrderId,
+          quantity: row.quantity,
+          amount: row.amount,
+          status: row.status,
+        }
+      }
+    }
+
+    throw new DomainError('NOT_FOUND', 'Edge order was not found')
   }
 
   async recordNotification(
     orderId: string,
     notification: MidtransNotification,
   ): Promise<boolean> {
-    const providerEventKey = [
-      notification.transaction_id,
-      notification.transaction_status,
-      notification.status_code,
-    ].join(':')
-    const rows = await this.sql<{ id: string }[]>`
-      insert into ticketing.edge_payment_inbox (
-        order_id, provider_event_key, payload
-      ) values (
-        ${orderId}, ${providerEventKey}, ${JSON.stringify(notification)}::jsonb
+    if (this.redisCache) {
+      await this.redisCache.set(
+        `edge:inbox:${notification.transaction_id}`,
+        JSON.stringify(notification),
+        { ex: 86400 }
       )
-      on conflict (provider_event_key) do nothing
-      returning id
-    `
-    return rows.length === 1
+    }
+
+    if (this.sql) {
+      const providerEventKey = [
+        notification.transaction_id,
+        notification.transaction_status,
+        notification.status_code,
+      ].join(':')
+      const rows = await this.sql<{ id: string }[]>`
+        insert into ticketing.edge_payment_inbox (
+          order_id, provider_event_key, payload
+        ) values (
+          ${orderId}, ${providerEventKey}, ${JSON.stringify(notification)}::jsonb
+        )
+        on conflict (provider_event_key) do nothing
+        returning id
+      `
+      return rows.length === 1
+    }
+
+    return true
   }
 
   async markPaid(context: EdgePaymentContext, transactionId: string): Promise<EdgeOrderStatus> {
+    if (this.redisCache) {
+      await this.redisCache.set(
+        `edge:order:${context.orderId}`,
+        JSON.stringify({ ...context, status: 'PAID', providerTransactionId: transactionId }),
+        { ex: 86400 }
+      )
+    }
+
+    if (!this.sql) return 'PAID'
+
     return this.sql.begin(async (transaction) => {
       const rows = await transaction<{ status: EdgeOrderStatus }[]>`
         select status from ticketing.edge_orders where id = ${context.orderId} for update
@@ -314,39 +431,89 @@ export class EdgeCheckoutRepository {
   }
 
   async markFailed(orderId: string, transactionId: string): Promise<void> {
-    await this.sql`
-      update ticketing.edge_orders
-      set status = 'FAILED', provider_transaction_id = ${transactionId}, updated_at = now()
-      where id = ${orderId} and status = 'HELD'
-    `
+    if (this.redisCache) {
+      const raw = await this.redisCache.get(`edge:order:${orderId}`)
+      if (raw) {
+        const order = typeof raw === 'string' ? JSON.parse(raw) : raw
+        await this.redisCache.set(
+          `edge:order:${orderId}`,
+          JSON.stringify({ ...order, status: 'FAILED', providerTransactionId: transactionId }),
+          { ex: 86400 }
+        )
+      }
+    }
+    if (this.sql) {
+      await this.sql`
+        update ticketing.edge_orders
+        set status = 'FAILED', provider_transaction_id = ${transactionId}, updated_at = now()
+        where id = ${orderId} and status = 'HELD'
+      `
+    }
   }
 
   async markReviewRequired(orderId: string, transactionId: string): Promise<void> {
-    await this.sql`
-      update ticketing.edge_orders
-      set status = 'PAYMENT_REVIEW_REQUIRED',
-          provider_transaction_id = ${transactionId}, updated_at = now()
-      where id = ${orderId} and status <> 'PAID'
-    `
+    if (this.redisCache) {
+      const raw = await this.redisCache.get(`edge:order:${orderId}`)
+      if (raw) {
+        const order = typeof raw === 'string' ? JSON.parse(raw) : raw
+        await this.redisCache.set(
+          `edge:order:${orderId}`,
+          JSON.stringify({ ...order, status: 'PAYMENT_REVIEW_REQUIRED', providerTransactionId: transactionId }),
+          { ex: 86400 }
+        )
+      }
+    }
+    if (this.sql) {
+      await this.sql`
+        update ticketing.edge_orders
+        set status = 'PAYMENT_REVIEW_REQUIRED',
+            provider_transaction_id = ${transactionId}, updated_at = now()
+        where id = ${orderId} and status <> 'PAID'
+      `
+    }
   }
 
   async markExpired(orderIds: readonly string[]): Promise<void> {
     if (orderIds.length === 0) return
-    await this.sql`
-      update ticketing.edge_orders set status = 'EXPIRED', updated_at = now()
-      where id in ${this.sql(orderIds)} and status = 'HELD'
-    `
+    if (this.redisCache) {
+      for (const id of orderIds) {
+        const raw = await this.redisCache.get(`edge:order:${id}`)
+        if (raw) {
+          const order = typeof raw === 'string' ? JSON.parse(raw) : raw
+          await this.redisCache.set(
+            `edge:order:${id}`,
+            JSON.stringify({ ...order, status: 'EXPIRED' }),
+            { ex: 86400 }
+          )
+        }
+      }
+    }
+    if (this.sql) {
+      await this.sql`
+        update ticketing.edge_orders set status = 'EXPIRED', updated_at = now()
+        where id in ${this.sql(orderIds)} and status = 'HELD'
+      `
+    }
   }
 
   async markNotificationProcessed(orderId: string, notification: MidtransNotification): Promise<void> {
-    const providerEventKey = [
-      notification.transaction_id,
-      notification.transaction_status,
-      notification.status_code,
-    ].join(':')
-    await this.sql`
-      update ticketing.edge_payment_inbox set processed_at = now()
-      where order_id = ${orderId} and provider_event_key = ${providerEventKey}
-    `
+    if (this.redisCache) {
+      await this.redisCache.set(
+        `edge:inbox:${notification.transaction_id}:processed`,
+        JSON.stringify({ processedAt: new Date().toISOString() }),
+        { ex: 86400 }
+      )
+    }
+    if (this.sql) {
+      const providerEventKey = [
+        notification.transaction_id,
+        notification.transaction_status,
+        notification.status_code,
+      ].join(':')
+      await this.sql`
+        update ticketing.edge_payment_inbox set processed_at = now()
+        where order_id = ${orderId} and provider_event_key = ${providerEventKey}
+      `
+    }
   }
 }

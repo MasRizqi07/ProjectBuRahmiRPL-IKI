@@ -121,6 +121,27 @@ async function run() {
     fs.mkdirSync(outDir, { recursive: true })
   }
 
+  // Load existing buyers from disk if available
+  const existingBuyers = new Map<number, ProvisionResult>()
+  const mapFile = outFile.replace(/\.json$/, '-users.json')
+  if (fs.existsSync(outFile) && fs.existsSync(mapFile)) {
+    try {
+      const existingCookies = JSON.parse(fs.readFileSync(outFile, 'utf-8')) as string[]
+      const existingUsers = JSON.parse(fs.readFileSync(mapFile, 'utf-8')) as Array<{ index: number; email: string; userId: string }>
+      for (let i = 0; i < existingUsers.length; i++) {
+        if (existingCookies[i] && existingUsers[i]) {
+          existingBuyers.set(existingUsers[i].index, {
+            index: existingUsers[i].index,
+            email: existingUsers[i].email,
+            userId: existingUsers[i].userId,
+            cookieString: existingCookies[i],
+          })
+        }
+      }
+      console.log(`[Cache] Loaded ${existingBuyers.size} existing provisioned buyers from disk.`)
+    } catch {}
+  }
+
   const buyers: ProvisionResult[] = []
   const startTime = Date.now()
 
@@ -130,72 +151,92 @@ async function run() {
 
     const batchIndices = Array.from({ length: batchEnd - batchStart + 1 }, (_, i) => batchStart + i)
 
-    const batchResults = await Promise.all(
-      batchIndices.map(async (idx) => {
-        const email = `${prefix}-${String(idx).padStart(5, '0')}@warticket.test`
+    for (const idx of batchIndices) {
+      if (existingBuyers.has(idx)) {
+        buyers.push(existingBuyers.get(idx)!)
+        continue
+      }
 
-        // 1. Create or ensure user exists with confirmed email
-        let userId = ''
-        let retries = 0
-        while (retries < 5) {
-          try {
-            const { data, error } = await adminClient.auth.admin.createUser({
-              email,
-              password,
-              email_confirm: true,
-            })
+      const email = `${prefix}-${String(idx).padStart(5, '0')}@warticket.test`
 
-            if (error) {
-              const msg = error.message.toLowerCase()
-              if (msg.includes('already') || msg.includes('exists') || msg.includes('duplicate')) {
-                // User already exists, will capture userId during sign-in
-                break
-              }
+      // 1. Create or ensure user exists with confirmed email
+      let userId = ''
+      let retries = 0
+      while (retries < 5) {
+        try {
+          const { data, error } = await adminClient.auth.admin.createUser({
+            email,
+            password,
+            email_confirm: true,
+          })
 
-              // Rate limited (429) or transient error
-              const waitMs = Math.min(1000 * Math.pow(2, retries) + Math.random() * 500, 10000)
-              console.warn(`[WARN] Create user ${email} failed: ${error.message}. Retrying in ${waitMs}ms...`)
-              await sleep(waitMs)
-              retries++
-              continue
-            }
-
-            if (data?.user) {
-              userId = data.user.id
+          if (error) {
+            const msg = error.message.toLowerCase()
+            if (msg.includes('already') || msg.includes('exists') || msg.includes('duplicate')) {
               break
             }
-          } catch (err) {
             const waitMs = Math.min(1000 * Math.pow(2, retries) + Math.random() * 500, 10000)
-            console.warn(`[WARN] Exception creating user ${email}: ${(err as Error).message}. Retrying in ${waitMs}ms...`)
+            console.warn(`[WARN] Create user ${email} failed: ${error.message}. Retrying in ${waitMs}ms...`)
             await sleep(waitMs)
             retries++
+            continue
           }
+
+          if (data?.user) {
+            userId = data.user.id
+            break
+          }
+        } catch (err) {
+          const waitMs = Math.min(1000 * Math.pow(2, retries) + Math.random() * 500, 10000)
+          console.warn(`[WARN] Exception creating user ${email}: ${(err as Error).message}. Retrying in ${waitMs}ms...`)
+          await sleep(waitMs)
+          retries++
         }
+      }
 
-        // 2. Sign in with password and capture @supabase/ssr formatted cookies
-        let cookieString = ''
-        retries = 0
-        while (retries < 5) {
-          try {
-            const cookieStore = new Map<string, string>()
-            const ssrClient = createServerClient(supabaseUrl, supabaseAnonKey, {
-              cookies: {
-                getAll() {
-                  return Array.from(cookieStore.entries()).map(([name, value]) => ({ name, value }))
-                },
-                setAll(cookiesToSet) {
-                  for (const { name, value } of cookiesToSet) {
-                    cookieStore.set(name, value)
-                  }
-                },
+      // 2. Generate session and capture @supabase/ssr formatted cookies
+      let cookieString = ''
+      retries = 0
+      while (retries < 5) {
+        try {
+          const cookieStore = new Map<string, string>()
+          const ssrClient = createServerClient(supabaseUrl, supabaseAnonKey, {
+            cookies: {
+              getAll() {
+                return Array.from(cookieStore.entries()).map(([name, value]) => ({ name, value }))
               },
-            })
+              setAll(cookiesToSet) {
+                for (const { name, value } of cookiesToSet) {
+                  cookieStore.set(name, value)
+                }
+              },
+            },
+          })
 
+          let session: any = null
+          try {
+            const linkRes = await adminClient.auth.admin.generateLink({
+              type: 'magiclink',
+              email,
+            })
+            if (linkRes.data?.properties?.hashed_token) {
+              const otpRes = await ssrClient.auth.verifyOtp({
+                token_hash: linkRes.data.properties.hashed_token,
+                type: 'magiclink',
+              })
+              if (otpRes.data?.session) {
+                session = otpRes.data.session
+              }
+            }
+          } catch {
+            // Fallback below
+          }
+
+          if (!session) {
             const { data, error } = await ssrClient.auth.signInWithPassword({
               email,
               password,
             })
-
             if (error) {
               const waitMs = Math.min(1000 * Math.pow(2, retries) + Math.random() * 500, 10000)
               console.warn(`[WARN] Sign-in for ${email} failed: ${error.message}. Retrying in ${waitMs}ms...`)
@@ -203,41 +244,51 @@ async function run() {
               retries++
               continue
             }
-
-            if (data?.session) {
-              userId = data.session.user.id
-              cookieString = Array.from(cookieStore.entries())
-                .map(([k, v]) => `${k}=${v}`)
-                .join('; ')
-              break
-            }
-          } catch (err) {
-            const waitMs = Math.min(1000 * Math.pow(2, retries) + Math.random() * 500, 10000)
-            console.warn(`[WARN] Exception signing in ${email}: ${(err as Error).message}. Retrying in ${waitMs}ms...`)
-            await sleep(waitMs)
-            retries++
+            session = data?.session
           }
-        }
 
-        if (!cookieString || !userId) {
-          throw new Error(`Failed to capture session cookies and userId for user ${email}`)
+          if (session) {
+            userId = session.user.id
+            cookieString = Array.from(cookieStore.entries())
+              .map(([k, v]) => `${k}=${v}`)
+              .join('; ')
+            break
+          }
+        } catch (err) {
+          const waitMs = Math.min(1000 * Math.pow(2, retries) + Math.random() * 500, 10000)
+          console.warn(`[WARN] Exception signing in ${email}: ${(err as Error).message}. Retrying in ${waitMs}ms...`)
+          await sleep(waitMs)
+          retries++
         }
+      }
 
-        return {
-          index: idx,
-          email,
-          userId,
-          cookieString,
-        }
+      if (!cookieString || !userId) {
+        throw new Error(`Failed to capture session cookies and userId for user ${email}`)
+      }
+
+      buyers.push({
+        index: idx,
+        email,
+        userId,
+        cookieString,
       })
-    )
 
-    buyers.push(...batchResults)
-
-    // Optional short delay between batches to respect Auth rate limits
-    if (batchEnd < count) {
-      await sleep(200)
+      // Short delay between individual buyer authentications to avoid rate limits
+      await sleep(250)
     }
+
+    // Incremental checkpoint save
+    const cookiesArray = buyers.map((b) => b.cookieString)
+    fs.writeFileSync(outFile, JSON.stringify(cookiesArray, null, 2), 'utf-8')
+    fs.writeFileSync(
+      mapFile,
+      JSON.stringify(
+        buyers.map((b) => ({ index: b.index, email: b.email, userId: b.userId })),
+        null,
+        2
+      ),
+      'utf-8'
+    )
   }
 
   const durationSec = ((Date.now() - startTime) / 1000).toFixed(2)
@@ -249,7 +300,6 @@ async function run() {
   console.log(`[Output] Wrote ${cookiesArray.length} cookie strings to ${outFile}`)
 
   // Also save a mapping file for reference/teardown
-  const mapFile = outFile.replace(/\.json$/, '-users.json')
   fs.writeFileSync(
     mapFile,
     JSON.stringify(

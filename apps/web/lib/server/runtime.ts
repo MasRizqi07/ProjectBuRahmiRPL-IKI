@@ -40,7 +40,14 @@ export function config(): WebConfig {
 }
 
 export function database(): DatabaseClient {
-  state.database ??= createDatabaseClient(config().DATABASE_URL)
+  const dbUrl = config().DATABASE_URL
+  if (!dbUrl) {
+    throw new Error(
+      'DATABASE_URL is not configured. Direct PostgreSQL connection is required. ' +
+      'Please configure DATABASE_URL in .env.local with your Supabase PostgreSQL connection string.'
+    )
+  }
+  state.database ??= createDatabaseClient(dbUrl)
   return state.database
 }
 
@@ -93,7 +100,8 @@ export function edgeCheckoutRepository(): EdgeCheckoutRepository {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   const fallback = url && key ? createSupabaseClient(url, key) : undefined
-  return new EdgeCheckoutRepository(database(), fallback)
+  const dbClient = config().DATABASE_URL ? database() : undefined
+  return new EdgeCheckoutRepository(dbClient, fallback, edgeRedis())
 }
 
 export function serverlessCheckoutService(): ServerlessCheckoutService {

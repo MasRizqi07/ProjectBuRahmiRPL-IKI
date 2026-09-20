@@ -20,12 +20,13 @@ export async function POST(request: Request, context: RouteContext): Promise<Res
     const orderId = uuidSchema.parse((await context.params).orderId)
     const notification = await parseJson(request, midtransNotificationSchema)
     const environment = parseEdgePaymentEnvironment(process.env)
-    const repository = edgeCheckoutRepository()
-    const order = await repository.getPaymentContext(orderId)
 
     if (!verifyMidtransSignature(notification, environment.MIDTRANS_SERVER_KEY)) {
       throw new DomainError('UNAUTHORIZED', 'Payment notification signature is invalid')
     }
+
+    const repository = edgeCheckoutRepository()
+    const order = await repository.getPaymentContext(orderId)
     if (notification.order_id !== order.providerOrderId) {
       throw new DomainError('VALIDATION_ERROR', 'Payment provider order does not match the route')
     }

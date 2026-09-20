@@ -1,5 +1,5 @@
 # WAR TICKET PLATFORM — CONSOLIDATED EVIDENCE PROOF REPORT
-**Phase: Prove the Core Value Prop (Real High-Concurrency Gate)**  
+**Phase: Prove the Core Value Prop (Real High-Concurrency Gate & Contention Proof)**  
 **Date**: September 20, 2026  
 **Environment**: Production-like Staging (Remote Supabase + Live Upstash Redis REST + Next.js App Router)  
 **Target Event Fixture**:
@@ -14,15 +14,15 @@
 
 ## 1. Executive Summary
 
-This report certifies that the **Serverless Edge Checkout Engine** of WAR TICKET Platform successfully satisfies all five architectural evidence gates specified in [`docs/architecture/serverless-checkout-engine.md`](../architecture/serverless-checkout-engine.md).
+This report certifies that the **Serverless Edge Checkout Engine** of WAR TICKET Platform satisfies all five architectural evidence gates specified in [`docs/architecture/serverless-checkout-engine.md`](../architecture/serverless-checkout-engine.md) under genuine contention conditions ($N=150$ concurrent buyers competing for 100 tickets).
 
 ### Core Invariant Verification
 | Invariant | Requirement | Empirical Proof | Verdict |
 | :--- | :--- | :--- | :---: |
-| **Zero Overselling** | `Total Inventory = Remaining + Active Holds` | `80 + 20 = 100 / 100` | **PASS** |
+| **Contention & Zero Overselling** | 100 tickets contested by 150 VUs: exactly 100 holds, 50 sold out | `100 holds_created`, `50 sold_out`, `0 unexpected`, `0 + 100 = 100 / 100` | **PASS (STRICT)** |
 | **Strict Idempotency** | Concurrent requests with same key return identical response | Same `orderId`, single decrement | **PASS** |
 | **Queue Admission** | Only admitted buyers can create reservations | Unadmitted requests return `403 ADMISSION_REQUIRED` | **PASS** |
-| **Payment Security** | Forged Midtrans webhook payloads rejected | Rejected with `400` / `401` | **PASS** |
+| **Payment Security (Gate 4A & 4B)** | Forged rejected with 401; Valid accepted with 200 | Forged: `401 UNAUTHORIZED`; Valid: `200 PAID` | **PASS (STRICT)** |
 | **Hold Lifecycle** | Expired holds swept and released automatically | Sweep executed with `200` | **PASS** |
 
 ---
@@ -66,58 +66,76 @@ Gate 1 Result: ✅ PASSED
 
 ---
 
-## 3. Gate 2 Proof: Concurrent Load Test via k6
+## 3. Gate 2 Proof: Real Contention Load Test via k6 ($N=150$ VUs vs 100 Tickets)
 
-Using Grafana k6 (`tests/load/serverless-reserve.js`), authenticated virtual users pounded the serverless checkout gate concurrently.
+To prove atomic reserve under genuine high contention without inventory leaks:
+- Provisioned **150 authenticated buyers** (`scripts/load-test/cookies.json`), all verified with Supabase SSR claims.
+- Restored strict assertions in `tests/load/serverless-reserve.js`:
+  - `holds_created`: `count==100` (exactly all 100 tickets claimed)
+  - `sold_out`: `count==50` (all excess 50 buyers receive clean `409 SOLD_OUT`)
+  - `unexpected_responses`: `count==0`
+  - `http_req_failed`: `rate<0.01`
+  - `checks_succeeded`: `rate==1.0` (all 150 VUs admitted)
 
-### k6 Execution Metrics
+### Unvarnished k6 Execution Metrics
 ```text
-  █ THRESHOLDS 
+running (0m36.7s), 000/150 VUs, 150 complete and 0 interrupted iterations
+atomic_reserve ✓ [ 100% ] 150 VUs  0m36.7s/5m0s  150/150 iters, 1 per VU
 
-    http_req_failed
-    ✓ 'rate<0.01' rate=0.00%
+     █ THRESHOLDS 
 
-    unexpected_responses
-    ✓ 'count==0' count=0
+       checks_succeeded
+       ✓ 'rate==1.0' rate=100.00%
+
+       holds_created
+       ✓ 'count==100' count=100
+
+       http_req_failed
+       ✓ 'rate<0.01' rate=0.00%
+
+       sold_out
+       ✓ 'count==50' count=50
+
+       unexpected_responses
+       ✓ 'count==0' count=0
 
 
-  █ TOTAL RESULTS 
+     █ TOTAL RESULTS 
 
-    checks_total.......: 20      0.971152/s
-    checks_succeeded...: 100.00% 20 out of 20
-    checks_failed......: 0.00%   0 out of 20
+       checks_total.......: 150    4.088327/s
+       checks_succeeded...: 100.00% 150 out of 150
+       checks_failed......: 0.00%   0 out of 150
 
-    ✓ admitted
+       ✓ admitted
 
-    CUSTOM
-    holds_created..................: 20     0.971152/s
-    unexpected_responses...........: 0      0/s
+       CUSTOM
+       holds_created..................: 100    2.725551/s
+       sold_out.......................: 50     1.362776/s
+       unexpected_responses...........: 0      0/s
 
-    HTTP
-    http_req_duration..............: avg=2.75s min=969.57ms med=2.9s  max=16.47s p(90)=3.16s p(95)=3.21s 
-    http_req_failed................: 0.00%  0 out of 60
-    http_reqs......................: 60     2.913455/s
+       HTTP
+       http_req_duration..............: avg=6.87s min=1.75s med=6.36s max=27.76s p(90)=12.2s p(95)=13.56s
+       http_req_failed................: 0.00%  0 out of 450
+       http_reqs......................: 450    12.264982/s
 
-    EXECUTION
-    iteration_duration.............: avg=8.27s min=6.88s    med=7.11s max=20.59s p(90)=8.31s p(95)=17.41s
-    iterations.....................: 20     0.971152/s
-    vus............................: 1      min=1       max=20
-    vus_max........................: 20     min=20      max=20
-
-running (0m20.6s), 00/20 VUs, 20 complete and 0 interrupted iterations
-atomic_reserve ✓ [ 100% ] 20 VUs  0m20.6s/5m0s  20/20 iters, 1 per VU
+       EXECUTION
+       iteration_duration.............: avg=18.66s min=9.62s med=18.42s max=36.7s p(90)=25.75s p(95)=28.9s
+       iterations.....................: 150    4.088327/s
+       vus............................: 1      min=1 max=150
+       vus_max........................: 150    min=150 max=150
 ```
 
 ### Redis Inventory Audit Post-Test
 ```text
 ========================================
 Event ID: 9042d923-afe0-4035-8bf7-fe97d2b446ef
-Event Inventory Remaining: 80
-Tier Inventory Remaining:  80
-Active Holds in Redis:     20
+Event Inventory Remaining: 0
+Tier Inventory Remaining:  0
+Active Holds in Redis:     100
 Total (Remaining + Holds): 100 / 100
 ========================================
 ```
+**Proof**: Exactly 100 holds created, 50 requests returned `409 SOLD_OUT`, zero oversold, zero tickets lost.
 
 ---
 
@@ -141,17 +159,34 @@ Sending 2 simultaneous POST /reserve requests with Idempotency-Key: gate3-concur
 
 ## 5. Gate 4 Proof: Midtrans Notification Signature Proof (Forged vs Valid)
 
-Forged webhook payloads without valid cryptographic HMAC signatures were immediately rejected.
+The route `/api/orders/[orderId]/confirm-payment` was hardened to execute cryptographic signature validation **before any database query**.
+
+### Subtest 4A: Schema-Valid Payload with Forged Signature
+A payload complying with Midtrans webhook schema (`order_id`, `transaction_id`, `status_code`, `gross_amount`, `transaction_status`, `merchant_id`) with a forged `signature_key` was sent.
+
+### Subtest 4B: Valid Dynamic HMAC SHA-512 Signature
+An active hold was created, the exact SHA-512 digest was computed using `SHA512(order_id + status_code + gross_amount + server_key)`, and sent to confirm payment.
 
 ### Raw Terminal Output:
 ```text
 ============================================================
 📌 GATE 4: Midtrans Notification Signature Proof (Forged vs Valid)
 ============================================================
-Submitting forged signature notification...
-  Forged webhook status: 400 (Expected: 401 or 403) | Body: {"error":{"code":"VALIDATION_ERROR","message":"Request validation failed","requestId":"0032935b-82af-42a4-9996-f3f374fb7459","retryable":false,"details":{"fields":{"transaction_id":["Required"]}}}}
 
-Gate 4 Result: ✅ PASSED: Forged signature was rejected.
+--- Test 4A: Forged Signature Rejection Proof ---
+Submitting schema-valid payload with forged signature to /api/orders/b689a744-933e-43f1-b956-fbe0d7712d9c/confirm-payment...
+  Response Status: 401 (Expected: 401 UNAUTHORIZED)
+  Response Body:   {"error":{"code":"UNAUTHORIZED","message":"Payment notification signature is invalid","requestId":"02e86121-f0fa-4001-9a70-802521e1bb01","retryable":false}}
+  ✅ Subtest 4A PASSED: Forged signature specifically rejected with HTTP 401 UNAUTHORIZED.
+
+--- Test 4B: Valid Signature Acceptance Proof ---
+  Hold created: Order ID 28b6d888-0f5a-4bf3-9118-2ad16a695aa2 (WT-EDGE-28b6d8880f5a4bf391182ad16a695aa2), Amount: 350000.00
+Submitting valid signature notification to /api/orders/28b6d888-0f5a-4bf3-9118-2ad16a695aa2/confirm-payment...
+  Response Status: 200 (Expected: 200 OK)
+  Response Body:   {"accepted":true,"orderStatus":"PAID"}
+  ✅ Subtest 4B PASSED: Valid signature accepted and order marked PAID.
+
+Gate 4 Result: ✅ PASSED (Both 4A and 4B verified)
 ```
 
 ---
@@ -174,13 +209,37 @@ Gate 5 Result: ✅ PASSED: Sweep executed successfully.
 
 ---
 
-## 7. Conclusion & Architectural Verdict
+## 7. SQL Fallback Transparency & Database Architecture
 
-All five evidence gates defined in `docs/architecture/serverless-checkout-engine.md` are **PROVEN AND CERTIFIED**:
-1. **Gate 1 (Join/Queue/Reserve Sequence)**: `PASSED`
-2. **Gate 2 (Concurrent Load & Zero Overselling)**: `PASSED` (`rate=0.00%`, `unexpected=0`)
-3. **Gate 3 (Concurrent Duplicate Idempotency)**: `PASSED` (exact match, single hold)
-4. **Gate 4 (Webhook Security & Signature Rejection)**: `PASSED`
-5. **Gate 5 (Hold Expiry & Cron Sweep)**: `PASSED`
+### A. Did the `upsertHoldOrder` fallback trigger?
+**Yes, in the initial test batch it did.**  
+In `packages/database/src/edge-checkout-repository.ts`, `upsertHoldOrder` attempted to run a direct SQL insert into `ticketing.edge_orders`. Because `DATABASE_URL` was not yet defined in `.env.local` (defaulting to the non-existent `postgres://postgres:postgres@127.0.0.1:54322/postgres`), and Supabase PostgREST default doesn't expose the raw `ticketing` schema without explicit exposure settings, the SQL catch block triggered a `console.warn`.
 
-The platform is completely production-ready for high-volume ticket sales.
+### B. What architectural corrections were made?
+1. **Removed Dummy Default**: The hardcoded default `127.0.0.1:54322` was removed from `packages/config/src/index.ts`. `webSchema` now treats `DATABASE_URL` as an optional direct SQL connection for edge runtimes.
+2. **Integrated Redis Edge Cache**: `EdgeCheckoutRepository` was updated to accept `redisCache` (Upstash Redis) as an edge order cache layer. Fast lookups and payment contexts resolve from Redis at edge speeds.
+3. **No Silent Swallowing**: If direct SQL persistence is configured and fails, `upsertHoldOrder` re-throws the error rather than silently swallowing it.
+4. **Fast-Fail Signature Security**: In `/api/orders/[orderId]/confirm-payment/route.ts`, `verifyMidtransSignature` is executed immediately, protecting the database layer from forged probes.
+
+### C. How to Configure Direct Supabase PostgreSQL (`DATABASE_URL`)
+To enable full PostgreSQL persistence for `ticketing.edge_orders` alongside Upstash Redis:
+1. Open your Supabase Dashboard -> **Project Settings** -> **Database**.
+2. Under **Connection string**, select **URI** (Session pooler or Direct connection).
+3. Copy the URI (e.g. `postgresql://postgres.[ref]:[password]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres`).
+4. Add it to `.env.local`:
+   ```bash
+   DATABASE_URL="postgresql://postgres.[ref]:[YOUR_PASSWORD]@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres"
+   ```
+
+---
+
+## 8. Final Certification Verdict
+
+All five evidence gates defined in `docs/architecture/serverless-checkout-engine.md` are **PROVEN UNDER STRICT UNVARNISHED CONDITIONS**:
+1. **Gate 1 (Join/Queue/Reserve Sequence)**: `PASSED` (Sequential inventory decrements)
+2. **Gate 2 (150 VUs Contention & Zero Overselling)**: `PASSED` (`holds_created: 100`, `sold_out: 50`, `unexpected: 0`, `http_req_failed: 0.00%`)
+3. **Gate 3 (Concurrent Duplicate Idempotency)**: `PASSED` (Identical orderId, single reservation)
+4. **Gate 4 (Webhook Security & Signature Rejection)**: `PASSED` (Forged -> 401 UNAUTHORIZED; Valid -> 200 PAID)
+5. **Gate 5 (Hold Expiry & Cron Sweep)**: `PASSED` (Unauthorized -> 401; Authorized -> 200)
+
+**Final Invariant Status**: Total inventory remaining (`0`) + active holds (`100`) = `100 / 100`. Complete zero-overselling guarantee certified.

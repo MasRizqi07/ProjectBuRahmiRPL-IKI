@@ -1,5 +1,5 @@
 import http from 'k6/http'
-import { check, fail } from 'k6'
+import { check, fail, sleep } from 'k6'
 import { Counter } from 'k6/metrics'
 
 const baseUrl = __ENV.BASE_URL ?? 'http://localhost:3000'
@@ -30,6 +30,9 @@ const holdsCreated = new Counter('holds_created')
 const soldOut = new Counter('sold_out')
 const unexpected = new Counter('unexpected_responses')
 
+const expectedHolds = Math.min(targetVus, 100)
+const expectedSoldOut = Math.max(targetVus - 100, 0)
+
 export const options = {
   scenarios: {
     atomic_reserve: {
@@ -40,6 +43,8 @@ export const options = {
     },
   },
   thresholds: {
+    holds_created: [`count==${expectedHolds}`],
+    sold_out: [`count==${expectedSoldOut}`],
     unexpected_responses: ['count==0'],
     http_req_failed: ['rate<0.01'],
   },
@@ -68,7 +73,15 @@ function requestParams() {
 export default function () {
   const params = requestParams()
   http.post(`${baseUrl}/api/events/${eventId}/join-queue`, null, params)
-  const status = http.get(`${baseUrl}/api/events/${eventId}/queue-status`, params)
+  let status = http.get(`${baseUrl}/api/events/${eventId}/queue-status`, params)
+  let state = status.json('state')
+  let attempts = 0
+  while (state === 'WAITING' && attempts < 10) {
+    sleep(0.3)
+    status = http.get(`${baseUrl}/api/events/${eventId}/queue-status`, params)
+    state = status.json('state')
+    attempts++
+  }
   if (!check(status, { admitted: (response) => response.status === 200 && response.json('state') === 'ADMITTED' })) {
     unexpected.add(1)
     return
