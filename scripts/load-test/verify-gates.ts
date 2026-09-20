@@ -75,16 +75,14 @@ interface BuyerCookie {
 
 function loadBuyerCookies(): BuyerCookie[] {
   const repoRoot = findRepoRoot()
-  const p = path.resolve(repoRoot, 'scripts/load-test/cookies-users.json')
-  if (fs.existsSync(p)) {
-    return JSON.parse(fs.readFileSync(p, 'utf-8'))
-  }
   const simpleCookiesPath = path.resolve(repoRoot, 'scripts/load-test/cookies.json')
   if (fs.existsSync(simpleCookiesPath)) {
     const rawList: string[] = JSON.parse(fs.readFileSync(simpleCookiesPath, 'utf-8'))
+    const usersPath = path.resolve(repoRoot, 'scripts/load-test/cookies-users.json')
+    const users = fs.existsSync(usersPath) ? JSON.parse(fs.readFileSync(usersPath, 'utf-8')) : []
     return rawList.map((cookieString, index) => ({
       index: index + 1,
-      userId: `user-${index + 1}`,
+      userId: users[index]?.userId ?? `user-${index + 1}`,
       cookieString,
     }))
   }
