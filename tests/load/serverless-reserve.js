@@ -40,6 +40,9 @@ if (!Number.isSafeInteger(fixture.capacity) || fixture.capacity <= 0) {
   fail('scripts/load-test/fixture-env.json must contain a positive integer capacity')
 }
 if (!Number.isSafeInteger(targetVus) || targetVus <= 0) fail('VUS must be a positive integer')
+if (targetVus < fixture.capacity) {
+  fail(`VUS=${targetVus} must be at least the fixture capacity of ${fixture.capacity}`)
+}
 if (authCookies.length < targetVus) {
   fail(`VUS=${targetVus} requires at least ${targetVus} authenticated cookies; loaded ${authCookies.length}`)
 }
@@ -58,8 +61,8 @@ const holdsCreated = new Counter('holds_created')
 const soldOut = new Counter('sold_out')
 const unexpected = new Counter('unexpected_responses')
 
-const expectedHolds = Math.min(targetVus, fixture.capacity)
-const expectedSoldOut = Math.max(targetVus - fixture.capacity, 0)
+const expectedHolds = fixture.capacity
+const expectedSoldOut = targetVus - fixture.capacity
 
 export const options = {
   scenarios: {
