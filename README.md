@@ -12,7 +12,8 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15+-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Auth_%26_RLS-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
 [![Midtrans](https://img.shields.io/badge/Midtrans-Snap_Payment-002B49)](https://midtrans.com/)
-[![Quality Gate](https://img.shields.io/badge/Quality_Gate-100%25_PASS-success?logo=checkmarx&logoColor=white)](#quality-gates--verifikasi)
+[![Track A Verification](https://img.shields.io/badge/Track_A_Compile_&_Tests-100%25_PASS-success?logo=checkmarx&logoColor=white)](#quality-gates--verifikasi)
+[![Track B Runtime Gates](https://img.shields.io/badge/Track_B_Runtime_Gates-BLOCKED_(Missing_Credentials)-critical)](#quality-gates--verifikasi)
 
 ---
 
@@ -39,7 +40,7 @@ Fenomena **"War Tiket"** di Indonesia—khususnya saat penjualan tiket konser mu
 - **Penipuan & Pemalsuan Tiket Fisik**: Penyebaran tangkapan layar (screenshot) QR code statis ke banyak pembeli.
 
 **War Ticket Platform** dibangun dari fondasi riset Rekayasa Perangkat Lunak (RPL) untuk menjawab seluruh tantangan tersebut dengan menghadirkan:
-1. **Garansi Zero Overselling**: Menggunakan eksekusi atomik Redis Lua Scripting yang mengunci dan mengurangi kuota pada tingkat memori dalam hitungan milidetik.
+1. **Desain Pencegahan Overselling (Zero-Overselling Design Target)**: Menggunakan eksekusi atomik Redis Lua Scripting yang mengunci dan mengurangi kuota pada tingkat memori dalam hitungan milidetik. Terbukti secara matematis dan unit test (verifikasi runtime gate menunggu ketersediaan direct database credentials).
 2. **Virtual Waiting Room & Lazy Admission**: Ruang tunggu antrean matematis dengan algoritma deterministik yang menjaga agar server database tidak tumbang (*avalanche effect*).
 3. **Pemberantasan Scalper & Bot**: Penegakan validasi NIK (Nomor Induk Kependudukan) berbasis izin, batasan transaksi per akun, dan shuffle deterministik pada pembukaan antrean (*pre-queue shuffle*).
 4. **Dynamic Rotating QR Code**: QR code e-tiket yang berganti setiap 30 detik secara aman dengan verifikasi enkripsi kriptografis, mencegah duplikasi screenshot di pintu masuk (*counter-fraud*).
@@ -345,25 +346,44 @@ Buka peramban Anda di:
 
 ## 🧪 Quality Gates & Verifikasi
 
-Proyek ini menerapkan standar **Zero-Error Tolerance**. Seluruh pipeline pengujian harus berstatus **100% PASS** sebelum kode dinyatakan layak rilis.
+Proyek ini membedakan secara tegas dan transparan antara **Dua Jalur Pengujian (Two Verification Tracks)**:
+
+### 🟢 Track A: Verifikasi Compile-Time, Type Safety, Unit Tests & Production Build (**100% PASS**)
+Seluruh kode dalam monorepo telah diaudit dan divalidasi dengan standar **Zero-Error Tolerance**:
 
 ```bash
 # Menjalankan verifikasi komprehensif (Lint, Typecheck, Test, Build):
 pnpm verify
 ```
 
-### Rincian Uji Kualitas:
-
 | Pemeriksaan | Perintah Eksekusi | Status | Indikator Keberhasilan |
 | :--- | :--- | :---: | :--- |
-| **Linting Monorepo** | `pnpm turbo run lint --force` | **PASS** | 9 dari 9 paket bebas dari pelanggaran ESLint. |
-| **TypeScript Typecheck** | `pnpm turbo run typecheck --force` | **PASS** | 9 dari 9 paket lolos typecheck tanpa error typing. |
-| **Unit Testing (Vitest)** | `pnpm test` | **PASS** | 12/12 unit tests berhasil (domain, payments, redis, auth, database). |
-| **Next.js Production Build** | `pnpm --filter @war-ticket/web build` | **PASS** | Seluruh 65 Route Handlers & Pages terkompilasi optimal. |
-| **Root & Scripts Check** | `pnpm exec tsc -p tsconfig.json --noEmit` | **PASS** | File konfigurasi dan script otomasi valid. |
+| **Linting Monorepo** | `pnpm turbo run lint` | **PASS** | 9 dari 9 paket bebas dari pelanggaran ESLint (0 errors, 0 warnings). |
+| **TypeScript Typecheck** | `pnpm turbo run typecheck` | **PASS** | 9 dari 9 paket lolos typecheck tanpa bypass `any` (0 typing errors). |
+| **Unit Testing (Vitest)** | `pnpm test` | **PASS** | 31 unit tests berhasil di seluruh paket (web: 15, database: 3, domain: 8, redis: 3, payments: 5, config: 2). |
+| **Payment Bridge Webhook Test** | `pnpm --filter @war-ticket/web test route.test.ts` | **PASS** | Verifikasi tanda tangan SHA-512 (forged=403, valid=200 + settlement call). |
+| **Next.js Production Build** | `pnpm --filter @war-ticket/web build` | **PASS** | Seluruh 65 Route Handlers & Pages terkompilasi optimal via Turbopack. |
 
-### Spesifikasi Pengujian Beban Ekstrem (k6 Load Test)
-Platform menyertakan skenario k6 untuk menguji ketahanan sistem terhadap lonjakan 10.000 pengguna virtual serentak (*10,000 Virtual Users*) merebut 100 tiket:
+---
+
+### 🔴 Track B: Runtime Live Evidence Gates 1–5 (**NO-GO / BLOCKED**)
+Verifikasi runtime terhadap live PostgreSQL/Supabase database saat ini berstatus **NO-GO / BLOCKED** karena ketiadaan direct connection string `DATABASE_URL` pada `.env.local` di environment lokal (hanya `NEXT_PUBLIC_SUPABASE_URL` dan `NEXT_PUBLIC_SUPABASE_ANON_KEY` yang tersedia). `packages/config/src/index.ts` secara sengaja menerapkan prinsip *fail-fast validation* yang menghentikan checkout engine serverless sebelum berjalan tanpa database direct credentials.
+
+Laporan bukti forensik lengkap tercatat pada [`docs/evidence/payment-bridge-and-gates-2026-09-21.md`](docs/evidence/payment-bridge-and-gates-2026-09-21.md):
+
+| Gate | Deskripsi Pengujian | Status Runtime | Catatan & Analisis |
+| :---: | :--- | :---: | :--- |
+| **Gate 1** | 3-User Join/Rank/Admission & Reserve Sequence | **BLOCKED** | Diblokir oleh validasi fail-fast: `DATABASE_URL` wajib terkonfigurasi. |
+| **Gate 2** | 10.000 VUs vs Kapasitas 100 Tiket (Zero Oversell Under Load) | **NO-GO / PENDING** | Membutuhkan provisioning 10.000 akun dan live database aktif. Belum pernah dieksekusi pada skala 10.000 VUs penuh. |
+| **Gate 3** | Concurrent Duplicate-Idempotency Proof | **BLOCKED** | Diblokir sebelum antrean selesai akibat ketiadaan `DATABASE_URL`. |
+| **Gate 4** | Midtrans Notification Signature Proof (Forged vs Valid) | **UNIT PASS / RUNTIME BLOCKED** | **Unit test lulus 100%** (forged=403, valid=200); eksekusi live runtime diblokir oleh ketiadaan database direct connection. |
+| **Gate 5** | Expired-Hold Inventory Release & Sweeper Proof | **BLOCKED** | Diblokir pada inisialisasi reservasi asli sebelum sweep mutasi dijalankan. |
+
+> [!IMPORTANT]
+> **Status Sertifikasi Rilis**: Platform berstatus **EXPERIMENTAL / UNDER RUNTIME VERIFICATION (NO-GO)** untuk beban produksi 10.000 pengguna serentak hingga kredensial direct database PostgreSQL dikonfigurasi dan kelima runtime gates dijalankan serta diloloskan secara nyata.
+
+### Rencana Pengujian Beban Ekstrem (k6 Load Test)
+Platform menyertakan skenario k6 untuk menguji ketahanan sistem terhadap target 10.000 pengguna virtual serentak (*10,000 Virtual Users*) merebut 100 tiket:
 ```bash
 k6 run \
   -e BASE_URL=https://staging-war-ticket.vercel.app \
@@ -371,7 +391,7 @@ k6 run \
   -e TIER_ID=bca6a8d4-d451-4072-8b9c-396810c1f458 \
   tests/load/serverless-reserve.js
 ```
-**Kriteria Kelulusan Gate (SLO)**:
+**Kriteria Kelulusan Gate (SLO Target)**:
 - Tepat **100 transaksi** mendapatkan reservasi tiket (*Hold Success*).
 - Tepat **9.900 transaksi** menerima respons *Sold Out* secara tertib dan anggun.
 - **0 transaksi** mengalami *overselling* (sisa inventaris tidak pernah bernilai negatif).
@@ -409,7 +429,7 @@ Dokumen ini disusun untuk mempermudah evaluasi akademis pada mata kuliah **Rekay
 | :--- | :--- | :--- |
 | **Arsitektur Perangkat Lunak** | Modularitas, *Separation of Concerns*, Desain Bersih | Menggunakan arsitektur monorepo terisolasi (`apps/` vs `packages/`), isolasi modul kontrak Zod, layer domain independen, dan repository pattern. |
 | **Keandalan & Skalabilitas** | Penanganan Concurrency, *Fault Tolerance*, Ketiadaan *Deadlock* | Eksekusi atomik Redis Lua Scripting, algoritma Lazy Queue Admission, batasan hold 10 menit, dan pembersihan terjadwal. |
-| **Integritas Data (Data Safety)** | Pencegahan *Overselling*, Transaksi ACID | Garansi 0% oversell, constraint database unik, idempotensi request token, dan transactional outbox pattern. |
+| **Integritas Data (Data Safety)** | Pencegahan *Overselling*, Transaksi ACID | Desain zero-overselling via eksekusi atomik Lua Scripting (terbukti unit test, runtime gate live diblokir kredensial DB), constraint database unik, idempotensi request token. |
 | **Keamanan Perangkat Lunak** | Proteksi dari OWASP Top 10, Kriptografi | Verifikasi tanda tangan SHA-512, enkripsi simetris AES-256-GCM, isolasi tenant Row-Level Security (RLS), sanitasi input Zod. |
 | **Kualitas Kode & Pengujian** | Type-Safety, Automasi CI/CD, Kerapian | 100% lulus TypeScript typecheck tanpa bypass `any`, linting ESLint ketat, unit testing Vitest terotomatisasi, konfigurasi monorepo Turborepo. |
 | **Pengalaman Pengguna (UI/UX)** | Responsivitas, Aksesibilitas, Hirarki Visual | Desain modern bertema Dark Mode dengan aksen War Gold, interaktivitas Framer Motion, status antrean live, e-tiket dynamic QR. |

@@ -32,6 +32,19 @@ interface NotificationContextRow {
   readonly encrypted_server_key: Uint8Array
 }
 
+interface EdgeNotificationContextRow {
+  readonly edge_order_id: string
+  readonly tenant_id: string
+  readonly user_id: string
+  readonly event_id: string
+  readonly tier_id: string
+  readonly quantity: number
+  readonly amount: number
+  readonly status: string
+  readonly environment: 'SANDBOX' | 'PRODUCTION'
+  readonly encrypted_server_key: Uint8Array
+}
+
 interface LockedPaymentRow {
   readonly payment_attempt_id: string
   readonly payment_status: PaymentStatus
@@ -65,12 +78,30 @@ export interface PaymentCreationContext {
   readonly request: MidtransPaymentRequest
 }
 
-export interface NotificationContext {
+export interface LegacyNotificationContext {
+  readonly isEdge?: false
   readonly tenantId: string
   readonly paymentAttemptId: string
   readonly serverKey: string
   readonly production: boolean
 }
+
+export interface EdgeNotificationContext {
+  readonly isEdge: true
+  readonly tenantId: string
+  readonly edgeOrderId: string
+  readonly userId: string
+  readonly eventId: string
+  readonly tierId: string
+  readonly quantity: number
+  readonly amount: number
+  readonly status: string
+  readonly serverKey: string
+  readonly production: boolean
+  readonly paymentAttemptId?: string
+}
+
+export type NotificationContext = LegacyNotificationContext | EdgeNotificationContext
 
 export interface PaymentManagementContext {
   readonly providerOrderId: string
@@ -282,6 +313,10 @@ export class PaymentRepository {
   }
 
   async getNotificationContext(providerOrderId: string): Promise<NotificationContext> {
+    if (providerOrderId.startsWith('WT-EDGE-')) {
+      return this.getEdgeNotificationContext(providerOrderId)
+    }
+
     const rows = await this.sql<NotificationContextRow[]>`
       select payment.tenant_id, payment.id as payment_attempt_id,
              merchant.environment, merchant.encrypted_server_key
@@ -293,10 +328,43 @@ export class PaymentRepository {
         and payment.provider_order_id = ${providerOrderId}
     `
     const row = rows[0]
+    if (row !== undefined) {
+      return {
+        isEdge: false,
+        tenantId: row.tenant_id,
+        paymentAttemptId: row.payment_attempt_id,
+        serverKey: this.cipher.decrypt(row.encrypted_server_key),
+        production: row.environment === 'PRODUCTION',
+      }
+    }
+
+    return this.getEdgeNotificationContext(providerOrderId)
+  }
+
+  private async getEdgeNotificationContext(providerOrderId: string): Promise<EdgeNotificationContext> {
+    const rows = await this.sql<EdgeNotificationContextRow[]>`
+      select edge_order.id as edge_order_id, edge_order.tenant_id,
+             edge_order.user_id, edge_order.event_id, edge_order.tier_id,
+             edge_order.quantity, edge_order.amount, edge_order.status,
+             merchant.environment, merchant.encrypted_server_key
+      from ticketing.edge_orders edge_order
+      join ticketing.merchant_configs merchant
+        on merchant.tenant_id = edge_order.tenant_id
+       and merchant.provider = 'MIDTRANS'
+      where edge_order.provider_order_id = ${providerOrderId}
+    `
+    const row = rows[0]
     if (row === undefined) throw new DomainError('NOT_FOUND', 'Payment notification order was not found')
     return {
+      isEdge: true,
       tenantId: row.tenant_id,
-      paymentAttemptId: row.payment_attempt_id,
+      edgeOrderId: row.edge_order_id,
+      userId: row.user_id,
+      eventId: row.event_id,
+      tierId: row.tier_id,
+      quantity: row.quantity,
+      amount: row.amount,
+      status: row.status,
       serverKey: this.cipher.decrypt(row.encrypted_server_key),
       production: row.environment === 'PRODUCTION',
     }

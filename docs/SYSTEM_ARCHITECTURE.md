@@ -200,7 +200,7 @@ stateDiagram-v2
 
 ## 5. Analisis Eliminasi Race Condition & Overselling
 
-### Bukti Matematis Garansi Zero Overselling
+### Model Matematis Desain Zero-Overselling
 Pada sistem ticketing War Ticket, relasi kuota dijaga melalui invarian tertutup:
 
 $$I_{\text{remaining}}(t) + \sum_{h \in \mathcal{H}_{\text{active}}} Q_h + Q_{\text{sold}}(t) = C_{\text{total}}$$
@@ -219,7 +219,7 @@ Karena operasi `HINCRBY` pada Redis dieksekusi secara single-threaded, tidak ada
 | :--- | :--- | :--- |
 | **Mekanisme Kunci** | `SELECT ... FOR UPDATE` pada PostgreSQL | Redis Single-Threaded Atomic Lua Script |
 | **Latensi per Reservasi** | 45 ms – 250 ms (disk I/O + network roundtrip) | **1 ms – 5 ms** (in-memory execution) |
-| **Batas Throughput** | ~500 – 1.000 transaksi/detik per instance DB | **15.000+ transaksi/detik** per cluster Redis |
+| **Batas Throughput Target** | ~500 – 1.000 transaksi/detik per instance DB | **15.000+ transaksi/detik** per cluster Redis |
 | **Dampak Traffic Spike** | Database kehabisan connection pool $\to$ crash | Traffic tertahan rapi di antrean in-memory |
 | **Peluang Deadlock** | Tinggi saat banyak transaksi berebut baris | **0% (Tidak ada shared multi-resource lock)** |
 
@@ -239,5 +239,7 @@ Karena operasi `HINCRBY` pada Redis dieksekusi secara single-threaded, tidak ada
 
 ## 7. Kesimpulan & Penilaian Kesiapan Sistem
 
-Arsitektur War Ticket Platform membuktikan bahwa tantangan sistem skala tinggi (*high-concurrency ticketing*) dapat diselesaikan secara elegan dengan memanfaatkan kombinasi **Serverless Edge Computing**, **In-Memory Concurrency Management**, dan **Durable Relational Persistence**. Arsitektur ini telah lulus verifikasi kompilasi, linting, typechecking, dan pengujian unit dengan tingkat kelulusan **100% PASS**.
+Arsitektur War Ticket Platform membuktikan bahwa tantangan sistem skala tinggi (*high-concurrency ticketing*) dapat diselesaikan secara terstruktur dengan memanfaatkan kombinasi **Serverless Edge Computing**, **In-Memory Concurrency Management**, dan **Durable Relational Persistence**. Arsitektur ini telah lulus verifikasi kompilasi, linting, typechecking, dan pengujian unit dengan tingkat kelulusan **Track A: 100% PASS**.
+
+Untuk sertifikasi runtime produksi pada beban 10.000 pengguna serentak (**Track B**), sistem saat ini berstatus **EXPERIMENTAL / UNDER RUNTIME VERIFICATION (NO-GO)** hingga direct PostgreSQL credentials (`DATABASE_URL`) dikonfigurasi dan kelima runtime gates dieksekusi secara nyata (merujuk pada [`docs/evidence/payment-bridge-and-gates-2026-09-21.md`](docs/evidence/payment-bridge-and-gates-2026-09-21.md)).
 
